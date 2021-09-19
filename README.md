@@ -1,4 +1,4 @@
-# AutimaticElectronicPressureRegulator
+# AutomaticElectronicPressureRegulator
 
 This repository contains code for our autimatic electronic pressure regulator system.
 
