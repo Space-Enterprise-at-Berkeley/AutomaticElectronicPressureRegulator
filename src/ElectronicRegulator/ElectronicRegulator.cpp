@@ -83,18 +83,23 @@ void motorDirTest() {
 void ptTest() {
     // print PT reading 6 times, at 0.5s intervals
     Serial.println("Starting PT test...");
-    Serial.print("Low Pressure: \t");
-    for (int i=0; i<6; i++) {
-        Serial.print( String(voltageToPressure(analogRead(LP_PT))) );
-        delay(500);
+    // Serial.print("Low Pressure: \t");
+    // for (int i=0; i<6; i++) {
+    //     Serial.print( String(voltageToPressure(analogRead(LP_PT))) );
+    //     delay(500);
+    // }
+    // Serial.print("\n");
+    // Serial.print("High Pressure: \t");
+    // for (int i=0; i<6; i++) {
+    //     Serial.print( String(voltageToPressure(analogRead(HP_PT))) );
+    //     delay(500);
+    // }
+    // Serial.print("\n");
+
+    while (true) {
+        Serial.println( String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+        delay(100);
     }
-    Serial.print("\n");
-    Serial.print("High Pressure: \t");
-    for (int i=0; i<6; i++) {
-        Serial.print( String(voltageToPressure(analogRead(HP_PT))) );
-        delay(500);
-    }
-    Serial.print("\n");
 }
 
 void potTest() {
@@ -206,7 +211,13 @@ void setup() {
     delay(2000);
     analogWrite(MOTOR1,0);
     analogWrite(MOTOR2,0);
-    motorDirTest();
+    
+    // motorDirTest();
+    ptTest();
+    waitConfirmation();
+    potTest();
+    servoTest();
+
 }
 
 double lastTime = 0;
