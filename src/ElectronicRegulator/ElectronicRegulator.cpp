@@ -10,8 +10,8 @@
 #define MIN_SPD -255
 
 #define POTPIN A0
-#define HP_PT A1
-#define LP_PT A2
+#define HP_PT A2
+#define LP_PT A1
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -63,21 +63,21 @@ void motorDirTest() {
 
     Serial.println("Starting motor/encoder direction test...");
 
-    speed = 50;
+    speed = 250;
     runMotor();
-    while (millis() - startTime < 2000) {}
+    while (millis() - startTime < 3000) {}
     long theta1 = encoder.read();
     String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
     Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
-
     startTime = millis();
-    speed = -50;
+    speed = -speed;
     runMotor();
-    while (millis() - startTime < 2000) {}
+    while (millis() - startTime < 3000) {}
     long theta2 = encoder.read();
     msg = ((theta2-theta1) < 0) ? "\tPASS":"\tFAIL";
     Serial.println("Running motors + direction. t1, t2: " + String(theta1) + "\t" + String(theta2) + msg);
-
+    speed = 0;
+    runMotor();
 }
 
 void ptTest() {
@@ -85,13 +85,13 @@ void ptTest() {
     Serial.println("Starting PT test...");
     // Serial.print("Low Pressure: \t");
     // for (int i=0; i<6; i++) {
-    //     Serial.print( String(voltageToPressure(analogRead(LP_PT))) );
+    //     Serial.print( String(voltageToPressure(analogRead(LP_PT))) + " " );
     //     delay(500);
     // }
     // Serial.print("\n");
     // Serial.print("High Pressure: \t");
     // for (int i=0; i<6; i++) {
-    //     Serial.print( String(voltageToPressure(analogRead(HP_PT))) );
+    //     Serial.print( String(voltageToPressure(analogRead(HP_PT))) + " ");
     //     delay(500);
     // }
     // Serial.print("\n");
@@ -131,7 +131,8 @@ void servoTest() {
     long errorInt=0;
     unsigned long t2;
     unsigned long dt;
-    bool isPrint = false;
+    bool isPrint = true;
+    unsigned long lastPrint = 0;
 
     String inString="";
 
@@ -151,14 +152,15 @@ void servoTest() {
         
         speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
         runMotor();
-        if (isPrint){
-            Serial.println(String(speed)+"\t"+String(angle)+"\t"+String(setPoint));
+        if (isPrint && (millis()-lastPrint > 200)){
+            Serial.println(String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+            lastPrint = millis();
         }
         
         while (Serial.available() > 0) {
             //Read incoming commands
             int inChar = Serial.read();
-            inString += (char)inChar;
+            
             if (inChar == '\n') {
                 if (inString == "fin"){
                     return;
@@ -169,8 +171,11 @@ void servoTest() {
                 } else{
                     setPoint=inString.toInt();
                 }
+                inString = "";
+            } else {
+                inString += (char)inChar;
             }
-            inString = "";
+            
         }
         if (isAngleUpdate) {
             oldPosition = angle;
@@ -200,7 +205,7 @@ int waitConfirmation(){
 
 
 
-double setpoint = 150;
+double setpoint = 50;
 double kP = 10;
 double kI = 0;
 double kD = 0;
@@ -212,11 +217,12 @@ void setup() {
     analogWrite(MOTOR1,0);
     analogWrite(MOTOR2,0);
     
-    // motorDirTest();
-    ptTest();
     waitConfirmation();
-    potTest();
-    servoTest();
+    // motorDirTest();
+    // ptTest();
+    // waitConfirmation();
+    // potTest();
+    // servoTest();
 
 }
 
@@ -237,7 +243,6 @@ double max_i = 50;
 long lastPrint = 0;
 
 void loop() {
-    return;
     motorAngle = encoderToAngle(encoder.read());
     potAngle = readPot();
     HPpsi = voltageToPressure(analogRead(HP_PT));
@@ -292,8 +297,9 @@ void loop() {
     speed=min(max(MIN_SPD,speed),MAX_SPD);
     runMotor();
 
-    if (currentTime - lastPrint > 500) {
-        Serial.println( String(potAngle) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
+    if (currentTime - lastPrint > 100) {
+        // Serial.println( String(potAngle) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
+        Serial.println( String(setpoint) + "\t" + String(LPpsi) ); // "\t" + String(speed) +
     }
 }
 
