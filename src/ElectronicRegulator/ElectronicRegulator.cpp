@@ -206,7 +206,7 @@ int waitConfirmation(){
 
 
 double setpoint = 50;
-double kP = 10;
+double kP = 25;
 double kI = 0;
 double kD = 0;
 
@@ -222,7 +222,7 @@ void setup() {
     // ptTest();
     // waitConfirmation();
     // potTest();
-    // servoTest();
+    servoTest();
 
 }
 
@@ -257,7 +257,7 @@ void loop() {
     p = currentError * kP;
 
     //Anti Integral    
-    dI = (currentError - lastError)*dt*kI;;
+    dI = (currentError - lastError)*dt*kI;
 
     if ((prevI > max_i && dI > 0) || (prevI < -max_i && dI > 0)) {
         dI = 0;
@@ -268,7 +268,11 @@ void loop() {
     d = (currentError-lastError)/dt*kD;
     lastError = currentError;
     speed = p + i + d;
-
+    // if(speed < 0) {
+    //     speed -= 100;
+    // } else if (speed > 0) {
+    //     speed += 100;
+    // }
     
     //Potentiometer control
 
@@ -298,8 +302,9 @@ void loop() {
     runMotor();
 
     if (currentTime - lastPrint > 100) {
-        // Serial.println( String(potAngle) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
-        Serial.println( String(setpoint) + "\t" + String(LPpsi) ); // "\t" + String(speed) +
+        Serial.println( String(currentTime) + "\t"+ String(setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
+        // Serial.println( String(setpoint) + "\t" + String(LPpsi) ); // "\t" + String(speed) +
+        lastPrint = millis();
     }
 }
 
