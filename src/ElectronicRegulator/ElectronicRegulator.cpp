@@ -1,17 +1,17 @@
 #include <Arduino.h>
 #include <Encoder.h>
 
-#define MOTOR1 6
-#define MOTOR2 5
-#define ENC1 2
-#define ENC2 3
+#define MOTOR1 5
+#define MOTOR2 6
+#define ENC1 3
+#define ENC2 2
 
 #define MAX_SPD 255
 #define MIN_SPD -255
 
 #define POTPIN A0
-#define HP_PT A2
-#define LP_PT A1
+#define HP_PT A1
+#define LP_PT A2
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -35,7 +35,8 @@ void runMotor(){
 
 double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
-    return 45.0 + (encoderValue/3200.0)*360*26/48.0;
+    // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
+    return (encoderValue/3200.0)*360*26/48.0;
 }
 
 double voltageToPressure(double voltage) {
@@ -205,8 +206,8 @@ int waitConfirmation(){
 
 
 
-double setpoint = 50;
-double kP = 25;
+double setpoint = 100;
+double kP = 80;
 double kI = 0;
 double kD = 0;
 
@@ -218,11 +219,11 @@ void setup() {
     analogWrite(MOTOR2,0);
     
     waitConfirmation();
-    // motorDirTest();
+    motorDirTest();
     // ptTest();
     // waitConfirmation();
     // potTest();
-    servoTest();
+    // servoTest();
 
 }
 
@@ -242,11 +243,15 @@ double max_i = 50;
 
 long lastPrint = 0;
 
+// Start in closed position, angle should be 0
+
 void loop() {
     motorAngle = encoderToAngle(encoder.read());
     potAngle = readPot();
     HPpsi = voltageToPressure(analogRead(HP_PT));
     LPpsi = voltageToPressure(analogRead(LP_PT));
+    // LPpsi = analogRead(POTPIN)/1024.0*360;
+
 
     currentTime = millis();
     dt = currentTime - lastTime;
@@ -287,21 +292,20 @@ void loop() {
     //     speed = 0;
     // }
 
-    if (motorAngle < 0) {
-        if (speed<0) {
-            speed = 0;
-        }
+    if (motorAngle < 0 && speed < 0) {
+        speed = 100;
     }
-    if (motorAngle > 90) {
-        if (speed>0) {
-            speed = 0;
-        }
-    }
+    if (motorAngle > 90 && speed > 0) {
+        speed = -100;
+    } 
+
+    
+ 
 
     speed=min(max(MIN_SPD,speed),MAX_SPD);
     runMotor();
 
-    if (currentTime - lastPrint > 100) {
+    if (currentTime - lastPrint > 250) {
         Serial.println( String(currentTime) + "\t"+ String(setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
         // Serial.println( String(setpoint) + "\t" + String(LPpsi) ); // "\t" + String(speed) +
         lastPrint = millis();
