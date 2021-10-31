@@ -37,6 +37,9 @@ double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
     // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
     return (encoderValue/3200.0)*360*26/48.0;
+
+    // angleToEncoder:
+    // angle*48
 }
 
 double voltageToPressure(double voltage) {
@@ -97,9 +100,25 @@ void ptTest() {
     // }
     // Serial.print("\n");
 
+    // while (true) {
+    //     Serial.println( String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+    //     delay(100);
+    // }
+
     while (true) {
+        String inString="";
         Serial.println( String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
-        delay(100);
+        while (Serial.available() > 0) {
+            //Read incoming commands
+            int inChar = Serial.read();
+            if (isDigit(inChar)|| inChar=='-') {
+            inString += (char)inChar;
+            }
+            if (inChar == '\n') {
+                return;
+            }
+        }
+        delay(250);
     }
 }
 
@@ -206,10 +225,7 @@ int waitConfirmation(){
 
 
 
-double setpoint = 100;
-double kP = 80;
-double kI = 0;
-double kD = 0;
+
 
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
@@ -227,98 +243,96 @@ void setup() {
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
     encoder.write(0);
 
-    waitConfirmation();
-    motorDirTest();
-    // ptTest();
+    // waitConfirmation();
+    // motorDirTest();
+    ptTest();
     waitConfirmation();
     // potTest();
-    servoTest();
+    // servoTest();
 
 }
 
-double lastTime = 0;
-double currentTime;
-double lastError = 0;
-double currentError;
-double dt = 0;
+long angle;
+bool isAngleUpdate;
+long oldPosition=-999;
+long e=0;
+long oldError=0;
+String inString = "";
 
-double p;
-double i;
-double dI;
-double prevI = 0;
-double d;
+long angle_setpoint=0;
+float kp=11.5;
+float ki=1.5e-6;
+float kd=0.1665e6;
 
-double max_i = 50;
+double pressure_setpoint = 100;
+double kp_outer = 30;
+
+
+long errorInt=0;
+unsigned long t2;
+unsigned long dt;
+double pressure_e;
+
 
 long lastPrint = 0;
 
 // Start in closed position, angle should be 0
 
 void loop() {
-    motorAngle = encoderToAngle(encoder.read());
+
+    angle = encoder.read();
+    motorAngle = encoderToAngle(angle);
     potAngle = readPot();
     HPpsi = voltageToPressure(analogRead(HP_PT));
     LPpsi = voltageToPressure(analogRead(LP_PT));
     // LPpsi = analogRead(POTPIN)/1024.0*360;
 
+    dt=micros()-t2;
+    t2+=dt;
+    isAngleUpdate=(angle!=oldPosition);
+    e=angle-angle_setpoint;
 
-    currentTime = millis();
-    dt = currentTime - lastTime;
-    lastTime = currentTime;
-
-    currentError = setpoint-LPpsi;
-    
-    p = currentError * kP;
-
-    //Anti Integral    
-    dI = (currentError - lastError)*dt*kI;
-
-    if ((prevI > max_i && dI > 0) || (prevI < -max_i && dI > 0)) {
-        dI = 0;
+    //Compute Inner PID Servo loop
+    float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
+    if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
+        errorInt+=e*dt;
+        rawSpd-=ki*errorInt;
     }
-    i = prevI + dI;
-    prevI = i;
+    else{errorInt=0;}
     
-    d = (currentError-lastError)/dt*kD;
-    lastError = currentError;
-    speed = p + i + d;
-    // if(speed < 0) {
-    //     speed -= 100;
-    // } else if (speed > 0) {
-    //     speed += 100;
-    // }
-    
-    //Potentiometer control
-
-    // if (motorAngle > potAngle) {
-    //     speed = -100;
-    // }
-    // else {
-    //     speed = +100;
-    // }
-
-    // if (abs(potAngle-motorAngle)<5) {
-    //     speed = 0;
-    // }
-
-    if (motorAngle < 0 && speed < 0) {
-        speed = 100;
+    if (isAngleUpdate) {
+        oldPosition = angle;
     }
-    if (motorAngle > 90 && speed > 0) {
-        speed = -100;
-    } 
+    oldError=e;
 
-    
- 
+    //Compute Outer Pressure Control Loop
+    pressure_e = pressure_setpoint-LPpsi;
 
-    speed=min(max(MIN_SPD,speed),MAX_SPD);
+    // Constrain angles and speeds
+    angle_setpoint = min(1200, max(0, kp_outer * pressure_e));
+    speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
+
     runMotor();
 
-    if (currentTime - lastPrint > 250) {
-        Serial.println( String(currentTime) + "\t"+ String(setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
+    if (t2 - lastPrint > 50) {
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
         // Serial.println( String(setpoint) + "\t" + String(LPpsi) ); // "\t" + String(speed) +
         lastPrint = millis();
     }
+
+    // while (Serial.available() > 0) {
+    //     //Read incoming commands
+    //     int inChar = Serial.read();
+        
+    //     if (inChar == '\n') {
+    //         angle_setpoint=inString.toInt();
+    //         inString = "";
+    //     } else {
+    //         inString += (char)inChar;
+    //     }
+        
+    // }
+
 }
 
 
