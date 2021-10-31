@@ -213,16 +213,25 @@ double kD = 0;
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
     Serial.begin(115200);
-    delay(2000);
-    analogWrite(MOTOR1,0);
-    analogWrite(MOTOR2,0);
-    
+    delay(500);
+
     waitConfirmation();
-    // motorDirTest();
+    // move to close motors
+    // speed = 200;
+    // runMotor();
+    // delay(1000);
+    // speed = 0;
+    // runMotor();
+
+    // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
+    encoder.write(0);
+
+    waitConfirmation();
+    motorDirTest();
     // ptTest();
-    // waitConfirmation();
+    waitConfirmation();
     // potTest();
-    // servoTest();
+    servoTest();
 
 }
 
