@@ -9,6 +9,9 @@
 #define MAX_SPD 255
 #define MIN_SPD -255
 
+#define MAX_ANGLE 1200
+#define MIN_ANGLE 0
+
 #define POTPIN A0
 #define HP_PT A1
 #define LP_PT A2
@@ -37,9 +40,6 @@ double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
     // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
     return (encoderValue/3200.0)*360*26/48.0;
-
-    // angleToEncoder:
-    // angle*48
 }
 
 double voltageToPressure(double voltage) {
@@ -225,7 +225,35 @@ int waitConfirmation(){
 
 
 
+long angle;
+bool isAngleUpdate;
+long oldPosition=-999;
+long e=0;
+long oldError=0;
+String inString = "";
 
+// Inner loop constants
+float kp=11.5;
+float ki=1.5e-6;
+float kd=0.1665e6;
+long angle_setpoint=0;
+long angle_errorInt=0;
+
+// Constants should be tuned
+// kp = 35
+// ki = 25e-6
+// kd = 2.0e6
+// perhaps run filtering on pressure derivative
+double kp_outer = 40;
+double ki_outer = 30.0e-6;
+double kd_outer = 2.5e6;
+double pressure_setpoint = 100;
+double pressure_e = 0;
+double pressure_e_old = 0;
+double pressure_errorInt = 0;
+
+unsigned long t2;
+unsigned long dt;
 
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
@@ -249,33 +277,10 @@ void setup() {
     waitConfirmation();
     // potTest();
     // servoTest();
-
+    t2 = micros();
 }
 
-long angle;
-bool isAngleUpdate;
-long oldPosition=-999;
-long e=0;
-long oldError=0;
-String inString = "";
-
-long angle_setpoint=0;
-float kp=11.5;
-float ki=1.5e-6;
-float kd=0.1665e6;
-
-double pressure_setpoint = 100;
-double kp_outer = 30;
-
-
-long errorInt=0;
-unsigned long t2;
-unsigned long dt;
-double pressure_e;
-
-
 long lastPrint = 0;
-
 // Start in closed position, angle should be 0
 
 void loop() {
@@ -295,10 +300,10 @@ void loop() {
     //Compute Inner PID Servo loop
     float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
     if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-        errorInt+=e*dt;
-        rawSpd-=ki*errorInt;
+        angle_errorInt+=e*dt;
+        rawSpd-=ki*angle_errorInt;
     }
-    else{errorInt=0;}
+    else{angle_errorInt=0;}
     
     if (isAngleUpdate) {
         oldPosition = angle;
@@ -306,17 +311,22 @@ void loop() {
     oldError=e;
 
     //Compute Outer Pressure Control Loop
-    pressure_e = pressure_setpoint-LPpsi;
+    pressure_e = LPpsi - pressure_setpoint;
+    double rawAngle = -(kp_outer*pressure_e + kd_outer*(pressure_e - pressure_e_old)/float(dt));
+    if(rawAngle<MAX_ANGLE && rawAngle>MIN_ANGLE){
+        pressure_errorInt += pressure_e * dt;
+        rawAngle -= ki_outer * pressure_errorInt;
+    }
+    pressure_e_old = pressure_e;
 
     // Constrain angles and speeds
-    angle_setpoint = min(1200, max(0, kp_outer * pressure_e));
-    speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
+    angle_setpoint = min(MAX_ANGLE, max(MIN_ANGLE, rawAngle));
+    speed = min(max(MIN_SPD,rawSpd),MAX_SPD);
 
     runMotor();
 
     if (t2 - lastPrint > 50) {
-        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) ); // "\t" + String(speed) + ;
-        // Serial.println( String(setpoint) + "\t" + String(LPpsi) ); // "\t" + String(speed) +
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) );
         lastPrint = millis();
     }
 
