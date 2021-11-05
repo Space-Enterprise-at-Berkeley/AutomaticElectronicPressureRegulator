@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <Encoder.h>
+#include <data_buff.h>
 
 #define MOTOR1 5
 #define MOTOR2 6
@@ -8,6 +9,7 @@
 
 #define MAX_SPD 255
 #define MIN_SPD -255
+#define STATIC_SPD 60
 
 #define MAX_ANGLE 1200
 #define MIN_ANGLE 0
@@ -15,6 +17,8 @@
 #define POTPIN A0
 #define HP_PT A1
 #define LP_PT A2
+
+#define BUFF_SIZE 50
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -84,30 +88,62 @@ void motorDirTest() {
     runMotor();
 }
 
+void motorPowerTest() {
+    String inString = "";
+    speed = 0;
+    unsigned long lastPrint = 0;
+    long angle = 0;
+
+    while (true){
+        runMotor();
+
+        if (millis()-lastPrint > 200){
+            angle = encoder.read();
+            Serial.println(String(speed)+"\t"+String(angle));
+            lastPrint = millis();
+        }
+
+        while (Serial.available() > 0) {
+            //Read incoming commands
+            int inChar = Serial.read();
+            
+            if (inChar == '\n') {
+                if (inString == "fin"){
+                    return;
+                }else{
+                    speed = inString.toInt();
+                }
+                inString = "";
+            } else {
+                inString += (char)inChar;
+            }
+            
+        }
+
+    }
+}
+
 void ptTest() {
     // print PT reading 6 times, at 0.5s intervals
     Serial.println("Starting PT test...");
-    // Serial.print("Low Pressure: \t");
-    // for (int i=0; i<6; i++) {
-    //     Serial.print( String(voltageToPressure(analogRead(LP_PT))) + " " );
-    //     delay(500);
-    // }
-    // Serial.print("\n");
-    // Serial.print("High Pressure: \t");
-    // for (int i=0; i<6; i++) {
-    //     Serial.print( String(voltageToPressure(analogRead(HP_PT))) + " ");
-    //     delay(500);
-    // }
-    // Serial.print("\n");
-
-    // while (true) {
-    //     Serial.println( String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
-    //     delay(100);
-    // }
-
+    long lastPrint = 0;
+    Buffer p_buff(50);
+    float old_p = 0;
+    float p = 0;
+    long t = 0;
+    long old_t = 0;
+    int count = 0;
     while (true) {
+        count++;
         String inString="";
-        Serial.println( String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+        p = voltageToPressure(analogRead(LP_PT)); 
+        t = micros();
+        p_buff.insert(double(t)/1.0e6, p);
+        if (millis() - lastPrint > 250) {
+            Serial.println(String(count) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
+            lastPrint = millis();
+            count = 0;
+        }
         while (Serial.available() > 0) {
             //Read incoming commands
             int inChar = Serial.read();
@@ -118,7 +154,8 @@ void ptTest() {
                 return;
             }
         }
-        delay(250);
+        old_p = p;
+        old_t = t;
     }
 }
 
@@ -144,9 +181,13 @@ void servoTest() {
     long oldError=0;
 
     long setPoint=100;
+    // float kp=11.5;
+    // float ki=1.5e-6;
+    // float kd=0.1665e6;
+
     float kp=11.5;
     float ki=1.5e-6;
-    float kd=0.1665e6;
+    float kd=0.21e6;
 
     long errorInt=0;
     unsigned long t2;
@@ -169,7 +210,7 @@ void servoTest() {
             rawSpd-=ki*errorInt;
         }
         else{errorInt=0;}
-        
+        rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
         speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
         runMotor();
         if (isPrint && (millis()-lastPrint > 200)){
@@ -252,12 +293,15 @@ double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
 
+Buffer* p_buff;
+
 unsigned long t2;
 unsigned long dt;
 
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
     Serial.begin(115200);
+    p_buff = new Buffer(BUFF_SIZE);
     delay(500);
 
     waitConfirmation();
@@ -273,10 +317,12 @@ void setup() {
 
     // waitConfirmation();
     // motorDirTest();
-    ptTest();
-    waitConfirmation();
+    // ptTest();
+    // motorPowerTest();
+    // waitConfirmation();
     // potTest();
-    // servoTest();
+    servoTest();
+    exit(0);
     t2 = micros();
 }
 
@@ -290,6 +336,7 @@ void loop() {
     potAngle = readPot();
     HPpsi = voltageToPressure(analogRead(HP_PT));
     LPpsi = voltageToPressure(analogRead(LP_PT));
+    
     // LPpsi = analogRead(POTPIN)/1024.0*360;
 
     dt=micros()-t2;
@@ -312,7 +359,8 @@ void loop() {
 
     //Compute Outer Pressure Control Loop
     pressure_e = LPpsi - pressure_setpoint;
-    double rawAngle = -(kp_outer*pressure_e + kd_outer*(pressure_e - pressure_e_old)/float(dt));
+    p_buff->insert(t2/1.0e6, LPpsi);
+    double rawAngle = -( kp_outer*pressure_e + kd_outer*(p_buff->get_slope()) );
     if(rawAngle<MAX_ANGLE && rawAngle>MIN_ANGLE){
         pressure_errorInt += pressure_e * dt;
         rawAngle -= ki_outer * pressure_errorInt;
@@ -326,7 +374,7 @@ void loop() {
     runMotor();
 
     if (t2 - lastPrint > 50) {
-        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) );
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(p_buff->get_slope()) );
         lastPrint = millis();
     }
 
