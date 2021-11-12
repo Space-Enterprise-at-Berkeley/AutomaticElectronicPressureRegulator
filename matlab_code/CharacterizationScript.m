@@ -40,8 +40,12 @@ for n = 1 : table_length
 end
 
 nexttile
-plot(scaled_time, dM_dt);
-title('Seconds vs Mass Flow Rate Air kg/sec');
+%plot(scaled_time, dM_dt);
+%title('Seconds vs Mass Flow Rate Air kg/sec');
+plot(scaled_time, table.HP)
+hold on
+plot(scaled_time, table.LP)
+title('Seconds vs High Pressure and Low Pressure');
 
 coefficients = polyfit(scaled_time, dM_dt, 1);
 numFitPoints = 1000; % Enough to make the plot look continuous.
@@ -60,7 +64,7 @@ average_value_dM_dt = (scaled_time(end) - scaled_time(1)) * coefficients(1)/2.0+
 fprintf("Average Mass Flow Rate in kg/seconds: %f", average_value_dM_dt);
     
 
-Cv = zeros(table_length, 1);
+Cv_choked = zeros(table_length, 1);
 %If flow is choked:
 for n = 1 : table_length
     hp = table.HP(n);
@@ -76,13 +80,15 @@ for n = 1 : table_length
         rho = AIR_MOLAR_MASS*lp/(R*temperature); %fill out rho
 
         %mass_flow_rate = Cd * A * sqrt(lambda*rho*hp*(2/(lambda+1))^((lambda+1)/(lambda-1)));
-        Cv(n) = dM_dt(n) / (sqrt(lambda*rho*hp*(2/(lambda+1))^((lambda+1)/(lambda-1))));
+        Cv_choked(n) = dM_dt(n) / (sqrt(lambda*rho*hp*(2/(lambda+1))^((lambda+1)/(lambda-1))));
+    else
+        disp("non-choked-flow");
     end
 end
 
 nexttile
-plot(table.Angle, Cv);
-title('Valve Angle vs Cv');
+plot(table.Angle, Cv_choked);
+title('Valve Angle vs Cv_choked');
 
 
 
