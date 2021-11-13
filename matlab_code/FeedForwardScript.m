@@ -1,6 +1,6 @@
 clear
 Constants
-times = linspace(0, 12, 500);
+times = linspace(0, 15, 500);
 high_pressure_tank_ideal_pressures = arrayfun(@CurrentHighPressureCalc, times);
 motor_ideal_angles = arrayfun(@MotorAngleCalc, high_pressure_tank_ideal_pressures);
 

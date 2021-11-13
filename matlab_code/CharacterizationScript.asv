@@ -22,23 +22,20 @@ nexttile
 plot(scaled_time, liquid_mass);
 title('Seconds vs Mass Water in Endo Tank Kg');
 
-air_mass(end+1) = air_mass(end);
-time_scale = scaled_time;
-time_scale(end+1) = time_scale(end);
-
 coefficients = polyfit(time_scale, air_mass, 3);
-numFitPoints = 78; % Enough to make the plot look continuous.
+numFitPoints = 1000; % Enough to make the plot look continuous.
 xFit = linspace(scaled_time(1), scaled_time(end), numFitPoints);
 yFit = polyval(coefficients, xFit);
 
 nexttile
 plot(xFit, yFit, 'r-', 'LineWidth', 2);
-title('Line of best fit for Seconds vs Mass kg');
+title('Line of best fit for Seconds vs Mass Flow Rate Air kg/sec');
 
 
+air_mass(end+1) = air_mass(end);
+time_scale = scaled_time;
+time_scale(end+1) = time_scale(end);
 
-
-air_mass = yFit;
 %dM_dt is mass flow rate in kilograms per second
 dM_dt = zeros(table_length, 1);
 
