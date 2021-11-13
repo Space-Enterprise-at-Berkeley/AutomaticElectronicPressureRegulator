@@ -291,7 +291,7 @@ void servoCharacterization() {
     unsigned long flowStart = millis(); // in millis
     unsigned long flowDuration = 2500;
 
-    unsigned int printFreq = 100; // in millis
+    unsigned int printFreq = 50; // in millis
 
     String inString="";
 
@@ -337,7 +337,7 @@ void servoCharacterization() {
                     isPrint = true;
                     setPoint=inString.toInt();
                     flowStart = millis();
-                    printFreq = 100;
+                    printFreq = 50;
                 }
                 inString = "";
             } else {
@@ -345,6 +345,79 @@ void servoCharacterization() {
             }
             
         }
+        if (isAngleUpdate) {
+            oldPosition = angle;
+            
+        }
+        oldError=e;
+    }
+}
+
+void angleSweep() {
+    
+    long angle;
+    bool isAngleUpdate;
+    long oldPosition=-999;
+    long e=0;
+    long oldError=0;
+
+    long setPoint=0;
+
+    // float kp=11.5;
+    // float ki=1.5e-6;
+    // float kd=0.1665e6;
+
+    float kp=11.5;
+    float ki=1.5e-6;
+    float kd=0.21e6;
+
+    long errorInt=0;
+    unsigned long t2;
+    unsigned long dt;
+    bool isPrint = true;
+    unsigned long lastPrint = 0;
+
+    unsigned long flowStart = millis(); // in millis
+    unsigned long flowDuration = 10000;
+    long startAngle=0; // in encoder counts
+    long endAngle=1000;
+
+    unsigned int printFreq = 50; // in millis
+
+    String inString="";
+
+    Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" over "+String(flowDuration)+" ms...");
+
+    while (true) {
+        dt=micros()-t2;
+        t2+=dt;
+        angle = encoder.read();
+        isAngleUpdate=(angle!=oldPosition);
+        e=angle-setPoint;
+        //PI control
+        float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
+        if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
+            errorInt+=e*dt;
+            rawSpd-=ki*errorInt;
+        }
+        else{errorInt=0;}
+        rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
+        speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
+        runMotor();
+        if (isPrint && (millis()-lastPrint > printFreq)){
+            Serial.println(String(millis()) + "\t" + String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+            lastPrint = millis();
+        }
+
+        if (millis()-flowStart > flowDuration) { // flow has ended, close valves
+            setPoint = 0;
+            printFreq = 5000;
+        } else {
+            float prog = float(millis()-flowStart)/float(flowDuration);
+            setPoint = prog * endAngle + (1-prog) * startAngle;
+        }
+        
+       
         if (isAngleUpdate) {
             oldPosition = angle;
             
@@ -410,8 +483,9 @@ void setup() {
     waitConfirmation();
     // potTest();
     // servoTest();
-    // servoCharacterization();
+    angleSweep();
     t2 = micros();
+    exit(0);
 }
 
 long lastPrint = 0;
