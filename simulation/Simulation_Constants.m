@@ -1,0 +1,10 @@
+clear
+clc
+HighInit=4500;
+VHigh=6.8/3.78;
+SetPres=600;
+Vinit=4;
+run('ballvalve.m')
+Kp=10;
+Kd=0.002;
+Ki=1;
