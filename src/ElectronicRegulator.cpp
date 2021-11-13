@@ -379,8 +379,8 @@ void angleSweep() {
 
     unsigned long flowStart = millis(); // in millis
     unsigned long flowDuration = 10000;
-    long startAngle=1000; // in encoder counts
-    long endAngle=0;
+    long startAngle=500; // in encoder counts
+    long endAngle=800;
 
     unsigned int printFreq = 20; // in millis
 
