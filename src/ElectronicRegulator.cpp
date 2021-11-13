@@ -382,7 +382,7 @@ void angleSweep() {
     long startAngle=0; // in encoder counts
     long endAngle=1000;
 
-    unsigned int printFreq = 50; // in millis
+    unsigned int printFreq = 20; // in millis
 
     String inString="";
 
