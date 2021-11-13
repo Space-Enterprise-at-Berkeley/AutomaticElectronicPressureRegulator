@@ -379,8 +379,8 @@ void angleSweep() {
 
     unsigned long flowStart = millis(); // in millis
     unsigned long flowDuration = 10000;
-    long startAngle=0; // in encoder counts
-    long endAngle=1000;
+    long startAngle=1000; // in encoder counts
+    long endAngle=0;
 
     unsigned int printFreq = 20; // in millis
 
@@ -445,9 +445,9 @@ long angle_errorInt=0;
 // ki = 25e-6
 // kd = 2.0e6
 // perhaps run filtering on pressure derivative
-double kp_outer = 40;
-double ki_outer = 30.0e-6;
-double kd_outer = 0.5;
+double kp_outer = 40; // encoder counts per psi
+double ki_outer = 30.0e-6; // time in micros
+double kd_outer = 0.5; // time in s
 double pressure_setpoint = 0; //100
 double pressure_e = 0;
 double pressure_e_old = 0;
