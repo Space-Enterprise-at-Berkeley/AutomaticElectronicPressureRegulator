@@ -5,7 +5,7 @@ table = readtable("cv_char.xlsx");
 table_length = length(table.Time);
 
 scaled_time = table.Time;
-scaled_time = scaled_time./1000.0-19.7;
+scaled_time = scaled_time./1000.0-table.Time(1);
 
 initial_high_pressure_values = zeros(table_length, 1)+table.HP(1);
 initial_low_pressure_values = zeros(table_length, 1)+table.LP(1);
@@ -27,7 +27,7 @@ time_scale = scaled_time;
 time_scale(end+1) = time_scale(end);
 
 coefficients = polyfit(time_scale, air_mass, 3);
-numFitPoints = 78; % Enough to make the plot look continuous.
+numFitPoints = table_length; % Enough to make the plot look continuous.
 xFit = linspace(scaled_time(1), scaled_time(end), numFitPoints);
 yFit = polyval(coefficients, xFit);
 
@@ -82,7 +82,7 @@ for n = 1 : table_length
         % From https://en.wikipedia.org/wiki/Choked_flow
         % mass_flow_rate = Cd * A * sqrt(lambda*hp*(2/(lambda+1))^((lambda+1)/(lambda-1)));
         % replace Cd*A with Cv of valve
-        rho = AIR_MOLAR_MASS*lp/(R*temperature); %fill out rho
+        rho = AIR_MOLAR_MASS*hp/(R*temperature); %fill out rho
 
         %mass_flow_rate = Cd * A * sqrt(lambda*rho*hp*(2/(lambda+1))^((lambda+1)/(lambda-1)));
         Cv_choked(n) = dM_dt(n) / (sqrt(lambda*rho*hp*(2/(lambda+1))^((lambda+1)/(lambda-1))));
@@ -90,7 +90,7 @@ for n = 1 : table_length
         disp("non-choked-flow");
     end
 end
-
+Cv_choked(Cv_choked == 0) = NaN;
 nexttile
 plot(table.Angle, Cv_choked);
 title('Valve Angle vs Cv_choked');
