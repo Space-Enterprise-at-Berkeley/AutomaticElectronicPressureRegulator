@@ -1,14 +1,15 @@
 clear;
 Constants
-table = readtable("cv_char.xlsx");
+
+table = readtable("cv_char4.xlsx");
 
 table_length = length(table.Time);
 
 scaled_time = table.Time;
 scaled_time = scaled_time./1000.0-table.Time(1);
 
-initial_high_pressure_values = zeros(table_length, 1)+table.HP(1);
-initial_low_pressure_values = zeros(table_length, 1)+table.LP(1);
+initial_high_pressure_values = zeros(table_length, 1)+735;%zeros(table_length, 1)+table.HP(1);
+initial_low_pressure_values = zeros(table_length, 1)+0;%zeros(table_length, 1)+table.LP(1);
 
 air_mass = arrayfun(@GasMass, initial_high_pressure_values, initial_low_pressure_values, table.HP);
 liquid_mass = arrayfun(@LiquidMass, air_mass, table.LP);
