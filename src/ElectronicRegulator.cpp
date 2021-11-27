@@ -353,7 +353,7 @@ void servoCharacterization() {
     }
 }
 
-void angleSweep() {
+void angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long extraTime) {
     
     long angle;
     bool isAngleUpdate;
@@ -361,7 +361,7 @@ void angleSweep() {
     long e=0;
     long oldError=0;
 
-    long setPoint=0;
+    long setPoint=startAngle;
 
     // float kp=11.5;
     // float ki=1.5e-6;
@@ -378,16 +378,15 @@ void angleSweep() {
     unsigned long lastPrint = 0;
 
     unsigned long flowStart = millis(); // in millis
-    unsigned long flowDuration = 10000;
-    long startAngle=500; // in encoder counts
-    long endAngle=800;
+    // unsigned long flowDuration = 10000; 
+    // long startAngle=500; // in encoder counts
+    // long endAngle=1000;
 
     unsigned int printFreq = 20; // in millis
 
     String inString="";
 
-    Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" over "+String(flowDuration)+" ms...");
-
+    
     while (true) {
         dt=micros()-t2;
         t2+=dt;
@@ -416,7 +415,10 @@ void angleSweep() {
             float prog = float(millis()-flowStart)/float(flowDuration);
             setPoint = prog * endAngle + (1-prog) * startAngle;
         }
-        
+
+        if (millis()-flowStart > flowDuration + extraTime) { // flow has ended, close valves
+            return;
+        }
        
         if (isAngleUpdate) {
             oldPosition = angle;
@@ -480,10 +482,17 @@ void setup() {
     ptTest();
     // motorPowerTest();
     Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
+
+    long startAngle = 600;
+    long endAngle = 1200;
+    long thirdAngle = 500;
+    long flowDuration = 6000; //time in ms for one way
+    Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
     waitConfirmation();
     // potTest();
     // servoTest();
-    angleSweep();
+    angleSweep(startAngle, endAngle, flowDuration, 0);
+    angleSweep(endAngle, thirdAngle, flowDuration, 5000);
     t2 = micros();
     exit(0);
 }
