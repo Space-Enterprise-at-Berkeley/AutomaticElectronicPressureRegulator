@@ -483,10 +483,10 @@ void setup() {
     // motorPowerTest();
     Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
 
-    long startAngle = 600;
-    long endAngle = 1200;
-    long thirdAngle = 500;
-    long flowDuration = 6000; //time in ms for one way
+    long startAngle = 600*1.08;
+    long endAngle = 1200*1.08;
+    long thirdAngle = 500*1.08;
+    long flowDuration = 4000; //time in ms for one way
     Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
     waitConfirmation();
     // potTest();
