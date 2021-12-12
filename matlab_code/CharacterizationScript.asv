@@ -27,7 +27,7 @@ air_mass(end+1) = air_mass(end);
 time_scale = scaled_time;
 time_scale(end+1) = time_scale(end);
 
-coefficients = polyfit(time_scale, air_mass, 3);
+coefficients = polyfit(time_scale, air_mass, 1);
 numFitPoints = table_length; % Enough to make the plot look continuous.
 xFit = linspace(scaled_time(1), scaled_time(end), numFitPoints);
 yFit = polyval(coefficients, xFit);
