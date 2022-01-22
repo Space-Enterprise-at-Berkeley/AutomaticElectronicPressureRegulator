@@ -20,7 +20,7 @@
 #define LP_PT A2
 #define INJECTOR_PT A3
 
-#define BUFF_SIZE 30
+#define BUFF_SIZE 5
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -451,7 +451,7 @@ long angle_errorInt=0;
 // perhaps run filtering on pressure derivative
 double kp_outer = 40; // encoder counts per psi
 double ki_outer = 30.0e-6; // time in micros
-double kd_outer = 0.5; // time in s
+double kd_outer = 2.5; // time in s
 double pressure_setpoint = 130; //100
 double pressure_e = 0;
 double pressure_e_old = 0;
@@ -461,7 +461,7 @@ Buffer* p_buff;
 
 unsigned long t2;
 unsigned long dt;
-int start_time;
+unsigned long start_time;
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
     Serial.begin(115200);
@@ -473,16 +473,17 @@ void setup() {
     Serial.println("Zeroing valve");
     speed = -150;
     runMotor();
-    delay(200);
+    delay(2000);
     speed = 0;
     runMotor();
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
-    encoder.write(0);
+    encoder.write(-20);
 
     waitConfirmation();
-    //motorDirTest();
+    // motorDirTest();
     // exit(0);
     ptTest();
+    // servoTest();
     // motorPowerTest();
     Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
 
@@ -497,8 +498,8 @@ void setup() {
     
     //angleSweep(startAngle, endAngle, flowDuration, 0);
     //angleSweep(endAngle, thirdAngle, flowDuration, 5000);
-    //t2 = micros();
     //exit(0);
+    t2 = micros();
     start_time = micros();
 
 
@@ -553,8 +554,7 @@ void loop() {
     runMotor();
 
     if (t2 - lastPrint > 50) {
-        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t HP: \t" + String(HPpsi) + "\t LP: \t" + String(LPpsi) + "\t" + "\t Injector: \t" + String(InjectorPT) + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );
-        //Serial.println("owo");
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
         lastPrint = millis();
     }
 
@@ -571,7 +571,7 @@ void loop() {
         
     }
 
-    if ((micros()-start_time)/1000000>5) {
+    if ((micros()-start_time) > 30e6) {
         pressure_setpoint = 0;
     }
 
