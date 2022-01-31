@@ -1,11 +1,14 @@
 #include <Arduino.h>
 #include <Encoder.h>
 #include <data_buff.h>
+#include <Comms.h>
 
 #define MOTOR1 6
 #define MOTOR2 5
 #define ENC1 2
 #define ENC2 3
+
+#define PRESSURE_MAXIMUM 1000
 
 #define MAX_SPD 255
 #define MIN_SPD -255
@@ -21,6 +24,9 @@
 #define INJECTOR_PT A3
 
 #define BUFF_SIZE 5
+
+
+#define USE_DASHBOARD 1
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -128,7 +134,9 @@ void motorPowerTest() {
 
 void ptTest() {
     // print PT reading 6 times, at 0.5s intervals
+    #ifndef USE_DASHBOARD
     Serial.println("Starting PT test...");
+    #endif
     long lastPrint = 0;
     Buffer p_buff(BUFF_SIZE);
     float old_p = 0;
@@ -142,19 +150,40 @@ void ptTest() {
         p = voltageToPressure(analogRead(LP_PT)); 
         t = micros();
         p_buff.insert(double(t)/1.0e6, p);
-        if (millis() - lastPrint > 250) {
-            Serial.println(String(count) + "\t Injector: \t" + String(voltageToPressure(analogRead(INJECTOR_PT))) + "\t HP: \t" + String(voltageToPressure(analogRead(HP_PT))) + "\t LP: \t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
+        if (millis() - lastPrint > 100) {
+            
             lastPrint = millis();
             count = 0;
+
+            #ifndef USE_DASHBOARD
+            Serial.println(String(count) + "\t Injector: \t" + String(voltageToPressure(analogRead(INJECTOR_PT))) + "\t HP: \t" + String(voltageToPressure(analogRead(HP_PT))) + "\t LP: \t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
+            #else
+            Comms::Packet packet = {.id = 1};
+            Comms::packetAddFloat(&packet, sin(t/1e6));
+            // Comms::packetAddFloat(&packet, 0.0);
+            Comms::packetAddFloat(&packet, 0.0);
+            Comms::packetAddFloat(&packet, float(speed));
+            Comms::packetAddFloat(&packet, motorAngle);
+            Comms::packetAddFloat(&packet, HPpsi);
+            Comms::packetAddFloat(&packet, LPpsi);
+            Comms::packetAddFloat(&packet, InjectorPT);
+            Comms::packetAddFloat(&packet, p_buff.get_slope());
+            Comms::packetAddFloat(&packet, 0);
+            Comms::emitPacket(&packet);
+            #endif
+            
         }
         while (Serial.available() > 0) {
             //Read incoming commands
             int inChar = Serial.read();
-            if (isDigit(inChar)|| inChar=='-') {
-            inString += (char)inChar;
-            }
             if (inChar == '\n') {
-                return;
+                if (inString == "start") {
+                    return;
+                }
+                inString = "";
+            }
+            else{
+                inString += (char)inChar;
             }
         }
         old_p = p;
@@ -465,12 +494,17 @@ unsigned long start_time;
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
     Serial.begin(115200);
+    while(!Serial);
     p_buff = new Buffer(BUFF_SIZE);
+
     delay(500);
 
+    #ifndef USE_DASHBOARD
     waitConfirmation();
     // move to close motors
     Serial.println("Zeroing valve");
+    #endif
+
     speed = -150;
     runMotor();
     delay(2000);
@@ -479,20 +513,24 @@ void setup() {
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
     encoder.write(-20);
 
+    #ifndef USE_DASHBOARD
     waitConfirmation();
+    #endif
     // motorDirTest();
     // exit(0);
     ptTest();
     // servoTest();
     // motorPowerTest();
+    #ifndef USE_DASHBOARD
     Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
-
+    waitConfirmation();
+    #endif
     // long startAngle = 600*1.08;
     // long endAngle = 1200*1.08;
     // long thirdAngle = 500*1.08;
     // long flowDuration = 4000; //time in ms for one way
     // Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
-    waitConfirmation();
+    
     // potTest();
     // servoTest();
     
@@ -501,7 +539,6 @@ void setup() {
     //exit(0);
     t2 = micros();
     start_time = micros();
-
 
 }
 
@@ -553,17 +590,34 @@ void loop() {
 
     runMotor();
 
-    if (t2 - lastPrint > 50) {
+    if (t2 - lastPrint > 1000) {
+        #ifndef USE_DASHBOARD
         Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
-        lastPrint = millis();
+        #else
+        Comms::Packet packet = {.id = 1};
+        // Comms::packetAddFloat(&packet, sin(t2/1e6));
+        Comms::packetAddFloat(&packet, float(angle_setpoint));
+        Comms::packetAddFloat(&packet, pressure_setpoint);
+        Comms::packetAddFloat(&packet, float(speed));
+        Comms::packetAddFloat(&packet, motorAngle);
+        Comms::packetAddFloat(&packet, HPpsi);
+        Comms::packetAddFloat(&packet, LPpsi);
+        Comms::packetAddFloat(&packet, InjectorPT);
+        Comms::packetAddFloat(&packet, p_buff->get_slope());
+        Comms::packetAddFloat(&packet, pressure_errorInt);
+        Comms::emitPacket(&packet);
+        #endif
+        lastPrint = micros();
     }
-
+    
     while (Serial.available() > 0) {
         //Read incoming commands
         int inChar = Serial.read();
-        
         if (inChar == '\n') {
-            pressure_setpoint=inString.toInt();
+            int new_setpt = inString.toInt();
+            if (new_setpt >= 0 && new_setpt <= PRESSURE_MAXIMUM) {
+                pressure_setpoint=inString.toInt();
+            }
             inString = "";
         } else {
             inString += (char)inChar;
@@ -571,9 +625,9 @@ void loop() {
         
     }
 
-    if ((micros()-start_time) > 30e6) {
-        pressure_setpoint = 0;
-    }
+    // if ((micros()-start_time) > 30e6) {
+    //     pressure_setpoint = 0;
+    // }
 
 }
 
