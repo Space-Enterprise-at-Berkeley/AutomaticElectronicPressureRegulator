@@ -164,9 +164,9 @@ void ptTest() {
             Comms::packetAddFloat(&packet, 0.0);
             Comms::packetAddFloat(&packet, float(speed));
             Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, InjectorPT);
+            Comms::packetAddFloat(&packet, voltageToPressure(analogRead(HP_PT)));
+            Comms::packetAddFloat(&packet, voltageToPressure(analogRead(LP_PT)));
+            Comms::packetAddFloat(&packet, voltageToPressure(analogRead(INJECTOR_PT)));
             Comms::packetAddFloat(&packet, p_buff.get_slope());
             Comms::packetAddFloat(&packet, 0);
             Comms::emitPacket(&packet);
