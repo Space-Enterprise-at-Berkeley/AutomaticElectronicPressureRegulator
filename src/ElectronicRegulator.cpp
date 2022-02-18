@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Encoder.h>
 #include <data_buff.h>
+#include <ElectronicRegulator.h>
 
 #define MOTOR1 6
 #define MOTOR2 5
@@ -26,6 +27,7 @@
 //   Best Performance: both pins have interrupt capability
 //   avoid using pins with LEDs attached
 Encoder encoder(ENC1, ENC2);
+Ereg ereg;
 
 
 // Note: 1 rev on main shaft is 3200 counts
@@ -75,7 +77,7 @@ void motorDirTest() {
     Serial.println("Starting motor/encoder direction test...");
 
     speed = 250;
-    runMotor();
+    ereg.runMotor(); //test for new class
     while (millis() - startTime < 1000) {}
     long theta1 = encoder.read();
     String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
