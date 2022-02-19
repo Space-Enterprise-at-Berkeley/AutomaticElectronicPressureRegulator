@@ -89,7 +89,7 @@ void motorDirTest() {
     Serial.println("Starting motor/encoder direction test...");
 
     speed = 250;
-    runMotor(); //
+    ereg.runMotor(); //test for new class
     while (millis() - startTime < 1000) {}
     long theta1 = encoder.read();
     String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
@@ -216,49 +216,48 @@ void potTest() {
 
 void servoTest() {
     Serial.println("Starting servo test...");
-    Servo test;
-    // long angle;
-    // bool isAngleUpdate;
-    // long oldPosition=-999;
-    // long e=0;
-    // long oldError=0;
+    long angle;
+    bool isAngleUpdate;
+    long oldPosition=-999;
+    long e=0;
+    long oldError=0;
 
-    // long setPoint=100;
-    // // float kp=11.5;
-    // // float ki=1.5e-6;
-    // // float kd=0.1665e6;
-
+    long setPoint=100;
     // float kp=11.5;
     // float ki=1.5e-6;
-    // float kd=0.21e6;
+    // float kd=0.1665e6;
 
-    // long errorInt=0;
-    // unsigned long t2;
-    // unsigned long dt;
-    // bool isPrint = true;
-    // unsigned long lastPrint = 0;
+    float kp=11.5;
+    float ki=1.5e-6;
+    float kd=0.21e6;
 
-    // String inString="";
+    long errorInt=0;
+    unsigned long t2;
+    unsigned long dt;
+    bool isPrint = true;
+    unsigned long lastPrint = 0;
+
+    String inString="";
 
     while (true) {
         dt=micros()-t2;
         t2+=dt;
-        test.angle = encoder.read();
-        test.isAngleUpdate=(test.angle!=oldPosition);
-        test.e=test.angle-test.setPoint;
+        angle = encoder.read();
+        isAngleUpdate=(angle!=oldPosition);
+        e=angle-setPoint;
         //PI control
-        float rawSpd=-(test.kp*test.e+test.kd*(test.e-test.oldError)/float(dt));
+        float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
         if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-            test.errorInt+=test.e*dt;
-            rawSpd-=test.ki*test.errorInt;
+            errorInt+=e*dt;
+            rawSpd-=ki*errorInt;
         }
-        else{test.errorInt=0;}
+        else{errorInt=0;}
         rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
         speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
         runMotor();
-        if (test.isPrint && (millis()-lastPrint > 200)){
-            Serial.println(String(speed)+"\t"+String(test.angle)+"\t"+String(test.setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
-            test.lastPrint = millis();
+        if (isPrint && (millis()-lastPrint > 200)){
+            Serial.println(String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToHighPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+            lastPrint = millis();
         }
         
         while (Serial.available() > 0) {
@@ -266,26 +265,26 @@ void servoTest() {
             int inChar = Serial.read();
             
             if (inChar == '\n') {
-                if (test.inString == "fin"){
+                if (inString == "fin"){
                     return;
-                } else if (test.inString == "quiet"){
-                    test.isPrint = false;
-                } else if (test.inString == "loud"){
-                    test.isPrint = true;
+                } else if (inString == "quiet"){
+                    isPrint = false;
+                } else if (inString == "loud"){
+                    isPrint = true;
                 } else{
-                    test.setPoint=test.inString.toInt();
+                    setPoint=inString.toInt();
                 }
-                test.inString = "";
+                inString = "";
             } else {
-                test.inString += (char)inChar;
+                inString += (char)inChar;
             }
             
         }
-        if (test.isAngleUpdate) {
-            test.oldPosition = test.angle;
+        if (isAngleUpdate) {
+            oldPosition = angle;
             
         }
-        test.oldError=test.e;
+        oldError=e;
     }
 
 }
