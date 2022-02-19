@@ -29,27 +29,31 @@ Encoder encoder(ENC1, ENC2);
 
 
 
-//Create Ereg class of some sort
+//Create Ereg class that motor and Servo will inherit from?
 class Ereg {
     //TODO build a constructor or not
    
     public:
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
-        int speed=0;
-        //add unsinged long lastPrint
-        //add String inString = ""
+
+        
         //implement a value for millis() - lastPrint?
         //Read incoming comands
             //bool readComm = Serial.available() > 0
 
         //int inChar = Serial.read() 
+        int speed=0;
 
         double motorAngle;
         double potAngle;
         double HPpsi;
         double LPpsi;
         double InjectorPT;
+
+        long angle;
+        unsigned long lastPrint = 0;
+        String inString="";
 
         void runMotor(){
             analogWrite(MOTOR1,-min(0,speed));
@@ -77,24 +81,29 @@ class Ereg {
 
 };
 
+//motor class? maybe not req
+class Motor : public Ereg {
+    public:
+    long startTime = millis();
+    long theta0 = encoder.read();
+
+};
+
 //Create Servo class?
     //Think we can use constructor
-class Servo {
+class Servo : public Ereg {
 public:
-    long angle;
     bool isAngleUpdate;
     long oldPosition=-999;
     long e=0;
     long oldError=0;
 
     long setPoint=100;
-    // float kp=11.5;
-    // float ki=1.5e-6;
-    // float kd=0.1665e6;
 
     float kp=11.5;
     float ki=1.5e-6;
     float kd=0.21e6;
+    // float kd=0.1665e6;
     long angle_setpoint=0;
     long angle_errorInt=0;
 
@@ -102,13 +111,15 @@ public:
     unsigned long t2;
     unsigned long dt;
     bool isPrint = true;
-    unsigned long lastPrint = 0;
+    
 
     unsigned long flowStart = millis(); // in millis
     unsigned long flowDuration;
     unsigned int printFreq; // in millis
 
-    String inString="";
+    
+
+    float rawSpd = -(kp*e+kd*(e-oldError)/float(dt));
         
 
 };

@@ -26,44 +26,7 @@
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
 //   avoid using pins with LEDs attached
-Encoder encoder(ENC1, ENC2);
 Ereg ereg;
-
-
-// Note: 1 rev on main shaft is 3200 counts
-// Encoder itself is 64CPM (including all edges)
-int speed=0;
-
-double motorAngle;
-double potAngle;
-double HPpsi;
-double LPpsi;
-double InjectorPT;
-
-void runMotor(){
-    analogWrite(MOTOR1,-min(0,speed));
-    analogWrite(MOTOR2,max(0,speed));
-}
-
-double encoderToAngle(double encoderValue) {
-    //convert encoder angle to degrees
-    // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
-    return (encoderValue/3200.0)*360*26/48.0;
-}
-
-double voltageToPressure(double voltage) {
-    //1024 bits in analog read
-    //PT voltage frange .4-4.5
-    //PT reads from 0-1000
-    //Arduino measures voltage from 0 to 5 V
-    return (voltage/1024.0*5-0.5)*1000/4.0;
-}
-
-double readPot(){
-    return (analogRead(POTPIN)/1024.0)*90.0;
-}
-
-
 
 //TESTING FUNCTIONS
 
@@ -76,36 +39,37 @@ void motorDirTest() {
 
     Serial.println("Starting motor/encoder direction test...");
 
-    speed = 250;
-    runMotor(); //
+    ereg.speed = 250;
+    ereg.runMotor(); //
     while (millis() - startTime < 1000) {}
     long theta1 = encoder.read();
     String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
     Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
     startTime = millis();
-    speed = -speed;
-    runMotor();
+    ereg.speed = -ereg.speed;
+    ereg.runMotor();
     while (millis() - startTime < 1000) {}
     long theta2 = encoder.read();
     msg = ((theta2-theta1) < 0) ? "\tPASS":"\tFAIL";
-    Serial.println("Running motors + direction. t1, t2: " + String(theta1) + "\t" + String(theta2) + msg);
-    speed = 0;
-    runMotor();
+    Serial.println("Running motors + direction. t1, sweep.t2: " + String(theta1) + "\t" + String(theta2) + msg);
+    ereg.speed = 0;
+    ereg.runMotor();
 }
 
 void motorPowerTest() {
-    String inString = "";
-    speed = 0;
-    unsigned long lastPrint = 0;
-    long angle = 0;
+    // String inString = "";
+    // ereg.speed = 0;
+    // unsigned long lastPrint = 0;
+    // long angle = 0;
+    Ereg motor;
 
     while (true){
-        runMotor();
+        motor.runMotor();
 
-        if (millis()-lastPrint > 200){
-            angle = encoder.read();
-            Serial.println(String(speed)+"\t"+String(angle));
-            lastPrint = millis();
+        if (millis()-motor.lastPrint > 200){
+            motor.angle = encoder.read();
+            Serial.println(String(motor.speed)+"\t"+String(motor.angle));
+            motor.lastPrint = millis();
         }
 
         while (Serial.available() > 0) {
@@ -113,14 +77,14 @@ void motorPowerTest() {
             int inChar = Serial.read();
             
             if (inChar == '\n') {
-                if (inString == "fin"){
+                if (motor.inString == "fin"){
                     return;
                 }else{
-                    speed = inString.toInt();
+                    motor.speed = motor.inString.toInt();
                 }
-                inString = "";
+                motor.inString = "";
             } else {
-                inString += (char)inChar;
+                motor.inString += (char)inChar;
             }
             
         }
@@ -131,7 +95,7 @@ void motorPowerTest() {
 void ptTest() {
     // print PT reading 6 times, at 0.5s intervals
     Serial.println("Starting PT test...");
-    long lastPrint = 0;
+    ereg.lastPrint = 0;
     Buffer p_buff(BUFF_SIZE);
     float old_p = 0;
     float p = 0;
@@ -141,12 +105,12 @@ void ptTest() {
     while (true) {
         count++;
         String inString="";
-        p = voltageToPressure(analogRead(LP_PT)); 
+        p = ereg.voltageToPressure(analogRead(LP_PT)); 
         t = micros();
         p_buff.insert(double(t)/1.0e6, p);
-        if (millis() - lastPrint > 250) {
-            Serial.println(String(count) + "\t Injector: \t" + String(voltageToPressure(analogRead(INJECTOR_PT))) + "\t HP: \t" + String(voltageToPressure(analogRead(HP_PT))) + "\t LP: \t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
-            lastPrint = millis();
+        if (millis() - ereg.lastPrint > 250) {
+            Serial.println(String(count) + "\t Injector: \t" + String(ereg.voltageToPressure(analogRead(INJECTOR_PT))) + "\t HP: \t" + String(ereg.voltageToPressure(analogRead(HP_PT))) + "\t LP: \t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
+            ereg.lastPrint = millis();
             count = 0;
         }
         while (Serial.available() > 0) {
@@ -167,60 +131,38 @@ void ptTest() {
 void potTest() {
     Serial.println("Starting potentiometer test...");
     Serial.print("Set pot to 0.");
-    while (readPot() > 1){}
-    Serial.println("Finished \t" + String(readPot()));
+    while (ereg.readPot() > 1){}
+    Serial.println("Finished \t" + String(ereg.readPot()));
     Serial.print("Set pot to 90.");
-    while (readPot() < 89){
-        Serial.print(" " + String(readPot()));
+    while (ereg.readPot() < 89){
+        Serial.print(" " + String(ereg.readPot()));
         delay(250);
     }
-    Serial.println("Finished \t" + String(readPot()));
+    Serial.println("Finished \t" + String(ereg.readPot()));
 }
 
 void servoTest() {
     Serial.println("Starting servo test...");
     Servo test;
-    // long angle;
-    // bool isAngleUpdate;
-    // long oldPosition=-999;
-    // long e=0;
-    // long oldError=0;
-
-    // long setPoint=100;
-    // // float kp=11.5;
-    // // float ki=1.5e-6;
-    // // float kd=0.1665e6;
-
-    // float kp=11.5;
-    // float ki=1.5e-6;
-    // float kd=0.21e6;
-
-    // long errorInt=0;
-    // unsigned long t2;
-    // unsigned long dt;
-    // bool isPrint = true;
-    // unsigned long lastPrint = 0;
-
-    // String inString="";
 
     while (true) {
-        dt=micros()-t2;
-        t2+=dt;
+        test.dt=micros()-test.t2;
+        test.t2+=test.dt;
         test.angle = encoder.read();
-        test.isAngleUpdate=(test.angle!=oldPosition);
+        test.isAngleUpdate=(test.angle!=test.oldPosition);
         test.e=test.angle-test.setPoint;
         //PI control
-        float rawSpd=-(test.kp*test.e+test.kd*(test.e-test.oldError)/float(dt));
-        if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-            test.errorInt+=test.e*dt;
-            rawSpd-=test.ki*test.errorInt;
+        //float rawSpd = -(kp*sweep.e+kd*(sweep.e-oldError)/float(sweep.sweep.dt));
+        if(test.rawSpd<MAX_SPD && test.rawSpd>MIN_SPD){ //anti-windup
+            test.errorInt+=test.e*test.dt;
+            test.rawSpd-=test.ki*test.errorInt;
         }
         else{test.errorInt=0;}
-        rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
-        speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
-        runMotor();
-        if (test.isPrint && (millis()-lastPrint > 200)){
-            Serial.println(String(speed)+"\t"+String(test.angle)+"\t"+String(test.setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+        test.rawSpd += ((test.rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
+        test.speed=min(max(MIN_SPD,test.rawSpd),MAX_SPD);
+        test.runMotor();
+        if (test.isPrint && (millis()-test.lastPrint > 200)){
+            Serial.println(String(test.speed)+"\t"+String(test.angle)+"\t"+String(test.setPoint) + "\t" + String(test.voltageToPressure(analogRead(HP_PT))) + "\t" + String(test.voltageToPressure(analogRead(LP_PT))));
             test.lastPrint = millis();
         }
         
@@ -272,58 +214,34 @@ int waitConfirmation(){
 
 void servoCharacterization() {
     Serial.println("Starting servo-based characterization...");
-    long angle;
-    bool isAngleUpdate;
-    long oldPosition=-999;
-    long e=0;
-    long oldError=0;
-
-    long setPoint=0;
-    // float kp=11.5;
-    // float ki=1.5e-6;
-    // float kd=0.1665e6;
-
-    float kp=11.5;
-    float ki=1.5e-6;
-    float kd=0.21e6;
-
-    long errorInt=0;
-    unsigned long t2;
-    unsigned long dt;
-    bool isPrint = true;
-    unsigned long lastPrint = 0;
-
-    unsigned long flowStart = millis(); // in millis
-    unsigned long flowDuration = 2500;
-
-    unsigned int printFreq = 50; // in millis
-
-    String inString="";
+    Servo characterization;
+    characterization.flowDuration = 2500;
+    characterization.printFreq = 50; // in millis
 
     while (true) {
-        dt=micros()-t2;
-        t2+=dt;
-        angle = encoder.read();
-        isAngleUpdate=(angle!=oldPosition);
-        e=angle-setPoint;
+        characterization.dt=micros()-characterization.t2;
+        characterization.t2+=characterization.dt;
+        characterization.angle = encoder.read();
+        characterization.isAngleUpdate=(characterization.angle!=characterization.oldPosition);
+        characterization.e=characterization.angle-characterization.setPoint;
         //PI control
-        float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
+        float rawSpd = characterization.rawSpd;
         if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-            errorInt+=e*dt;
-            rawSpd-=ki*errorInt;
+            characterization.errorInt+=characterization.e*characterization.dt;
+            rawSpd -= characterization.ki * characterization.errorInt;
         }
-        else{errorInt=0;}
+        else{characterization.errorInt=0;}
         rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
-        speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
-        runMotor();
-        if (isPrint && (millis()-lastPrint > printFreq)){
-            Serial.println(String(millis()) + "\t" + String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
-            lastPrint = millis();
+        characterization.speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
+        characterization.runMotor();
+        if (characterization.isPrint && (millis()-characterization.lastPrint > characterization.printFreq)){
+            Serial.println(String(millis()) + "\t" + String(characterization.speed)+"\t"+String(characterization.angle)+"\t"+String(characterization.setPoint) + "\t" + String(characterization.voltageToPressure(analogRead(HP_PT))) + "\t" + String(characterization.voltageToPressure(analogRead(LP_PT))));
+            characterization.lastPrint = millis();
         }
 
-        if (millis()-flowStart > flowDuration) {
-            setPoint = 0;
-            printFreq = 5000;
+        if (millis()-characterization.flowStart > characterization.flowDuration) {
+            characterization.setPoint = 0;
+            characterization.printFreq = 5000;
         }
         
         while (Serial.available() > 0) {
@@ -331,105 +249,79 @@ void servoCharacterization() {
             int inChar = Serial.read();
             
             if (inChar == '\n') {
-                if (inString == "fin"){
+                if (characterization.inString == "fin"){
                     return;
-                } else if (inString == "quiet"){
-                    isPrint = false;
-                } else if (inString == "loud"){
-                    isPrint = true;
+                } else if (characterization.inString == "quiet"){
+                    characterization.isPrint = false;
+                } else if (characterization.inString == "loud"){
+                    characterization.isPrint = true;
                 } else{
                     // Start a flow
-                    isPrint = true;
-                    setPoint=inString.toInt();
-                    flowStart = millis();
-                    printFreq = 50;
+                    characterization.isPrint = true;
+                    characterization.setPoint=characterization.inString.toInt();
+                    characterization.flowStart = millis();
+                    characterization.printFreq = 50;
                 }
-                inString = "";
+                characterization.inString = "";
             } else {
-                inString += (char)inChar;
+                characterization.inString += (char)inChar;
             }
             
         }
-        if (isAngleUpdate) {
-            oldPosition = angle;
+        if (characterization.isAngleUpdate) {
+            characterization.oldPosition = characterization.angle;
             
         }
-        oldError=e;
+        characterization.oldError=characterization.e;
     }
 }
 
 void angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long extraTime) {
-    
-    long angle;
-    bool isAngleUpdate;
-    long oldPosition=-999;
-    long e=0;
-    long oldError=0;
-
-    long setPoint=startAngle;
-
-    // float kp=11.5;
-    // float ki=1.5e-6;
-    // float kd=0.1665e6;
-
-    float kp=11.5;
-    float ki=1.5e-6;
-    float kd=0.21e6;
-
-    long errorInt=0;
-    unsigned long t2;
-    unsigned long dt;
-    bool isPrint = true;
-    unsigned long lastPrint = 0;
-
-    unsigned long flowStart = millis(); // in millis
-    // unsigned long flowDuration = 10000; 
+    Servo sweep;
+    sweep.setPoint=startAngle;
+    // unsigned long sweep.flowDuration = 10000; 
     // long startAngle=500; // in encoder counts
     // long endAngle=1000;
-
-    unsigned int printFreq = 20; // in millis
-
-    String inString="";
-
+    sweep.printFreq = 20; // in millis
     
     while (true) {
-        dt=micros()-t2;
-        t2+=dt;
-        angle = encoder.read();
-        isAngleUpdate=(angle!=oldPosition);
-        e=angle-setPoint;
+        sweep.dt=micros()-sweep.t2;
+        sweep.t2+=sweep.dt;
+        sweep.angle = encoder.read();
+        sweep.isAngleUpdate=(sweep.angle!=sweep.oldPosition);
+        sweep.e=sweep.angle-sweep.setPoint;
         //PI control
-        float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
+        float rawSpd=sweep.rawSpd;
         if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-            errorInt+=e*dt;
-            rawSpd-=ki*errorInt;
+            sweep.errorInt+=sweep.e*sweep.dt;
+            rawSpd-=sweep.ki*sweep.errorInt;
         }
-        else{errorInt=0;}
+        else{sweep.errorInt=0;}
         rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
-        speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
-        runMotor();
-        if (isPrint && (millis()-lastPrint > printFreq)){
-            Serial.println(String(millis()) + "\t" + String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
-            lastPrint = millis();
+        sweep.speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
+        sweep.runMotor();
+        if (sweep.isPrint && (millis()-sweep.lastPrint > sweep.printFreq)){
+            Serial.println(String(millis()) + "\t" + String(sweep.speed)+"\t"+String(sweep.angle)+"\t"+String(sweep.setPoint) + "\t" + String(sweep.voltageToPressure(analogRead(HP_PT))) + "\t" + String(sweep.voltageToPressure(analogRead(LP_PT))));
+            sweep.lastPrint = millis();
         }
 
-        if (millis()-flowStart > flowDuration) { // flow has ended, close valves
-            setPoint = 0;
-            printFreq = 5000;
+        if (millis()-sweep.flowStart > sweep.flowDuration) { // flow has ended, close valves
+            sweep.setPoint = 0;
+            sweep.printFreq = 5000;
         } else {
-            float prog = float(millis()-flowStart)/float(flowDuration);
-            setPoint = prog * endAngle + (1-prog) * startAngle;
+            float prog = float(millis()-sweep.flowStart)/float(sweep.flowDuration);
+            sweep.setPoint = prog * endAngle + (1-prog) * startAngle;
         }
 
-        if (millis()-flowStart > flowDuration + extraTime) { // flow has ended, close valves
+        if (millis()-sweep.flowStart > sweep.flowDuration + extraTime) { // flow has ended, close valves
             return;
         }
        
-        if (isAngleUpdate) {
-            oldPosition = angle;
+        if (sweep.isAngleUpdate) {
+            sweep.oldPosition = sweep.angle;
             
         }
-        oldError=e;
+        sweep.oldError=sweep.e;
     }
 }
 
@@ -449,7 +341,7 @@ long angle_errorInt=0;
 
 // Constants should be tuned
 // kp = 35
-// ki = 25e-6
+// sweep.ki = 25e-6
 // kd = 2.0e6
 // perhaps run filtering on pressure derivative
 double kp_outer = 40; // encoder counts per psi
@@ -474,11 +366,11 @@ void setup() {
     waitConfirmation();
     // move to close motors
     Serial.println("Zeroing valve");
-    speed = -150;
-    runMotor();
+    ereg.speed = -150;
+    ereg.runMotor();
     delay(2000);
-    speed = 0;
-    runMotor();
+    ereg.speed = 0;
+    ereg.runMotor();
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
     encoder.write(-20);
 
@@ -493,14 +385,14 @@ void setup() {
     // long startAngle = 600*1.08;
     // long endAngle = 1200*1.08;
     // long thirdAngle = 500*1.08;
-    // long flowDuration = 4000; //time in ms for one way
-    // Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
+    // long sweep.flowDuration = 4000; //time in ms for one way
+    // Serial.println("Starting sweep.angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*sweep.flowDuration)+" ms...");
     waitConfirmation();
     // potTest();
     // servoTest();
     
-    //angleSweep(startAngle, endAngle, flowDuration, 0);
-    //angleSweep(endAngle, thirdAngle, flowDuration, 5000);
+    //angleSweep(startAngle, endAngle, sweep.flowDuration, 0);
+    //angleSweep(endAngle, thirdAngle, sweep.flowDuration, 5000);
     //exit(0);
     t2 = micros();
     start_time = micros();
@@ -509,16 +401,16 @@ void setup() {
 }
 
 long lastPrint = 0;
-// Start in closed position, angle should be 0
+// Start in closed position, sweep.angle should be 0
 
 void loop() {
 
     angle = encoder.read();
-    motorAngle = encoderToAngle(angle);
-    potAngle = readPot();
-    HPpsi = voltageToPressure(analogRead(HP_PT));
-    LPpsi = voltageToPressure(analogRead(LP_PT));
-    InjectorPT = voltageToPressure(analogRead(INJECTOR_PT));
+    ereg.motorAngle = ereg.encoderToAngle(angle);
+    ereg.potAngle = ereg.readPot();
+    ereg.HPpsi = ereg.voltageToPressure(analogRead(HP_PT));
+    ereg.LPpsi = ereg.voltageToPressure(analogRead(LP_PT));
+    ereg.InjectorPT = ereg.voltageToPressure(analogRead(INJECTOR_PT));
     
     // LPpsi = analogRead(POTPIN)/1024.0*360;
 
@@ -541,8 +433,8 @@ void loop() {
     oldError=e;
 
     //Compute Outer Pressure Control Loop
-    pressure_e = LPpsi - pressure_setpoint;
-    p_buff->insert(t2/1.0e6, LPpsi);
+    pressure_e = ereg.LPpsi - pressure_setpoint;
+    p_buff->insert(t2/1.0e6, ereg.LPpsi);
     double rawAngle = -( kp_outer*pressure_e + kd_outer*(p_buff->get_slope()) );
     if(rawAngle<MAX_ANGLE && (rawAngle>MIN_ANGLE || pressure_errorInt<0)){
         pressure_errorInt += pressure_e * dt;
@@ -552,12 +444,12 @@ void loop() {
 
     // Constrain angles and speeds
     angle_setpoint = min(MAX_ANGLE, max(MIN_ANGLE, rawAngle));
-    speed = min(max(MIN_SPD,rawSpd),MAX_SPD);
+    ereg.speed = min(max(MIN_SPD,rawSpd),MAX_SPD);
 
-    runMotor();
+    ereg.runMotor();
 
     if (t2 - lastPrint > 50) {
-        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(ereg.speed) + "\t" + String(ereg.motorAngle) + "\t" + String(ereg.HPpsi) + "\t" + String(ereg.LPpsi) + "\t" + String(ereg.InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
         lastPrint = millis();
     }
 
