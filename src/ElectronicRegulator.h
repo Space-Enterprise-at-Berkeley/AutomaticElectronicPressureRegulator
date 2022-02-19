@@ -37,7 +37,6 @@ class Ereg {
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
 
-<<<<<<< HEAD
 
         //implement a value for millis() - lastPrint?
         //Read incoming comands
@@ -47,9 +46,6 @@ class Ereg {
         int speed=0;
         //add unsinged long lastPrint
         //add String inString = ""
-=======
-        
->>>>>>> a4a9d3d (Refactors most functions into Ereg class and child class Servo Class, Left refinemint of void loop function)
         //implement a value for millis() - lastPrint?
         //Read incoming comands
             //bool readComm = Serial.available() > 0
@@ -105,12 +101,9 @@ class Motor : public Ereg {
     //Think we can use constructor
 class Servo : public Ereg {
 public:
-<<<<<<< HEAD
 //Create Servo class?
     //Think we can use constructor
     long angle;
-=======
->>>>>>> a4a9d3d (Refactors most functions into Ereg class and child class Servo Class, Left refinemint of void loop function)
     bool isAngleUpdate;
     long oldPosition=-999;
     long e=0;
@@ -130,10 +123,7 @@ public:
     unsigned long dt;
     bool isPrint = true;
     
-<<<<<<< HEAD
     unsigned long lastPrint = 0;
-=======
->>>>>>> a4a9d3d (Refactors most functions into Ereg class and child class Servo Class, Left refinemint of void loop function)
 
     unsigned long flowStart = millis(); // in millis
     unsigned long flowDuration;
@@ -142,7 +132,6 @@ public:
     
 
     float rawSpd = -(kp*e+kd*(e-oldError)/float(dt));
-<<<<<<< HEAD
     
     // user has some error/measurement
     // user wants the control signal
@@ -150,8 +139,6 @@ public:
         // do all the computations to get control signal
     }
     String inString="";
-=======
->>>>>>> a4a9d3d (Refactors most functions into Ereg class and child class Servo Class, Left refinemint of void loop function)
         
 
 };
