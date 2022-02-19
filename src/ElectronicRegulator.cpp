@@ -179,48 +179,49 @@ void potTest() {
 
 void servoTest() {
     Serial.println("Starting servo test...");
-    long angle;
-    bool isAngleUpdate;
-    long oldPosition=-999;
-    long e=0;
-    long oldError=0;
+    Servo test;
+    // long angle;
+    // bool isAngleUpdate;
+    // long oldPosition=-999;
+    // long e=0;
+    // long oldError=0;
 
-    long setPoint=100;
+    // long setPoint=100;
+    // // float kp=11.5;
+    // // float ki=1.5e-6;
+    // // float kd=0.1665e6;
+
     // float kp=11.5;
     // float ki=1.5e-6;
-    // float kd=0.1665e6;
+    // float kd=0.21e6;
 
-    float kp=11.5;
-    float ki=1.5e-6;
-    float kd=0.21e6;
+    // long errorInt=0;
+    // unsigned long t2;
+    // unsigned long dt;
+    // bool isPrint = true;
+    // unsigned long lastPrint = 0;
 
-    long errorInt=0;
-    unsigned long t2;
-    unsigned long dt;
-    bool isPrint = true;
-    unsigned long lastPrint = 0;
-
-    String inString="";
+    // String inString="";
 
     while (true) {
         dt=micros()-t2;
         t2+=dt;
-        angle = encoder.read();
-        isAngleUpdate=(angle!=oldPosition);
-        e=angle-setPoint;
+        test.angle = encoder.read();
+        test.isAngleUpdate=(test.angle!=oldPosition);
+        test.e=test.angle-test.setPoint;
         //PI control
-        float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
+        float rawSpd=-(test.kp*test.e+test.kd*(test.e-test.oldError)/float(dt));
         if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-            errorInt+=e*dt;
-            rawSpd-=ki*errorInt;
+            test.errorInt+=test.e*dt;
+            rawSpd-=test.ki*test.errorInt;
         }
-        else{errorInt=0;}
+        else{test.errorInt=0;}
         rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
         speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
         runMotor();
-        if (isPrint && (millis()-lastPrint > 200)){
-            Serial.println(String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
-            lastPrint = millis();
+        if (test.isPrint && (millis()-lastPrint > 200)){
+            Serial.println(String(speed)+"\t"+String(test.angle)+"\t"+String(test.setPoint) + "\t" + String(voltageToPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
+            test.lastPrint = millis();
         }
         
         while (Serial.available() > 0) {
@@ -228,26 +229,26 @@ void servoTest() {
             int inChar = Serial.read();
             
             if (inChar == '\n') {
-                if (inString == "fin"){
+                if (test.inString == "fin"){
                     return;
-                } else if (inString == "quiet"){
-                    isPrint = false;
-                } else if (inString == "loud"){
-                    isPrint = true;
+                } else if (test.inString == "quiet"){
+                    test.isPrint = false;
+                } else if (test.inString == "loud"){
+                    test.isPrint = true;
                 } else{
-                    setPoint=inString.toInt();
+                    test.setPoint=test.inString.toInt();
                 }
-                inString = "";
+                test.inString = "";
             } else {
-                inString += (char)inChar;
+                test.inString += (char)inChar;
             }
             
         }
-        if (isAngleUpdate) {
-            oldPosition = angle;
+        if (test.isAngleUpdate) {
+            test.oldPosition = test.angle;
             
         }
-        oldError=e;
+        test.oldError=test.e;
     }
 
 }
