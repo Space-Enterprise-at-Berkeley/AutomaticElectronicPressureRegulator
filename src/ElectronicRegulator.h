@@ -44,6 +44,13 @@ class Ereg {
 
         //int inChar = Serial.read() 
         int speed=0;
+        //add unsinged long lastPrint
+        //add String inString = ""
+        //implement a value for millis() - lastPrint?
+        //Read incoming comands
+            //bool readComm = Serial.available() > 0
+
+        //int inChar = Serial.read() 
 
         double motorAngle;
         double potAngle;
@@ -93,12 +100,18 @@ class Motor : public Ereg {
     //Think we can use constructor
 class Servo : public Ereg {
 public:
+//Create Servo class?
+    //Think we can use constructor
+    long angle;
     bool isAngleUpdate;
     long oldPosition=-999;
     long e=0;
     long oldError=0;
 
     long setPoint=100;
+    // float kp=11.5;
+    // float ki=1.5e-6;
+    // float kd=0.1665e6;
 
     float kp=11.5;
     float ki=1.5e-6;
@@ -112,6 +125,7 @@ public:
     unsigned long dt;
     bool isPrint = true;
     
+    unsigned long lastPrint = 0;
 
     unsigned long flowStart = millis(); // in millis
     unsigned long flowDuration;
@@ -126,5 +140,7 @@ public:
     float update(float measurement) {
         // do all the computations to get control signal
     }
+    String inString="";
+        
 
 };

@@ -89,7 +89,7 @@ void motorDirTest() {
     Serial.println("Starting motor/encoder direction test...");
 
     speed = 250;
-    ereg.runMotor(); //test for new class
+    runMotor(); //
     while (millis() - startTime < 1000) {}
     long theta1 = encoder.read();
     String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
