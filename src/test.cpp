@@ -14,20 +14,20 @@ namespace test {
 
         Serial.println("Starting motor/encoder direction test...");
 
-        int speed = 250;
+        test.speed = 250;
         test.runMotor(); //test for new class
         while (millis() - startTime < 1000) {}
         long theta1 = encoder.read();
         String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
         Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
         startTime = millis();
-        speed = -speed;
+        test.speed = -test.speed;
         test.runMotor();
         while (millis() - startTime < 1000) {}
         long theta2 = encoder.read();
         msg = ((theta2-theta1) < 0) ? "\tPASS":"\tFAIL";
         Serial.println("Running motors + direction. t1, t2: " + String(theta1) + "\t" + String(theta2) + msg);
-        speed = 0;
+        test.speed = 0;
         test.runMotor();
     }
 
@@ -74,7 +74,7 @@ namespace test {
         #ifndef USE_DASHBOARD
         Serial.println("Starting PT test...");
         #endif
-        long lastPrint = 0;
+        test.lastPrint = 0;
         int count = 0;
         Buffer p_buff(BUFF_SIZE);
         long t;
@@ -82,9 +82,9 @@ namespace test {
             count++;
             test.updatePT();
             t = micros();
-            if (millis() - lastPrint > 100) {
+            if (millis() - test.lastPrint > 100) {
                 
-                lastPrint = millis();
+                test.lastPrint = millis();
                 count = 0;
 
                 #ifndef USE_DASHBOARD
@@ -138,6 +138,7 @@ namespace test {
 
     void servoTest() {
     Serial.println("Starting servo test...");
+    test.speed = 0;
     long angle;
     bool isAngleUpdate;
     long oldPosition=-999;
@@ -213,6 +214,7 @@ namespace test {
 
     void servoCharacterization() {
     Serial.println("Starting servo-based characterization...");
+    test.speed = 0;
     long angle;
     bool isAngleUpdate;
     long oldPosition=-999;
