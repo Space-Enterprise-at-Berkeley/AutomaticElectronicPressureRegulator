@@ -131,9 +131,10 @@ void PID::angleSweep(long startAngle, long endAngle, unsigned long flowDuration,
 
 void PID::updatePressure(double kp_outer, double ki_outer, double kd_outer, double pressure_setpoint) {
     //Compute Outer Pressure Control Loop
+    p_buff = new Buffer(BUFF_SIZE);
     outer_e = LPpsi - pressure_setpoint;
-    p_buff_2->insert(t2/1.0e6, LPpsi);
-    double rawAngle = -( kp_outer*outer_e + kd_outer*(p_buff_2->get_slope()) );
+    p_buff->insert(t2/1.0e6, LPpsi);
+    double rawAngle = -( kp_outer*outer_e + kd_outer*(p_buff->get_slope()) );
     if(rawAngle<MAX_ANGLE && (rawAngle>MIN_ANGLE || outer_errorInt<0)){
         outer_errorInt += outer_e * dt;
         rawAngle -= ki_outer * outer_errorInt;
@@ -149,7 +150,7 @@ void PID::updatePressure(double kp_outer, double ki_outer, double kd_outer, doub
 //outerloop will be implemented in the method
 //method will take in settings for outerloop as args
 //main class loop will be inner loop
-boolean PID::pressurize_tank() {
+boolean PID::pressurize_tank(double kp_outer, double ki_outer, double kd_outer, double pressure_setpoint) {
     double pressure_e = 0;
     double pressure_e_old = 0;
     double pressure_errorInt = 0;
@@ -170,18 +171,7 @@ boolean PID::pressurize_tank() {
         
 
         //Compute Outer Pressure Control Loop
-        pressure_e = LPpsi - pressure_setpoint;
-        p_buff_2->insert(t2/1.0e6, LPpsi);
-        double rawAngle = -( kp_pressurize*pressure_e + kd_pressureize*(p_buff_2->get_slope()) );
-        if(rawAngle<MAX_ANGLE && (rawAngle>MIN_ANGLE || pressure_errorInt<0)){
-            pressure_errorInt += pressure_e * dt;
-            rawAngle -= ki_pressureize * pressure_errorInt;
-        }
-        pressure_e_old = pressure_e;
-
-        // Constrain angles and speeds
-        angle_setpoint = min(MAX_ANGLE, max(MIN_ANGLE, rawAngle));
-        //speed = min(max(MIN_SPD,rawSpd),MAX_SPD);
+        updatePressure(kp_outer, ki_outer, kd_outer, pressure_setpoint); //Possibly initialize these variables in the class
 
         if (endFlow > 0) {
             angle_setpoint = 0;
