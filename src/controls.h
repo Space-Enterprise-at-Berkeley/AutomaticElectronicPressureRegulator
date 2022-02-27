@@ -1,4 +1,6 @@
+#pragma once
 #include <utility.h>
+#include <config.h>
 
 
 
@@ -61,17 +63,17 @@ class PID {
     public:
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
-        double motorAngle;
-        double potAngle;
-        double HPpsi;
-        double LPpsi;
-        double InjectorPT;
-        unsigned long lastPrint = 0;
-        bool isPrint = true;
-        String inString="";
+        // double motorAngle;
+        // double potAngle;
+        // double HPpsi;
+        // double LPpsi;
+        // double InjectorPT;
+        // unsigned long lastPrint = 0;
+        // bool isPrint = true;
+        // String inString="";
 
-        //loop constants
-        long angle_setpoint=0;
+        // //loop constants
+        // long angle_setpoint=0;
 
 
         //create a constructor with inputs for kp,ki,kd,angle, setpoint, angle_setpoint?

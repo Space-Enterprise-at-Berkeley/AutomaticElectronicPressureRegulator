@@ -1,5 +1,7 @@
 #include <utility.h>
 
+int speed = 0;
+
 namespace utility {
     void runMotor() {
         analogWrite(MOTOR1,-min(0,speed));
@@ -31,6 +33,7 @@ namespace utility {
     }
 
     int waitConfirmation(){
+        String inString;
         #ifndef USE_DASHBOARD
         Serial.println("Waiting for numerical input...");
         #endif
