@@ -1,6 +1,6 @@
 #include <test.h>
 
-namespace test {
+namespace tests {
 
     PID test = PID(11.5, 1.5e-6, 0.21e6, 0, 100);
     //Encoder encoder(ENC1, ENC2);
@@ -10,21 +10,21 @@ namespace test {
         // run motors in positive direction for 2 seconds (encoder count should increase)
         // run motors in negative direction for 2 seconds (encoder count should decrease)
         long startTime = millis(); 
-        long theta0 = encoder.read();
+        long theta0 = enc1.read();
 
         Serial.println("Starting motor/encoder direction test...");
 
         test.speed = 250;
         test.runMotor(); //test for new class
         while (millis() - startTime < 1000) {}
-        long theta1 = encoder.read();
+        long theta1 = enc1.read();
         String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
         Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
         startTime = millis();
         test.speed = -test.speed;
         test.runMotor();
         while (millis() - startTime < 1000) {}
-        long theta2 = encoder.read();
+        long theta2 = enc1.read();
         msg = ((theta2-theta1) < 0) ? "\tPASS":"\tFAIL";
         Serial.println("Running motors + direction. t1, t2: " + String(theta1) + "\t" + String(theta2) + msg);
         test.speed = 0;
@@ -44,7 +44,7 @@ namespace test {
             test.runMotor();
 
             if (millis()-test.lastPrint > 200){
-                test.angle = encoder.read();
+                test.angle = enc1.read();
                 Serial.println(String(test.speed)+"\t"+String(test.angle));
                 test.lastPrint = millis();
             }
@@ -165,7 +165,7 @@ namespace test {
     while (true) {
         dt=micros()-t2;
         t2+=dt;
-        angle = encoder.read();
+        angle = enc1.read();
         isAngleUpdate=(angle!=oldPosition);
         e=angle-setPoint;
         //PI control
@@ -246,7 +246,7 @@ namespace test {
     while (true) {
         dt=micros()-t2;
         t2+=dt;
-        angle = encoder.read();
+        angle = enc1.read();
         isAngleUpdate=(angle!=oldPosition);
         e=angle-setPoint;
         //PI control

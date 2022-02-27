@@ -1,6 +1,6 @@
 #include <controls.h>
-#include <Comms.h>
 
+Encoder enc1(ENC1, ENC2);
 
 PID::PID(float kp, float ki, float kd, long angle, long setPoint) {
     kp = kp;
@@ -91,7 +91,7 @@ int PID::waitConfirmation(){
 
 void PID::angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long extraTime) {
     while (true) {
-        updateAngle(encoder.read());
+        updateAngle(enc1.read());
         runMotor();
         if (isPrint && (millis()-lastPrint > printFreq)){
             #ifndef USE_DASHBOARD
@@ -167,7 +167,7 @@ boolean PID::pressurize_tank(double kp_outer, double ki_outer, double kd_outer, 
         
         // LPpsi = analogRead(POTPIN)/1024.0*360
         //Compute Inner PID Servo loop
-        updateAngle(encoder.read());
+        updateAngle(enc1.read());
         
 
         //Compute Outer Pressure Control Loop

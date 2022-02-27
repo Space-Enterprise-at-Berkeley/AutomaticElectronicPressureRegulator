@@ -1,6 +1,3 @@
-#include <Arduino.h>
-#include <Encoder.h>
-#include <data_buff.h>
 #include <Comms.h>
 #include <controls.h>
 #include <test.h>
@@ -59,6 +56,7 @@ unsigned long start_time;
 
 
 
+
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
     Serial.begin(115200);
@@ -79,7 +77,7 @@ void setup() {
     control.speed = 0;
     control.runMotor();
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
-    encoder.write(-20);
+    enc1.write(-20);
 
     #ifndef USE_DASHBOARD
     waitConfirmation();
@@ -124,7 +122,7 @@ long lastPrint = 0;
 
 void loop() {
 
-    angle = encoder.read();
+    angle = enc1.read();
     motorAngle = control.encoderToAngle(angle);
     potAngle = control.readPot();
     HPpsi = control.voltageToHighPressure(analogRead(HP_PT));
