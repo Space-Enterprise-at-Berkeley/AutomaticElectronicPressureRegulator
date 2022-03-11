@@ -80,5 +80,6 @@ class PID {
         PID (float kp, float ki, float kd, double setPoint, bool method);
         //void updatePT();
         double update(double input);
+        void transmit();
 
 };

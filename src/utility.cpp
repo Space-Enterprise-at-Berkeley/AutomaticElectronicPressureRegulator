@@ -3,12 +3,13 @@
 
 
 namespace utility {
-    int speed = 0;
-    
-    void runMotor() {
+    //int speed = 0;
+
+    void runMotor(int speed) {
         analogWrite(MOTOR1,-min(0, speed));
         analogWrite(MOTOR2,max(0, speed));
     }
+
 
     double encoderToAngle(double encoderValue) {
         //convert encoder angle to degrees

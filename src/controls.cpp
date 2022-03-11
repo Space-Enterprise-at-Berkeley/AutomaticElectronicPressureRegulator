@@ -7,7 +7,7 @@ PID::PID(float kp, float ki, float kd, double setPoint, bool method) {
     ki = ki;
     kd = kd;
     setPoint = setPoint;
-    method = method; //true is pressure, false is angle
+    method = method; //true is outer, false is inner
 }
 
 //Outer loop does pressure and returns angle to inner loop, 

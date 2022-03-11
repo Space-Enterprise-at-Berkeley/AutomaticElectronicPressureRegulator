@@ -15,20 +15,20 @@ namespace tests {
         Serial.println("Starting motor/encoder direction test...");
 
         speed = 250;
-        utility::runMotor(); //test for new class
+        utility::runMotor(speed); //test for new class
         while (millis() - startTime < 1000) {}
         long theta1 = encoder.read();
         String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
         Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
         startTime = millis();
         speed = -speed;
-        utility::runMotor();
+        utility::runMotor(speed);
         while (millis() - startTime < 1000) {}
         long theta2 = encoder.read();
         msg = ((theta2-theta1) < 0) ? "\tPASS":"\tFAIL";
         Serial.println("Running motors + direction. t1, t2: " + String(theta1) + "\t" + String(theta2) + msg);
         speed = 0;
-        utility::runMotor();
+        utility::runMotor(speed);
     }
 
 //if anything breaks it might be because I stored 
@@ -41,7 +41,7 @@ namespace tests {
         long angle = 0;
 
         while (true){
-            utility::runMotor();
+            utility::runMotor(speed);
 
             if (millis() - lastPrint > 200){
                 angle = encoder.read();
@@ -159,7 +159,7 @@ namespace tests {
 
     while (true) {
         speed = test.update(encoder.read());
-        utility::runMotor();
+        utility::runMotor(speed);
         if (isPrint && (millis()-lastPrint > 200)){
             Serial.println(String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(utility::voltageToHighPressure(analogRead(HP_PT))) + "\t" + String(utility::voltageToHighPressure(analogRead(LP_PT))));
             lastPrint = millis();
@@ -210,8 +210,8 @@ namespace tests {
     String inString="";
 
     while (true) {
-        test.update(encoder.read());
-        utility::runMotor();
+        speed = test.update(encoder.read());
+        utility::runMotor(speed);
         if (isPrint && (millis()-lastPrint > printFreq)){
             Serial.println(String(millis()) + "\t" + String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(utility::voltageToHighPressure(analogRead(HP_PT))) + "\t" + String(utility::voltageToHighPressure(analogRead(LP_PT))));
             lastPrint = millis();
@@ -259,8 +259,8 @@ namespace tests {
         bool isPrint = true;
         unsigned int printFreq = 20;
         while (true) {
-            test.update(encoder.read());
-            utility::runMotor();
+            speed = test.update(encoder.read());
+            utility::runMotor(speed);
             if (isPrint && (millis()-lastPrint > printFreq)){ 
                 #ifndef USE_DASHBOARD
                 Serial.println(String(millis()) + "\t" + String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(utility::voltageToHighPressure(analogRead(HP_PT))) + "\t" + String(utility::voltageToPressure(analogRead(LP_PT))));
@@ -296,67 +296,86 @@ namespace tests {
         }
     }
 
-    // boolean pressureize_tank() {
-    //     double pressure_e = 0;
-    //     double pressure_e_old = 0;
-    //     double pressure_errorInt = 0;
-    //     Buffer* p_buff_2; //use for pressureize_tank
-    //     p_buff_2 = new Buffer(BUFF_SIZE);
-    //     unsigned long endFlow = 0;
+    boolean pressureize_tank() {
+        long dt;
+        long t2 = micros();
+        long start_time = micros();
+        long lastPrint = 0;
+        double pressure_e = 0;
+        double pressure_e_old = 0;
+        double pressure_errorInt = 0;
+        Buffer* p_buff_2; //use for pressureize_tank
+        p_buff_2 = new Buffer(BUFF_SIZE);
+        unsigned long endFlow = 0;
 
-    //     while (true) {
-    //         utility::motorAngle = utility::encoderToAngle(angle);
-    //         utility::potAngle = utility::readPot();
-    //         utility::HPpsi = utility::voltageToHighPressure(analogRead(HP_PT));
-    //         utility::LPpsi = utility::voltageToPressure(analogRead(LP_PT));
-    //         utility::InjectorPT = utility::voltageToPressure(analogRead(INJECTOR_PT));
+        long angle;
+        double motorAngle;
+        double potAngle;
+        double HPpsi;
+        double LPpsi;
+        double InjectorPT;
+
+        while (true) {
+            angle = encoder.read();
+            motorAngle = utility::encoderToAngle(angle);
+            potAngle = utility::readPot();
+            HPpsi = utility::voltageToHighPressure(analogRead(HP_PT));
+            LPpsi = utility::voltageToPressure(analogRead(LP_PT));
+            InjectorPT = utility::voltageToPressure(analogRead(INJECTOR_PT));
+
+            // LPpsi = analogRead(POTPIN)/1024.0*360
+
+            //Compute Inner PID Servo loop
+            long angle_setpoint = 0;
+            PID inner = PID (11.5, 25e-6, 0.1665e6, angle_setpoint, false);
+            speed = inner.update(angle);
         
-    //         // LPpsi = analogRead(POTPIN)/1024.0*360
-    //         //Compute Inner PID Servo loop
-    //         test.update(enc1.read());
-        
 
-    //         //Compute Outer Pressure Control Loop
-    //         //updatePressure(kp_outer, ki_outer, kd_outer, pressure_setpoint); //Possibly initialize these variables in the class
+            //Compute Outer Pressure Control Loop
+            long pressure_setpoint = 130;
+            PID outer = PID (1.0, 5.0e-6, 0.0, pressure_setpoint, true);
+            angle = outer.update(LPpsi);
 
-    //         // if (endFlow > 0) {
-    //         //     angle_setpoint = 0;
-    //         // }
 
-    //         utility::runMotor();
+            if (endFlow > 0) {
+                angle_setpoint = 0;
+            }
 
-    //         if (t2 - lastPrint > 50) {
-    //             #ifndef USE_DASHBOARD
-    //             Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
-    //             #else
-    //             Comms::Packet packet = {.id = 1};
-    //             // Comms::packetAddFloat(&packet, sin(t2/1e6));
-    //             Comms::packetAddFloat(&packet, float(angle_setpoint));
-    //             Comms::packetAddFloat(&packet, pressure_setpoint);
-    //             Comms::packetAddFloat(&packet, float(speed));
-    //             Comms::packetAddFloat(&packet, motorAngle);
-    //             Comms::packetAddFloat(&packet, HPpsi);
-    //             Comms::packetAddFloat(&packet, LPpsi);
-    //             Comms::packetAddFloat(&packet, InjectorPT);
-    //             Comms::packetAddFloat(&packet, p_buff_2->get_slope());
-    //             Comms::packetAddFloat(&packet, pressure_errorInt);
-    //             Comms::emitPacket(&packet);
-    //             #endif
-    //             lastPrint = micros();
-    //         }
+            utility::runMotor(speed);
 
-    //         if (LPpsi > pressure_setpoint*0.95 && endFlow <=0) {
-    //             endFlow = millis();
-    //         }
+            if (t2 - lastPrint > 50) {
+                #ifndef USE_DASHBOARD
+                //used p_buff_2 instead of p_buff as p_buff is not accessible
+                Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff_2->get_slope()) + "\t" + String(pressure_errorInt) );     
+                #else
+                Comms::Packet packet = {.id = 1};
+                // Comms::packetAddFloat(&packet, sin(t2/1e6));
+                Comms::packetAddFloat(&packet, float(angle_setpoint));
+                Comms::packetAddFloat(&packet, pressure_setpoint);
+                Comms::packetAddFloat(&packet, float(speed));
+                Comms::packetAddFloat(&packet, motorAngle);
+                Comms::packetAddFloat(&packet, HPpsi);
+                Comms::packetAddFloat(&packet, LPpsi);
+                Comms::packetAddFloat(&packet, InjectorPT);
+                Comms::packetAddFloat(&packet, p_buff_2->get_slope());
+                Comms::packetAddFloat(&packet, pressure_errorInt);
+                Comms::emitPacket(&packet);
+                #endif
+                lastPrint = micros();
+            }
 
-    //         if (endFlow > 0 && (millis() > (endFlow + 3000))) {
-    //         // finish flow
-    //             speed = 0;
-    //             runMotor();
-    //             return true;
-    //         }
+            if (LPpsi > pressure_setpoint*0.95 && endFlow <=0) {
+                endFlow = millis();
+            }
 
-    //     }
-    // }
+            if (endFlow > 0 && (millis() > (endFlow + 3000))) {
+            // finish flow
+                speed = 0;
+                utility::runMotor(speed);
+                return true;
+            }
+
+        }
+    }
 
 };

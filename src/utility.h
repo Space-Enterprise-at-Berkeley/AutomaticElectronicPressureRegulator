@@ -12,7 +12,7 @@
 
 namespace utility {
     // String inString;
-    void runMotor();
+    void runMotor(double speed);
     double encoderToAngle(double encoderValue);
     double voltageToPressure(double voltage);
     double voltageToHighPressure(double voltage);

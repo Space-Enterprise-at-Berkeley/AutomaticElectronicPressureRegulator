@@ -54,70 +54,70 @@ Encoder encoder(ENC1, ENC2);
 // double pressure_e_old = 0;
 // double pressure_errorInt = 0;
 
-// Buffer* p_buff;
-
 // unsigned long t2;
 // unsigned long dt;
 // unsigned long start_time;
 
-
+Buffer* p_buff;
+unsigned long startTime;
 
 
 void setup() {
-//     //Start with valve line perpendicular to body (90 degrees)
-//     Serial.begin(115200);
-//     while(!Serial);
-//     p_buff = new Buffer(BUFF_SIZE);
+    //Start with valve line perpendicular to body (90 degrees)
+    Serial.begin(115200);
+    while(!Serial);
+    p_buff = new Buffer(BUFF_SIZE);
 
-//     delay(500);
+    delay(500);
 
-//     #ifndef USE_DASHBOARD
-//     waitConfirmation();
-//     // move to close motors
-//     Serial.println("Zeroing valve");
-//     #endif
+    #ifndef USE_DASHBOARD
+    waitConfirmation();
+    // move to close motors
+    Serial.println("Zeroing valve");
+    #endif
 
-//     speed = -150;
-//     utility::runMotor();
-//     delay(2000);
-//     speed = 0;
-//     utility::runMotor();
-//     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
-//     encoder.write(-20);
+    //speed = -150;
+    //will hard code the runMotor() here instead to force it to close
+    //utility::runMotor();
+    analogWrite(MOTOR1, -min(0, -150));
+    analogWrite(MOTOR2, max(0, -150));
+    delay(2000);
+    utility::runMotor();
+    // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
+    encoder.write(-20);
 
-//     #ifndef USE_DASHBOARD
-//     waitConfirmation();
-//     #endif
-//     // motorDirTest();
-//     //tests::ptTest();
-//     delay(500);
-//     // servoTest();
-//     // motorPowerTest();
-//     //control.pressurize_tank(1.0, 5.0e-6, 0.0, 130);
+    #ifndef USE_DASHBOARD
+    waitConfirmation();
+    #endif
+    // motorDirTest();
+    tests::ptTest();
+    delay(500);
+    // servoTest();
+    // motorPowerTest();
+    tests::pressureize_tank();
     
-//     utility::waitConfirmation();
+    utility::waitConfirmation();
 
-//     // #ifndef USE_DASHBOARD
-//     // Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
-//     // waitConfirmation();
-//     // #endif
+    #ifndef USE_DASHBOARD
+    Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
+    waitConfirmation();
+    #endif
 
-//     // long startAngle = 300*1.08;
-//     // long endAngle = 1200*1.08;
-//     // long thirdAngle = 300*1.08;
-//     // long thirdAngle = 500*1.08;
-//     // long flowDuration = 5000; //time in ms for one way
-//     // Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
+    // long startAngle = 300*1.08;
+    // long endAngle = 1200*1.08;
+    // long thirdAngle = 300*1.08;
+    // long thirdAngle = 500*1.08;
+    // long flowDuration = 5000; //time in ms for one way
+    // Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
     
-//     // potTest();
-//     // servoTest();
+    // potTest();
+    // servoTest();
     
-//     // angleSweep(startAngle, endAngle, flowDuration, 0);
-//     // angleSweep(endAngle, thirdAngle, flowDuration, 5000);
-//     // ptTest();
-//     // exit(0);
-//     // t2 = micros();
-//     // start_time = micros();
+    // angleSweep(startAngle, endAngle, flowDuration, 0);
+    // angleSweep(endAngle, thirdAngle, flowDuration, 5000);
+    // ptTest();
+    // exit(0);
+    startTime = micros();
 
 }
 
@@ -129,66 +129,67 @@ void setup() {
 
 void loop() {
 
-//     angle = enc1.read();
-//     motorAngle = control.encoderToAngle(angle);
-//     potAngle = control.readPot();
-//     HPpsi = control.voltageToHighPressure(analogRead(HP_PT));
-//     LPpsi = control.voltageToPressure(analogRead(LP_PT));
-//     InjectorPT = control.voltageToPressure(analogRead(INJECTOR_PT));
+    double motorAngle = utility::encoderToAngle(encoder.read());
+    double potAngle = utility::readPot();
+    double HPpsi = utility::voltageToHighPressure(analogRead(HP_PT));
+    double LPpsi = utility::voltageToPressure(analogRead(LP_PT));
+    double InjectorPT = utility::voltageToPressure(analogRead(INJECTOR_PT));
     
-//     // LPpsi = analogRead(POTPIN)/1024.0*360;
+    // LPpsi = analogRead(POTPIN)/1024.0*360;
 
-//     dt=micros()-t2;
-//     t2+=dt;
-//     isAngleUpdate=(angle!=oldPosition);
-//     e=angle-angle_setpoint;
+    // isAngleUpdate=(angle!=oldPosition);
+    // e=angle-angle_setpoint;
 
-//     //Compute Inner PID Servo loop
-//     control.updateAngle(angle);
+    //Compute Inner PID Servo loop
+    long angle_setpoint = 0;
+    PID inner = PID (11.5, 1.5e-6, 0.1665e6, angle_setpoint, false);
+    inner.update(encoder.read());
 
-//     //Compute Outer Pressure Control Loop and constrain angles and speeds
-//     control.updatePressure(30, 30.0e-6, 2.5, 130);
+    //Compute Outer Pressure Control Loop and constrain angles and speeds
+    double pressure_setpoint = 130;
+    PID outer = PID (30, 30.0e-6, 2.5, pressure_setpoint, true);
+    outer.update(LPpsi);
 
-//     control.runMotor();
+    control.runMotor();
 
-//     if (t2 - control.lastPrint > 1000) {
-//         #ifndef USE_DASHBOARD
-//         Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
-//         #else
-//         Comms::Packet packet = {.id = 1};
-//         // Comms::packetAddFloat(&packet, sin(t2/1e6));
-//         Comms::packetAddFloat(&packet, float(control.angle_setpoint));
-//         Comms::packetAddFloat(&packet, pressure_setpoint); //not sure how to send, possibly store these variables in class when calling updatePressure method
-//         Comms::packetAddFloat(&packet, float(control.speed));
-//         Comms::packetAddFloat(&packet, control.motorAngle);
-//         Comms::packetAddFloat(&packet, control.HPpsi);
-//         Comms::packetAddFloat(&packet, control.LPpsi);
-//         Comms::packetAddFloat(&packet, control.InjectorPT);
-//         Comms::packetAddFloat(&packet, control.p_buff->get_slope());
-//         Comms::packetAddFloat(&packet, pressure_errorInt); //not sure how to send, possibly store these variables in class when calling updatePressure method
-//         Comms::emitPacket(&packet);
-//         #endif
-//         lastPrint = micros();
-//     }
+    if (t2 - control.lastPrint > 1000) {
+        #ifndef USE_DASHBOARD
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
+        #else
+        Comms::Packet packet = {.id = 1};
+        // Comms::packetAddFloat(&packet, sin(t2/1e6));
+        Comms::packetAddFloat(&packet, float(control.angle_setpoint));
+        Comms::packetAddFloat(&packet, pressure_setpoint); //not sure how to send, possibly store these variables in class when calling updatePressure method
+        Comms::packetAddFloat(&packet, float(control.speed));
+        Comms::packetAddFloat(&packet, control.motorAngle);
+        Comms::packetAddFloat(&packet, control.HPpsi);
+        Comms::packetAddFloat(&packet, control.LPpsi);
+        Comms::packetAddFloat(&packet, control.InjectorPT);
+        Comms::packetAddFloat(&packet, control.p_buff->get_slope());
+        Comms::packetAddFloat(&packet, pressure_errorInt); //not sure how to send, possibly store these variables in class when calling updatePressure method
+        Comms::emitPacket(&packet);
+        #endif
+        lastPrint = micros();
+    }
     
-//     while (Serial.available() > 0) {
-//         //Read incoming commands
-//         int inChar = Serial.read();
-//         if (inChar == '\n') {
-//             int new_setpt = inString.toInt(); //use class version?
-//             if (new_setpt >= 0 && new_setpt <= PRESSURE_MAXIMUM) {
-//                 pressure_setpoint=inString.toInt();
-//             }
-//             inString = "";
-//         } else {
-//             inString += (char)inChar;
-//         }
+    while (Serial.available() > 0) {
+        //Read incoming commands
+        int inChar = Serial.read();
+        if (inChar == '\n') {
+            int new_setpt = inString.toInt(); //use class version?
+            if (new_setpt >= 0 && new_setpt <= PRESSURE_MAXIMUM) {
+                pressure_setpoint=inString.toInt();
+            }
+            inString = "";
+        } else {
+            inString += (char)inChar;
+        }
         
-//     }
+    }
 
-//     // if ((micros()-start_time) > 30e6) {
-//     //     pressure_setpoint = 0;
-//     // }
+    // if ((micros()-start_time) > 30e6) {
+    //     pressure_setpoint = 0;
+    // }
 
 }
 
