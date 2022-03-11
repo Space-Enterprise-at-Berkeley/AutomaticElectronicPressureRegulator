@@ -1,11 +1,13 @@
 #include <utility.h>
 
-int speed = 0;
+
 
 namespace utility {
+    int speed = 0;
+    
     void runMotor() {
-        analogWrite(MOTOR1,-min(0,speed));
-        analogWrite(MOTOR2,max(0,speed));
+        analogWrite(MOTOR1,-min(0, speed));
+        analogWrite(MOTOR2,max(0, speed));
     }
 
     double encoderToAngle(double encoderValue) {

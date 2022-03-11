@@ -14,8 +14,8 @@ namespace tests {
     // double HPpsi;
     // double LPpsi;
     // double InjectorPT;
-    bool isPrint = true;
-    unsigned int printFreq;
+    //bool isPrint = true;
+    //unsigned int printFreq;
     // String inString="";
 
     //Servo Characterization

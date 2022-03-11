@@ -253,13 +253,15 @@ namespace tests {
     void angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long extraTime) {
         PID test = PID(11.5, 1.5e-6, 0.21e6, 130, false);
         long setPoint = 130;
-        unsigned long lastPrint;
+        unsigned long lastPrint = 0;
         long angle;
         unsigned long flowStart = millis(); // in millis
+        bool isPrint = true;
+        unsigned int printFreq = 20;
         while (true) {
             test.update(encoder.read());
             utility::runMotor();
-            if (isPrint && (millis()-lastPrint > printFreq)){
+            if (isPrint && (millis()-lastPrint > printFreq)){ 
                 #ifndef USE_DASHBOARD
                 Serial.println(String(millis()) + "\t" + String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(utility::voltageToHighPressure(analogRead(HP_PT))) + "\t" + String(utility::voltageToPressure(analogRead(LP_PT))));
                 #else
