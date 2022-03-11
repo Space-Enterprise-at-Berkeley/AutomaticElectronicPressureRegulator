@@ -6,6 +6,8 @@
 #include <Comms.h>
 #include <config.h>
 
+#define USE_DASHBOARD 1
+
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
 //   avoid using pins with LEDs attached

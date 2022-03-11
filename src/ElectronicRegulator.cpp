@@ -4,8 +4,6 @@
 #include <utility.h>
 #include <config.h>
 
-#define USE_DASHBOARD 1
-
 Encoder encoder(ENC1, ENC2);
 
 // Change these two numbers to the pins connected to your encoder.

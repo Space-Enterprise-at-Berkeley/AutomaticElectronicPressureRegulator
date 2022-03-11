@@ -1,5 +1,4 @@
 #include <test.h>
-#define USE_DASHBOARD 1
 
 namespace tests {
     Encoder encoder(ENC1, ENC2);
