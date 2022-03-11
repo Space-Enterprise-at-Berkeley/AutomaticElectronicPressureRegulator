@@ -255,6 +255,7 @@ namespace tests {
         long setPoint = 130;
         unsigned long lastPrint;
         long angle;
+        unsigned long flowStart = millis(); // in millis
         while (true) {
             test.update(encoder.read());
             utility::runMotor();

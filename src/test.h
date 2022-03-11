@@ -19,7 +19,7 @@ namespace tests {
     // String inString="";
 
     //Servo Characterization
-    unsigned long flowStart = millis(); // in millis
+    //unsigned long flowStart = millis(); // in millis
     // unsigned long flowDuration;
 
     void motorDirTest();
