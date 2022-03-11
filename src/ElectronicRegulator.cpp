@@ -93,7 +93,7 @@ void setup() {
     delay(500);
     // servoTest();
     // motorPowerTest();
-    tests::pressureize_tank();
+    tests::pressurize_tank();
     
     utility::waitConfirmation();
 
@@ -144,15 +144,17 @@ void loop() {
     //Compute Inner PID Servo loop
     long angle_setpoint = 0;
     PID inner = PID (11.5, 1.5e-6, 0.1665e6, angle_setpoint, false);
+    inner.set_setPoint(angle_setpoint);
     speed = inner.update(angle);
 
     //Compute Outer Pressure Control Loop and constrain angles and speeds
     double pressure_setpoint = 130;
     PID outer = PID (30, 30.0e-6, 2.5, pressure_setpoint, true);
-    angle = outer.update(LPpsi);
+    angle_setpoint = outer.update(LPpsi);
 
     utility::runMotor(speed);
-    double t2, error = outer.transmit();
+    double t2 = outer.getTime();
+    double pressureErrorInt = outer.getErrorInt();
 
     if (t2 - lastPrint > 1000) {
         #ifndef USE_DASHBOARD
@@ -160,15 +162,15 @@ void loop() {
         #else
         Comms::Packet packet = {.id = 1};
         // Comms::packetAddFloat(&packet, sin(t2/1e6));
-        Comms::packetAddFloat(&packet, angle_setpoint);
-        Comms::packetAddFloat(&packet, pressure_setpoint); //not sure how to send, possibly store these variables in class when calling updatePressure method
+        Comms::packetAddFloat(&packet, inner.get_setpoint());
+        Comms::packetAddFloat(&packet, outer.get_setpoint());
         Comms::packetAddFloat(&packet, speed);
         Comms::packetAddFloat(&packet, motorAngle);
         Comms::packetAddFloat(&packet, HPpsi);
         Comms::packetAddFloat(&packet, LPpsi);
         Comms::packetAddFloat(&packet, InjectorPT);
         Comms::packetAddFloat(&packet, p_buff->get_slope());
-        Comms::packetAddFloat(&packet, error); 
+        Comms::packetAddFloat(&packet, pressureErrorInt); 
         Comms::emitPacket(&packet);
         #endif
         lastPrint = micros();

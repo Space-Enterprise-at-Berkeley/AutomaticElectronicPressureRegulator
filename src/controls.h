@@ -17,7 +17,7 @@ class PID {
     long setPoint;
     long errorInt;
     float rawValue;
-    long time;
+    long lastUpdateTime;
     int maxSpd = 255;
     int minSpd = 255;
     int maxAngle = 1296;
@@ -27,6 +27,7 @@ class PID {
     float kp;
     float ki;
     float kd;
+    Buffer* p_buff = new Buffer(BUFF_SIZE);
     
     // float kp=11.5;
     // float ki=1.5e-6;
@@ -80,6 +81,18 @@ class PID {
         PID (float kp, float ki, float kd, double setPoint, bool method);
         //void updatePT();
         double update(double input);
-        double transmit();
+        //getters
+        double getTime();
+        double getError();
+        double getErrorInt();
+        double getP_input();
+        double getI_input();
+        double getD_input();
+        double get_setpoint();
+        //setters
+        double setProportion(float proportion);
+        double setIntegral(float intergral);
+        double setDerivative(float derivative);
+        double set_setPoint(double set);
 
 };

@@ -1,6 +1,5 @@
 #include <test.h>
-
-
+#define USE_DASHBOARD 1
 
 namespace tests {
     Encoder encoder(ENC1, ENC2);
@@ -89,6 +88,7 @@ namespace tests {
             p_buff.insert(double(t)/1.0e6, pressure);
             double old_pressure = pressure;
             long old_t = t;
+            double motorAngle;
             
             if (millis() - lastPrint > 100) {
                 
@@ -103,7 +103,7 @@ namespace tests {
                 // Comms::packetAddFloat(&packet, 0.0);
                 Comms::packetAddFloat(&packet, 0.0);
                 Comms::packetAddFloat(&packet, float(speed));
-                Comms::packetAddFloat(&packet, utility::motorAngle);
+                Comms::packetAddFloat(&packet, motorAngle);
                 Comms::packetAddFloat(&packet, utility::voltageToHighPressure(analogRead(HP_PT)));
                 Comms::packetAddFloat(&packet, utility::voltageToHighPressure(analogRead(LP_PT)));
                 Comms::packetAddFloat(&packet, utility::voltageToHighPressure(analogRead(INJECTOR_PT)));
@@ -297,7 +297,7 @@ namespace tests {
         }
     }
 
-    boolean pressureize_tank() {
+    boolean pressurize_tank() {
         long dt;
         long t2 = micros();
         long start_time = micros();

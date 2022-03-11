@@ -1,5 +1,5 @@
 #include <utility.h>
-
+#define USE_DASHBOARD 1
 
 
 namespace utility {

@@ -16,9 +16,8 @@ PID::PID(float kp, float ki, float kd, double setPoint, bool method) {
 
 double PID::update(double input) {
     //input is LPpsi for pressure and angle for angle
-    Buffer* p_buff = new Buffer(BUFF_SIZE);
-    long dt = micros() - time;
-    time += dt;
+    long dt = micros() - lastUpdateTime;
+    lastUpdateTime += dt;
     error = input - setPoint;
     //isAngleUpdate = (angle != oldPosition);
     
@@ -49,7 +48,38 @@ double PID::update(double input) {
     
 }
 
-//create transmit function to return value of time and pressure_error
-double PID::transmit() {
-    return time, error;
+//Getters
+double PID::getTime(){
+    return lastUpdateTime;
+}
+double PID::getError() {
+    return error;
+}
+double PID::getErrorInt() {
+    return errorInt;
+}
+double PID::getP_input() {
+    return kp * error;
+}
+double PID::getI_input() {
+    return ki * errorInt;
+}
+double PID::getD_input() {
+    return kd * (p_buff->get_slope());
+}
+double PID::get_setpoint() {
+    return setPoint;
+}
+//setters might not be required
+double PID::setProportion(float proportion) {
+    kp = proportion;
+}
+double PID::setIntegral(float integral) {
+    ki = integral;
+}
+double PID::setDerivative(float derivative) {
+    kd = derivative;
+}
+double PID::set_setPoint(double set) {
+    setPoint = set;
 }

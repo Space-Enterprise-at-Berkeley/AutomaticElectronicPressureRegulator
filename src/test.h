@@ -28,5 +28,5 @@ namespace tests {
     void potTest();
     void servoTest();
     void angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long extraTime);
-    boolean pressureize_tank();
+    boolean pressurize_tank();
 };
