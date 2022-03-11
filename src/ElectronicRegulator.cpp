@@ -141,16 +141,17 @@ void loop() {
     // isAngleUpdate=(angle!=oldPosition);
     // e=angle-angle_setpoint;
 
-    //Compute Inner PID Servo loop
     long angle_setpoint = 0;
-    PID inner = PID (11.5, 1.5e-6, 0.1665e6, angle_setpoint, false);
-    inner.set_setPoint(angle_setpoint);
-    speed = inner.update(angle);
-
     //Compute Outer Pressure Control Loop and constrain angles and speeds
     double pressure_setpoint = 130;
     PID outer = PID (30, 30.0e-6, 2.5, pressure_setpoint, true);
     angle_setpoint = outer.update(LPpsi);
+
+    //Compute Inner PID Servo loop
+    
+    PID inner = PID (11.5, 1.5e-6, 0.1665e6, angle_setpoint, false);
+    inner.set_setPoint(angle_setpoint); //might be redundant
+    speed = inner.update(angle);
 
     utility::runMotor(speed);
     double t2 = outer.getTime();
