@@ -5,7 +5,7 @@
 namespace utility {
     //int speed = 0;
 
-    void runMotor(int speed) {
+    void runMotor(double speed) {
         analogWrite(MOTOR1,-min(0, speed));
         analogWrite(MOTOR2,max(0, speed));
     }

@@ -1,9 +1,10 @@
 #include <test.h>
 
-int speed = 0;
+
 
 namespace tests {
     Encoder encoder(ENC1, ENC2);
+    int speed = 0;
 
     void motorDirTest() {
         // check encoder and motor directions match (essential for PID loop)

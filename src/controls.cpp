@@ -46,4 +46,10 @@ double PID::update(double input) {
         // }
         
     }
+    
+}
+
+//create transmit function to return value of time and pressure_error
+double PID::transmit() {
+    return time, error;
 }

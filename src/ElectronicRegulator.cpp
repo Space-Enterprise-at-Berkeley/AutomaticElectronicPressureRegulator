@@ -60,6 +60,7 @@ Encoder encoder(ENC1, ENC2);
 
 Buffer* p_buff;
 unsigned long startTime;
+double speed = 0;
 
 
 void setup() {
@@ -76,13 +77,11 @@ void setup() {
     Serial.println("Zeroing valve");
     #endif
 
-    //speed = -150;
-    //will hard code the runMotor() here instead to force it to close
-    //utility::runMotor();
-    analogWrite(MOTOR1, -min(0, -150));
-    analogWrite(MOTOR2, max(0, -150));
+    speed = -150;
+    utility::runMotor(speed);
     delay(2000);
-    utility::runMotor();
+    speed = 0;
+    utility::runMotor(speed);
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
     encoder.write(-20);
 
@@ -128,13 +127,15 @@ void setup() {
 
 
 void loop() {
-
+    long angle = encoder.read();
     double motorAngle = utility::encoderToAngle(encoder.read());
     double potAngle = utility::readPot();
     double HPpsi = utility::voltageToHighPressure(analogRead(HP_PT));
     double LPpsi = utility::voltageToPressure(analogRead(LP_PT));
     double InjectorPT = utility::voltageToPressure(analogRead(INJECTOR_PT));
-    
+    double lastPrint = 0;
+    String inString = "";
+
     // LPpsi = analogRead(POTPIN)/1024.0*360;
 
     // isAngleUpdate=(angle!=oldPosition);
@@ -143,30 +144,31 @@ void loop() {
     //Compute Inner PID Servo loop
     long angle_setpoint = 0;
     PID inner = PID (11.5, 1.5e-6, 0.1665e6, angle_setpoint, false);
-    inner.update(encoder.read());
+    speed = inner.update(angle);
 
     //Compute Outer Pressure Control Loop and constrain angles and speeds
     double pressure_setpoint = 130;
     PID outer = PID (30, 30.0e-6, 2.5, pressure_setpoint, true);
-    outer.update(LPpsi);
+    angle = outer.update(LPpsi);
 
-    control.runMotor();
+    utility::runMotor(speed);
+    double t2, error = outer.transmit();
 
-    if (t2 - control.lastPrint > 1000) {
+    if (t2 - lastPrint > 1000) {
         #ifndef USE_DASHBOARD
         Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
         #else
         Comms::Packet packet = {.id = 1};
         // Comms::packetAddFloat(&packet, sin(t2/1e6));
-        Comms::packetAddFloat(&packet, float(control.angle_setpoint));
+        Comms::packetAddFloat(&packet, angle_setpoint);
         Comms::packetAddFloat(&packet, pressure_setpoint); //not sure how to send, possibly store these variables in class when calling updatePressure method
-        Comms::packetAddFloat(&packet, float(control.speed));
-        Comms::packetAddFloat(&packet, control.motorAngle);
-        Comms::packetAddFloat(&packet, control.HPpsi);
-        Comms::packetAddFloat(&packet, control.LPpsi);
-        Comms::packetAddFloat(&packet, control.InjectorPT);
-        Comms::packetAddFloat(&packet, control.p_buff->get_slope());
-        Comms::packetAddFloat(&packet, pressure_errorInt); //not sure how to send, possibly store these variables in class when calling updatePressure method
+        Comms::packetAddFloat(&packet, speed);
+        Comms::packetAddFloat(&packet, motorAngle);
+        Comms::packetAddFloat(&packet, HPpsi);
+        Comms::packetAddFloat(&packet, LPpsi);
+        Comms::packetAddFloat(&packet, InjectorPT);
+        Comms::packetAddFloat(&packet, p_buff->get_slope());
+        Comms::packetAddFloat(&packet, error); 
         Comms::emitPacket(&packet);
         #endif
         lastPrint = micros();
