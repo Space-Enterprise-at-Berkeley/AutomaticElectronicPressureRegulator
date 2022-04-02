@@ -70,7 +70,7 @@ void setup() {
     delay(500);
 
     #ifndef USE_DASHBOARD
-    waitConfirmation();
+    utility::waitConfirmation();
     // move to close motors
     Serial.println("Zeroing valve");
     #endif
@@ -84,20 +84,22 @@ void setup() {
     encoder.write(-20);
 
     #ifndef USE_DASHBOARD
-    waitConfirmation();
+    utility::waitConfirmation();
     #endif
-    // motorDirTest();
-    tests::ptTest();
+    tests::motorDirTest();
+    //tests::ptTest();
     delay(500);
-    // servoTest();
-    // motorPowerTest();
-    tests::pressurize_tank();
+    //tests::servoTest();
+    //tests::motorPowerTest();
+    //tests::pressurize_tank();
     
     utility::waitConfirmation();
 
+    double pressure_setpoint = 130;
+
     #ifndef USE_DASHBOARD
     Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
-    waitConfirmation();
+    utility::waitConfirmation();
     #endif
 
     // long startAngle = 300*1.08;
@@ -157,7 +159,7 @@ void loop() {
 
     if (t2 - lastPrint > 1000) {
         #ifndef USE_DASHBOARD
-        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressureErrorInt) );     
         #else
         Comms::Packet packet = {.id = 1};
         // Comms::packetAddFloat(&packet, sin(t2/1e6));

@@ -18,7 +18,7 @@ namespace tests {
         while (millis() - startTime < 1000) {}
         long theta1 = encoder.read();
         String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
-        Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
+        Serial.println("Running motors + direction. t0, t1:" + String(theta0) + "\t" +  String(theta1) + msg);
         startTime = millis();
         speed = -speed;
         utility::runMotor(speed);
