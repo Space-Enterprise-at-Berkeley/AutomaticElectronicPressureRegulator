@@ -86,12 +86,12 @@ void setup() {
     #ifndef USE_DASHBOARD
     utility::waitConfirmation();
     #endif
-    tests::motorDirTest();
+    //tests::motorDirTest();
     //tests::ptTest();
     delay(500);
     //tests::servoTest();
     //tests::motorPowerTest();
-    //tests::pressurize_tank();
+    tests::pressurize_tank();
     
     utility::waitConfirmation();
 

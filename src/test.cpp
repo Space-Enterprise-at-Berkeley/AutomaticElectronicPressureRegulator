@@ -1,15 +1,17 @@
 #include <test.h>
 
 namespace tests {
-    Encoder encoder(ENC1, ENC2);
     int speed = 0;
 
     void motorDirTest() {
+        Encoder encoder(ENC1, ENC2);
         // check encoder and motor directions match (essential for PID loop)
         // run motors in positive direction for 2 seconds (encoder count should increase)
         // run motors in negative direction for 2 seconds (encoder count should decrease)
         long startTime = millis(); 
         long theta0 = encoder.read();
+
+        Serial.println(String(theta0));
 
         Serial.println("Starting motor/encoder direction test...");
 
@@ -34,6 +36,7 @@ namespace tests {
 //the common values of speed, motorAngle etc in common class variables
 
     void motorPowerTest() {
+        Encoder encoder(ENC1, ENC2);
         String inString = "";
         // int speed = 0;
         unsigned long lastPrint = 0;
@@ -144,6 +147,7 @@ namespace tests {
     }
 
     void servoTest() {
+    Encoder encoder(ENC1, ENC2);
     Serial.println("Starting servo test...");
     PID test = PID(11.5, 1.5e-6, 0.21e6, 100, false);
     long setPoint=100;
@@ -190,6 +194,7 @@ namespace tests {
 }
 
     void servoCharacterization() {
+    Encoder encoder(ENC1, ENC2);
     Serial.println("Starting servo-based characterization...");
     PID test = PID(11.5, 1.5e-6, 0.21e6, 0, false);
     speed = 0;
@@ -251,6 +256,7 @@ namespace tests {
 
 
     void angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long extraTime) {
+        Encoder encoder(ENC1, ENC2);
         PID test = PID(11.5, 1.5e-6, 0.21e6, 130, false);
         long setPoint = 130;
         unsigned long lastPrint = 0;
@@ -297,6 +303,7 @@ namespace tests {
     }
 
     boolean pressurize_tank() {
+        Encoder encoder(ENC1, ENC2);
         long dt;
         long t2 = micros();
         long start_time = micros();
