@@ -51,7 +51,7 @@ def compute_cv_grad(grad_raw, v_h, k_2):
 # measured values
 
 # piecewise intersection of k1*cv/angle graph
-intersect = 800 # in encoder counts
+intersect = 800 # in encoder counts #NOTE this is actually a little (a lot) off
 
 # volume of high pressure tank
 v_h = 0.0068 # in cubic meters; 6.8L
@@ -73,4 +73,9 @@ gradient = compute_cv_grad(gradient_raw, v_h, k_2)
 alpha = compute_alpha(k_3, 750, v_l)
 
 ff_factor = compute_feedforward_factor(v_ldot_nom, k_3, gradient)
+
+print(v_ldot_nom)
+print(gradient/PASCAL_TO_PSI) # this guy goes into matlab
+print(700*(gradient/PASCAL_TO_PSI))
+print(pascal_to_psi(k_2))
 print(ff_factor)
