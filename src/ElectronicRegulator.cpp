@@ -226,7 +226,9 @@ void potTest() {
 }
 
 void servoTest() {
+    #ifndef USE_DASHBOARD
     Serial.println("Starting servo test...");
+    #endif
     long angle;
     bool isAngleUpdate;
     long oldPosition=-999;
@@ -266,11 +268,12 @@ void servoTest() {
         rawSpd += ((rawSpd<0) ? -STATIC_SPD : STATIC_SPD);
         speed=min(max(MIN_SPD,rawSpd),MAX_SPD);
         runMotor();
+        #ifndef USE_DASHBOARD
         if (isPrint && (millis()-lastPrint > 200)){
             Serial.println(String(speed)+"\t"+String(angle)+"\t"+String(setPoint) + "\t" + String(voltageToHighPressure(analogRead(HP_PT))) + "\t" + String(voltageToPressure(analogRead(LP_PT))));
             lastPrint = millis();
         }
-        
+        #endif
         while (Serial.available() > 0) {
             //Read incoming commands
             int inChar = Serial.read();
@@ -521,12 +524,16 @@ long angle_errorInt=0;
 // kd = 2.0e6
 // perhaps run filtering on pressure derivative
 
-double kp_outer = 3.75;//30; // encoder counts per psi
-double ki_outer = 8.5e-6;//30.0e-6; // time in micros
-double kd_outer = 0.45;//2.5; // time in s
+double kp_outer = 3.0;//30; // encoder counts per psi
+double ki_outer = 4.5e-6;//30.0e-6; // time in micros
+double kd_outer = 0.25;//2.5; // time in s
+
+// double kp_outer = 0.75;//30; // encoder counts per psi
+// double ki_outer = 1.125e-6;//30.0e-6; // time in micros
+// double kd_outer = 0.0625;//2.5; // time in s
 //for now, running pure feedforward
 
-double pressure_setpoint = 130; //100
+double pressure_setpoint = 130; //130
 double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
@@ -691,7 +698,7 @@ void setup() {
     // Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
     
     // potTest();
-    // servoTest();
+    servoTest();
     
     // angleSweep(startAngle, endAngle, flowDuration, 0, 200);
     // angleSweep(endAngle, thirdAngle, flowDuration, 5000, 500);
