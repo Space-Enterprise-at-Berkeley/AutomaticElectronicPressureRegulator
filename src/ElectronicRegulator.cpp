@@ -524,16 +524,11 @@ long angle_errorInt=0;
 // kd = 2.0e6
 // perhaps run filtering on pressure derivative
 
-double kp_outer = 3.0;//30; // encoder counts per psi
-double ki_outer = 4.5e-6;//30.0e-6; // time in micros
-double kd_outer = 0.25;//2.5; // time in s
+double kp_outer = 0.75;//30; // encoder counts per psi
+double ki_outer = 1.125e-6;//30.0e-6; // time in micros
+double kd_outer = 0.0625;//2.5; // time in s
 
-// double kp_outer = 0.75;//30; // encoder counts per psi
-// double ki_outer = 1.125e-6;//30.0e-6; // time in micros
-// double kd_outer = 0.0625;//2.5; // time in s
-//for now, running pure feedforward
-
-double pressure_setpoint = 130; //130
+double pressure_setpoint = 520; //130
 double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
