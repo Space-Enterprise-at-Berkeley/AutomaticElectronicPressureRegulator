@@ -26,6 +26,7 @@
 
 #define MAX_ANGLE 1296
 #define MIN_ANGLE 0
+#define AW_ANGLE_THRESH 150 // in encoder counts 
 
 #define POTPIN A1
 #define HP_PT A4
@@ -685,7 +686,6 @@ void setup() {
     // pressurize_tank();
     
     ptTest();
-
     #ifndef USE_DASHBOARD
     Serial.println("Next input will start servo loop, starting setpoint = "+String(pressure_setpoint));
     waitConfirmation();
@@ -708,6 +708,7 @@ void setup() {
     t2 = micros();
     start_time = micros();
     pressure_errorInt = 0;
+    
 }
 
 long lastPrint = 0;
@@ -749,8 +750,11 @@ void loop() {
     p_buff->insert(t2/1.0e6, LPpsi);
     double rawAngle = -( kp_outer*pressure_e + kd_outer*(p_buff->get_slope()) );
     rawAngle += compute_feedforward(pressure_setpoint, HPpsi);
-    if(rawAngle<MAX_ANGLE && (rawAngle>MIN_ANGLE || pressure_errorInt<0)){
-        pressure_errorInt += pressure_e * dt;
+
+    if(rawAngle<MAX_ANGLE && (rawAngle>MIN_ANGLE || pressure_errorInt<0)){ // antiwindup check #1
+        if(((angle >= angle_setpoint-AW_ANGLE_THRESH) || pressure_e > 0) && ((angle <= angle_setpoint+AW_ANGLE_THRESH) || pressure_e < 0)){
+            pressure_errorInt += pressure_e * dt;
+        }
         rawAngle -= ki_outer * pressure_errorInt;
     }
     pressure_e_old = pressure_e;
