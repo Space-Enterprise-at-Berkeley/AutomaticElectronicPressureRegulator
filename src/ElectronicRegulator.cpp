@@ -34,7 +34,6 @@
 
 #define BUFF_SIZE 5
 
-
 #define USE_DASHBOARD 1
 
 // Change these two numbers to the pins connected to your encoder.
@@ -236,13 +235,14 @@ void servoTest() {
     long oldError=0;
 
     long setPoint=100;
-    // float kp=11.5;
-    // float ki=1.5e-6;
-    // float kd=0.1665e6;
-
     float kp=11.5;
     float ki=1.5e-6;
-    float kd=0.21e6;
+    // float kd=0.1665e6;
+    float kd=0.35e6;
+
+    // float kp=11.5;
+    // float ki=1.5e-6;
+    // float kd=0.21e6;
 
     long errorInt=0;
     unsigned long t2;
@@ -514,7 +514,8 @@ String inString = "";
 // Inner loop constants
 float kp=11.5;
 float ki=1.5e-6;
-float kd=0.1665e6;
+// float kd=0.1665e6;
+float kd=0.35e6;
 long angle_setpoint=0;
 long angle_errorInt=0;
 
@@ -524,11 +525,16 @@ long angle_errorInt=0;
 // kd = 2.0e6
 // perhaps run filtering on pressure derivative
 
-double kp_outer = 0.75;//30; // encoder counts per psi
-double ki_outer = 1.125e-6;//30.0e-6; // time in micros
-double kd_outer = 0.0625;//2.5; // time in s
+// 2k psi
+double kp_outer = 1.5;//30; // encoder counts per psi
+double ki_outer = 2.25e-6;//30.0e-6; // time in micros
+double kd_outer = 0.125;//2.5; // time in s
 
-double pressure_setpoint = 520; //130
+// double kp_outer = 0.75;//30; // encoder counts per psi
+// double ki_outer = 1.125e-6;//30.0e-6; // time in micros
+// double kd_outer = 0.0625;//2.5; // time in s
+
+double pressure_setpoint = 600; //130
 double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
