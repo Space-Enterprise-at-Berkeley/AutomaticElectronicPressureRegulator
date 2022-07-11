@@ -23,8 +23,9 @@
 #define MIN_SPD -255
 // #define STATIC_SPD 60
 #define STATIC_SPD 0
-
-#define MAX_ANGLE 1296
+//old max angle = 1296
+//3200*48/26
+#define MAX_ANGLE 363
 #define MIN_ANGLE 0
 
 #define POTPIN A1
@@ -34,7 +35,7 @@
 
 #define BUFF_SIZE 5
 
-#define USE_DASHBOARD 1
+//#define USE_DASHBOARD 1
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -62,7 +63,7 @@ void runMotor(){
 double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
     // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
-    return (encoderValue/3200.0)*360*26/48.0;
+    return (encoderValue/560.0)*360*1/3.0;
 }
 
 double voltageToPressure(double voltage) {
@@ -99,8 +100,12 @@ void motorDirTest() {
 
     speed = 250;
     runMotor();
-    while (millis() - startTime < 1000) {}
+    while (millis() - startTime < 1000) {
+        Serial.println(encoder.read());
+    }
     long theta1 = encoder.read();
+    Serial.print("Encoder Value: ");
+    Serial.println(theta1);
     String msg = ((theta1-theta0) > 0) ? "\tPASS":"\tFAIL";
     Serial.println("Running motors + direction. t0, t1" + String(theta0) + "\t" +  String(theta1) + msg);
     startTime = millis();
@@ -108,6 +113,8 @@ void motorDirTest() {
     runMotor();
     while (millis() - startTime < 1000) {}
     long theta2 = encoder.read();
+       Serial.print("Encoder Value: ");
+    Serial.println(theta2);
     msg = ((theta2-theta1) < 0) ? "\tPASS":"\tFAIL";
     Serial.println("Running motors + direction. t1, t2: " + String(theta1) + "\t" + String(theta2) + msg);
     speed = 0;
@@ -234,11 +241,11 @@ void servoTest() {
     long e=0;
     long oldError=0;
 
-    long setPoint=100;
-    float kp=11.5;
+    long setPoint=400;
+    float kp=20;//11.5;
     float ki=1.5e-6;
     // float kd=0.1665e6;
-    float kd=0.35e6;
+    float kd=0;//0.35e6;
 
     // float kp=11.5;
     // float ki=1.5e-6;
@@ -650,7 +657,9 @@ boolean pressurize_tank() {
 }
 
 double compute_feedforward(double pressure_setpoint, double hp) {
-    return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+    //return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+    return 196 + (pressure_setpoint/hp) * 39; // computed value for ff constant is 140
+
 }
 
 void setup() {
@@ -669,7 +678,7 @@ void setup() {
 
     speed = -150;
     runMotor();
-    delay(2000);
+    delay(1000);
     speed = 0;
     runMotor();
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
@@ -678,10 +687,10 @@ void setup() {
     #ifndef USE_DASHBOARD
     waitConfirmation();
     #endif
-    // motorDirTest();
+    //motorDirTest();
     // ptTest();
     delay(500);
-    // servoTest();
+    servoTest();
     // pressurize_tank();
     
     ptTest();
