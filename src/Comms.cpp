@@ -2,39 +2,39 @@
 
 namespace Comms {
 
-    // std::map<uint8_t, commFunction> callbackMap;
+    std::map<uint8_t, commFunction> callbackMap;
     // EthernetUDP Udp;
     char packetBuffer[sizeof(Packet)];
 
-    // void registerCallback(uint8_t id, commFunction function) {
-    //     callbackMap.insert(std::pair<int, commFunction>(id, function));
-    // }
+    void registerCallback(uint8_t id, commFunction function) {
+        callbackMap.insert(std::pair<int, commFunction>(id, function));
+    }
 
     /**
      * @brief Checks checksum of packet and tries to call the associated callback function.
      * 
      * @param packet Packet to be processed.
      */
-    // void evokeCallbackFunction(Packet *packet) {
-    //     uint16_t checksum = *(uint16_t *)&packet->checksum;
-    //     if (checksum == computePacketChecksum(packet)) {
-    //         DEBUG("Packet with ID ");
-    //         DEBUG(packet->id);
-    //         DEBUG(" has correct checksum!\n");
-    //         //try to access function, checking for out of range exception
-    //         if(callbackMap.count(packet->id)) {
-    //             callbackMap.at(packet->id)(*packet);
-    //         } else {
-    //             DEBUG("ID ");
-    //             DEBUG(packet->id);
-    //             DEBUG(" does not have a registered callback function.\n");
-    //         }
-    //     } else {
-    //         DEBUG("Packet with ID ");
-    //         DEBUG(packet->id);
-    //         DEBUG(" does not have correct checksum!\n");
-    //     }
-    // }
+    void evokeCallbackFunction(Packet *packet) {
+        uint16_t checksum = *(uint16_t *)&packet->checksum;
+        if (checksum == computePacketChecksum(packet)) {
+            DEBUG("Packet with ID ");
+            DEBUG(packet->id);
+            DEBUG(" has correct checksum!\n");
+            //try to access function, checking for out of range exception
+            if(callbackMap.count(packet->id)) {
+                callbackMap.at(packet->id)(*packet);
+            } else {
+                DEBUG("ID ");
+                DEBUG(packet->id);
+                DEBUG(" does not have a registered callback function.\n");
+            }
+        } else {
+            DEBUG("Packet with ID ");
+            DEBUG(packet->id);
+            DEBUG(" does not have correct checksum!\n");
+        }
+    }
 
     void processWaitingPackets() {
         if(Serial.available()) {
@@ -47,7 +47,7 @@ namespace Comms {
             DEBUG("Got unverified packet with ID ");
             DEBUG(packet->id);
             DEBUG('\n');
-            // evokeCallbackFunction(packet);
+            evokeCallbackFunction(packet);
         }
     }
 

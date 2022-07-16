@@ -662,6 +662,28 @@ double compute_feedforward(double pressure_setpoint, double hp) {
 
 }
 
+
+//TODO fill out command methods
+void zero(Comms::Packet packet) {
+    encoder.write(-20);
+}
+
+void setPressureSetpoint(Comms::Packet packet) {
+    pressure_setpoint = Comms::packetGetFloat(packet);
+}
+
+void regulation(Comms::Packet packet) {
+
+}
+
+void flow(Comms::Packet packet) {
+
+}
+
+void fullOpen(Comms::Packet packet) {
+
+}
+
 void setup() {
     //Start with valve line perpendicular to body (90 degrees)
     Serial.begin(115200);
@@ -669,6 +691,12 @@ void setup() {
     p_buff = new Buffer(BUFF_SIZE);
 
     delay(500);
+
+    Comms::registerCallback(0, zero);
+    Comms::registerCallback(1, setPressureSetpoint);
+    Comms::registerCallback(2, regulation);
+    Comms::registerCallback(3, flow);
+    Comms::registerCallback(4, fullOpen);
 
     #ifndef USE_DASHBOARD
     waitConfirmation();
@@ -723,6 +751,7 @@ long lastPrint = 0;
 // Start in closed position, angle should be 0
 
 void loop() {
+    Comms::processWaitingPackets();
 
     angle = encoder.read();
     motorAngle = encoderToAngle(angle);
