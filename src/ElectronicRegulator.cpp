@@ -63,9 +63,12 @@ void runMotor(){
 
 double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
-    // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
-    return (encoderValue/3200.0)*360*26/48.0;
+    return encoderValue/1680.0*360/3.0;
+    //return (encoderValue/3200.0)*360*26/48.0;
 }
+
+//new encoder angle conversion:
+// 45 + encoderValue/1680.0*360
 
 double voltageToPressure(double voltage) {
     //1024 bits in analog read
@@ -529,7 +532,8 @@ double kp_outer = 0.75;//30; // encoder counts per psi
 double ki_outer = 1.125e-6;//30.0e-6; // time in micros
 double kd_outer = 0.0625;//2.5; // time in s
 
-double pressure_setpoint = 520; //130
+double final_pressure_setpoint = 520; //130
+double pressure_setpoint = 15;
 double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
@@ -540,7 +544,9 @@ unsigned long t2;
 unsigned long dt;
 unsigned long start_time;
 
-
+double press = 0;
+double pressure_scalar = 0;
+double last_pressure_time = 0;
 
 boolean pressurize_tank() {
     double pressure_errorInt = 0;
@@ -564,6 +570,19 @@ boolean pressurize_tank() {
         InjectorPT = voltageToPressure(analogRead(INJECTOR_PT));
         
         // LPpsi = analogRead(POTPIN)/1024.0*360;
+
+        if (pressure_scalar < 1)
+        {
+            if (millis() - last_pressure_time > 20)
+            {
+                pressure_scalar += .05;
+            }
+        }
+        if (pressure_scalar > 1)
+        {
+            pressure_scalar = 1;
+        }
+        pressure_setpoint = final_pressure_setpoint * pressure_scalar;
 
         dt=micros()-t2;
         t2+=dt;
@@ -645,7 +664,14 @@ boolean pressurize_tank() {
 }
 
 double compute_feedforward(double pressure_setpoint, double hp) {
-    return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+    //return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+    //new feedforward value value
+    //42.65 = (700/3200.0)*360*26/48.0
+    //42.65/360*1680*3 = 597
+
+    //8.53=140/3200*360*26/48
+    //8.53/360*1680*3 = 119
+    return 597 + (pressure_setpoint/hp) * 119;
 }
 
 void setup() {
@@ -677,7 +703,7 @@ void setup() {
     // ptTest();
     delay(500);
     // servoTest();
-    // pressurize_tank();
+    //pressurize_tank();
     
     ptTest();
     exit(0);
@@ -711,12 +737,16 @@ long lastPrint = 0;
 
 void loop() {
 
+
+
     angle = encoder.read();
     motorAngle = encoderToAngle(angle);
     potAngle = readPot();
     HPpsi = voltageToHighPressure(analogRead(HP_PT));
     LPpsi = voltageToPressure(analogRead(LP_PT));
     InjectorPT = voltageToPressure(analogRead(INJECTOR_PT));
+
+
     
     // LPpsi = analogRead(POTPIN)/1024.0*360;
 
