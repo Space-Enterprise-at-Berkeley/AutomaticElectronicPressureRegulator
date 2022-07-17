@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Arduino.h>
-#include <map>
 
 #ifdef DEBUG_MODE
 #define DEBUG(val) Serial.print(val)

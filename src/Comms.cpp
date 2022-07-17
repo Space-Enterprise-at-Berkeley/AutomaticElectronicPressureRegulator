@@ -2,12 +2,12 @@
 
 namespace Comms {
 
-    std::map<uint8_t, commFunction> callbackMap;
+    commFunction callbackMap[5];
     // EthernetUDP Udp;
     char packetBuffer[sizeof(Packet)];
 
     void registerCallback(uint8_t id, commFunction function) {
-        callbackMap.insert(std::pair<int, commFunction>(id, function));
+        callbackMap[id] = function;
     }
 
     /**
@@ -22,8 +22,8 @@ namespace Comms {
             DEBUG(packet->id);
             DEBUG(" has correct checksum!\n");
             //try to access function, checking for out of range exception
-            if(callbackMap.count(packet->id)) {
-                callbackMap.at(packet->id)(*packet);
+            if(packet->id < 5) {
+                callbackMap[packet->id](*packet);
             } else {
                 DEBUG("ID ");
                 DEBUG(packet->id);
@@ -39,8 +39,8 @@ namespace Comms {
     void processWaitingPackets() {
         if(Serial.available()) {
             int cnt = 0;
-            while(Serial.available() && cnt < sizeof(Packet)) {
-                packetBuffer[cnt] = Serial.read();
+            while(Serial1.available() && cnt < sizeof(Packet)) {
+                packetBuffer[cnt] = Serial1.read();
                 cnt++;
             }
             Packet *packet = (Packet *)&packetBuffer;
