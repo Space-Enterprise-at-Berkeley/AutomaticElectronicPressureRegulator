@@ -27,4 +27,17 @@ namespace Util {
     double readPot(){
         return (analogRead(HAL::potPin)/1024.0)*90.0;
     }
+
+    double compute_feedforward(double pressure_setpoint, double hp) {
+        //return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+        //new feedforward value value
+        //42.65 = (700/3200.0)*360*26/48.0
+        //42.65/360*1680*3 = 597
+        //42.65/360*1120*3 = 398
+
+        //8.53=140/3200*360*26/48
+        //8.53/360*1120*3 = 79
+        return 398 + (pressure_setpoint/hp) * 79;
+    }
+
 }
