@@ -25,8 +25,10 @@
 #define STATIC_SPD 0
 
 #define MAX_ANGLE 1296
+
+
 #define MIN_ANGLE 0
-#define AW_ANGLE_THRESH 75 // in encoder counts 
+#define AW_ANGLE_THRESH 40 // in encoder counts 
 
 #define POTPIN A1
 #define HP_PT A4
@@ -62,9 +64,12 @@ void runMotor(){
 
 double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
-    // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
-    return (encoderValue/3200.0)*360*26/48.0;
+    return encoderValue/1120.0*360/3.0;
+    //return (encoderValue/3200.0)*360*26/48.0;
 }
+
+//new encoder angle conversion:
+// 45 + encoderValue/1680.0*360
 
 double voltageToPressure(double voltage) {
     //1024 bits in analog read
@@ -174,7 +179,13 @@ void ptTest() {
             count = 0;
 
             #ifndef USE_DASHBOARD
-            Serial.println(String(encoder.read()) + "\tInjector:\t" + String(voltageToPressure(analogRead(INJECTOR_PT))) + "\tHP:\t" + String(voltageToHighPressure(analogRead(HP_PT))) + "\tLP:\t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
+            //Serial.println(String(encoder.read()) + "\tInjector:\t" + String(voltageToPressure(analogRead(INJECTOR_PT))) + "\tHP:\t" + String(voltageToHighPressure(analogRead(HP_PT))) + "\tLP:\t" + String(p) + "\t" + String((p-old_p)/((t-old_t)/1e6)) + "\t" + String(p_buff.get_slope()));
+            Serial.print("HP: ");
+            Serial.print(voltageToHighPressure(analogRead(HP_PT)));
+            Serial.print("\t");
+            Serial.print("LP: ");
+            Serial.println(voltageToPressure(analogRead(LP_PT)));
+
             #else
             Comms::Packet packet = {.id = 1};
             Comms::packetAddFloat(&packet, sin(t/1e6));
@@ -238,12 +249,7 @@ void servoTest() {
     long setPoint=100;
     float kp=11.5;
     float ki=1.5e-6;
-    // float kd=0.1665e6;
-    float kd=0.35e6;
-
-    // float kp=11.5;
-    // float ki=1.5e-6;
-    // float kd=0.21e6;
+    float kd=.60e6;
 
     long errorInt=0;
     unsigned long t2;
@@ -338,7 +344,8 @@ void servoCharacterization() {
 
     float kp=11.5;
     float ki=1.5e-6;
-    float kd=0.21e6;
+    //float kd=0.60e6;
+    float kd=.6e6;
 
     long errorInt=0;
     unsigned long t2;
@@ -427,8 +434,8 @@ void angleSweep(long startAngle, long endAngle, unsigned long flowDuration, long
 
     float kp=11.5;
     float ki=1.5e-6;
-    float kd=0.21e6;
-
+    //float kd=0.60e6;
+    float kd=.6e6;
     long errorInt=0;
     unsigned long t2;
     unsigned long dt;
@@ -515,8 +522,7 @@ String inString = "";
 // Inner loop constants
 float kp=11.5;
 float ki=1.5e-6;
-// float kd=0.1665e6;
-float kd=0.35e6;
+float kd=.60e6;
 long angle_setpoint=0;
 long angle_errorInt=0;
 
@@ -526,20 +532,22 @@ long angle_errorInt=0;
 // kd = 2.0e6
 // perhaps run filtering on pressure derivative
 
-// 2k psi
-double kp_outer = 2.5;//30; // encoder counts per psi
-double ki_outer = 0.5e-6;//30.0e-6; // time in micros
-double kd_outer = 0.125;//2.5; // time in s
+// double kp_outer = .25//60;//60;//30; // encoder counts per psi
+// double ki_outer = 0;//1.125e-6*15;//30.0e-6; // time in micros
+// double kd_outer = 8;//0.0625;//2.5; // time in s
 
-// double kp_outer = 0.9;//30; // encoder counts per psi
-// double ki_outer = 0.4e-6;//30.0e-6; // time in micros
-// double kd_outer = 0.0625;//2.5; // time in s
+// double kp_outer = 3;//30; // encoder counts per psi
+// double ki_outer = 1.125e-6; //1.125e-6;//30.0e-6; // time in micros
+// double kd_outer = .0625;//0.0625*2;//2.5; // time in s
 
-// double kp_outer = 0.75;//30; // encoder counts per psi
-// double ki_outer = 1.125e-6;//30.0e-6; // time in micros
-// double kd_outer = 0.0625;//2.5; // time in s
+double kp_outer = 0;//0.75;//30; // encoder counts per psi
+double ki_outer = 0;//1.125e-6;//30.0e-6; // time in micros
+double kd_outer = 0;//0.0625;//2.5; // time in s
 
-double pressure_setpoint = 500; //130
+double final_pressure_setpoint = 40; //130
+double pressure_setpoint = 40;
+double pressure_setpoint_copy = 40;
+
 double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
@@ -550,112 +558,22 @@ unsigned long t2;
 unsigned long dt;
 unsigned long start_time;
 
+double press = 0;
+double pressure_scalar = 0;
+double last_pressure_time = 0;
 
-
-boolean pressurize_tank() {
-    double pressure_errorInt = 0;
-    long t2 = micros();
-    long start_time = millis();
-    
-    long lastPrint = 0;
-    double kp_outer_pressurize = 0.5; // encoder counts per psi
-    double ki_outer_pressurize = 1.0e-6; // time in micros
-    double kd_outer_pressurize = 0.0; // time in s
-    Buffer* p_buff_2; // use for pressurize_tank
-    p_buff_2 = new Buffer(BUFF_SIZE);
-    unsigned long endFlow = 0;
-
-    while (true) {
-        angle = encoder.read();
-        motorAngle = encoderToAngle(angle);
-        potAngle = readPot();
-        HPpsi = voltageToHighPressure(analogRead(HP_PT));
-        LPpsi = voltageToPressure(analogRead(LP_PT));
-        InjectorPT = voltageToPressure(analogRead(INJECTOR_PT));
-        
-        // LPpsi = analogRead(POTPIN)/1024.0*360;
-
-        dt=micros()-t2;
-        t2+=dt;
-        isAngleUpdate=(angle!=oldPosition);
-        e=angle-angle_setpoint;
-
-        
-
-        //Compute Inner PID Servo loop
-        float rawSpd=-(kp*e+kd*(e-oldError)/float(dt));
-        if(rawSpd<MAX_SPD && rawSpd>MIN_SPD){ //anti-windup
-            angle_errorInt+=e*dt;
-            rawSpd-=ki*angle_errorInt;
-        }
-        else{angle_errorInt=0;}
-        
-        if (isAngleUpdate) {
-            oldPosition = angle;
-        }
-        oldError=e;
-
-        //Compute Outer Pressure Control Loop
-        pressure_e = LPpsi - pressure_setpoint;
-        p_buff_2->insert(t2/1.0e6, LPpsi);
-        double rawAngle = -( kp_outer_pressurize*pressure_e + kd_outer_pressurize*(p_buff_2->get_slope()) );
-        if(rawAngle<MAX_ANGLE && (rawAngle>MIN_ANGLE || pressure_errorInt<0)){
-            pressure_errorInt += pressure_e * dt;
-            rawAngle -= ki_outer_pressurize * pressure_errorInt;
-        }
-        pressure_e_old = pressure_e;
-
-        // Constrain angles and speeds
-        angle_setpoint = min(MAX_ANGLE, max(MIN_ANGLE, rawAngle));
-        speed = min(max(MIN_SPD,rawSpd),MAX_SPD);
-
-        if (endFlow > 0) {
-            angle_setpoint = 0;
-        }
-
-        runMotor();
-
-        if (t2 - lastPrint > 50) {
-            #ifndef USE_DASHBOARD
-            Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
-            #else
-            Comms::Packet packet = {.id = 1};
-            // Comms::packetAddFloat(&packet, sin(t2/1e6));
-            Comms::packetAddFloat(&packet, float(angle_setpoint));
-            Comms::packetAddFloat(&packet, pressure_setpoint);
-            Comms::packetAddFloat(&packet, float(speed));
-            Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, -kp_outer * pressure_e);
-            Comms::packetAddFloat(&packet, -kd_outer * p_buff_2->get_slope());
-            Comms::packetAddFloat(&packet, -ki_outer * pressure_errorInt);
-            Comms::emitPacket(&packet);
-            #endif
-            lastPrint = micros();
-        }
-
-        if (LPpsi > pressure_setpoint*0.95 && endFlow <=0) {
-            endFlow = millis();
-        }
-
-        if (endFlow > 0 && (millis() > (endFlow + 3000))) {
-           // finish flow
-            speed = 0;
-            runMotor();
-            return true;
-        }
-
-        if (millis() - start_time > 10000) {
-            return false;
-        }
-
-    }
-    
-}
 
 double compute_feedforward(double pressure_setpoint, double hp) {
-    return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+    //return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
+    //new feedforward value value
+    //42.65 = (700/3200.0)*360*26/48.0
+    //42.65/360*1680*3 = 597
+    //42.65/360*1120*3 = 398
+
+    //8.53=140/3200*360*26/48
+    //8.53/360*1120*3 = 79
+    //190 imperical threshold, can be up to 270. Hysteresis in valve due to wear in 3dp component
+    return 360 + ((double) pressure_setpoint/(double) hp) * 79.0;
 }
 
 void setup() {
@@ -674,7 +592,7 @@ void setup() {
 
     speed = -150;
     runMotor();
-    delay(2000);
+    delay(1000);
     speed = 0;
     runMotor();
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
@@ -683,11 +601,14 @@ void setup() {
     #ifndef USE_DASHBOARD
     waitConfirmation();
     #endif
-    // motorDirTest();
-    // ptTest();
+    //motorDirTest();
+    //waitConfirmation();
+
+    ptTest();
     delay(500);
-    // servoTest();
-    // pressurize_tank();
+    waitConfirmation()  ;
+    servoTest();
+    //pressurize_tank();
     
     ptTest();
     #ifndef USE_DASHBOARD
@@ -703,7 +624,7 @@ void setup() {
     // Serial.println("Starting angle sweep from "+String(startAngle)+" to "+String(endAngle)+" then back to " + String(thirdAngle) + " over "+String(2*flowDuration)+" ms...");
     
     // potTest();
-    servoTest();
+    //servoTest();
     
     // angleSweep(startAngle, endAngle, flowDuration, 0, 200);
     // angleSweep(endAngle, thirdAngle, flowDuration, 5000, 500);
@@ -717,8 +638,13 @@ void setup() {
 
 long lastPrint = 0;
 // Start in closed position, angle should be 0
+double slow_set_point = 0;
 
 void loop() {
+    
+    slow_set_point = (micros()-start_time)/((float) 5.0e6)*pressure_setpoint_copy;
+
+    pressure_setpoint = min(pressure_setpoint_copy, slow_set_point);
 
     angle = encoder.read();
     motorAngle = encoderToAngle(angle);
@@ -726,6 +652,8 @@ void loop() {
     HPpsi = voltageToHighPressure(analogRead(HP_PT));
     LPpsi = voltageToPressure(analogRead(LP_PT));
     InjectorPT = voltageToPressure(analogRead(INJECTOR_PT));
+
+
     
     // LPpsi = analogRead(POTPIN)/1024.0*360;
 
@@ -771,7 +699,12 @@ void loop() {
 
     if (t2 - lastPrint > 1000) {
         #ifndef USE_DASHBOARD
-        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(motorAngle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
+        Serial.println( String(t2) + "\t"+ String(angle_setpoint) + "\t"+ String(slow_set_point) + "\t"+ String(pressure_setpoint) +"\t" + String(speed) + "\t" + String(angle) + "\t" + String(HPpsi) + "\t" + String(LPpsi) + "\t" + String(InjectorPT) + "\t" + String(p_buff->get_slope()) + "\t" + String(pressure_errorInt) );     
+        // Serial.print("HP: ");
+        // Serial.print(HPpsi);
+        // Serial.print("\t");
+        // Serial.print("LP: ");
+        // Serial.println(LPpsi);
         #else
         Comms::Packet packet = {.id = 1};
         // Comms::packetAddFloat(&packet, sin(t2/1e6));
@@ -796,7 +729,7 @@ void loop() {
             if (inString == "q") {
                 speed = -150;
                 runMotor();
-                delay(1000);
+                delay(2000);
                 speed = 0;
                 runMotor();
                 exit(0);
@@ -812,9 +745,9 @@ void loop() {
         
     }
 
-    // if ((micros()-start_time) > 30e6) {
-    //     pressure_setpoint = 0;
-    // }
+    if ((micros()-start_time) > 30e6) {
+        pressure_setpoint = 0;
+    }
 
 }
 
