@@ -9,16 +9,18 @@ PIDController::PIDController(double p, double i, double d, double minSpeed, doub
 }
 
 double PIDController::update(double error) {
-    float dt = micros() - lastUpdate_;
-    double output = p_*error+d_*(error-previousError_)/dt;
-    previousError_ = error;
+    float curr_time = micros();
+    float dt = curr_time - lastUpdate_;
+    double output = p_*error + d_*(error-previousError_)/dt;
 
-    if(output < maxOutput_ && output > minOutput_){ //anti-windup
-        intError_ += error * dt;
-        output += i_ * intError_;
-    }else {
-        intError_ = 0;
-    }
+    intError_ += error * dt;
+    output += i_ * intError_;
+
+    output = output < minOutput_ ? minOutput_ : output;
+    output = output > maxOutput_ ? maxOutput_ : output;
+
+    previousError_ = error;
+    lastUpdate_ = curr_time;
 
     return output;
 }
