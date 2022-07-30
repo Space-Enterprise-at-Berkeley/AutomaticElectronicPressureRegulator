@@ -26,7 +26,7 @@
 
 #define MAX_ANGLE 1296
 #define MIN_ANGLE 0
-#define AW_ANGLE_THRESH 150 // in encoder counts 
+#define AW_ANGLE_THRESH 75 // in encoder counts 
 
 #define POTPIN A1
 #define HP_PT A4
@@ -527,15 +527,19 @@ long angle_errorInt=0;
 // perhaps run filtering on pressure derivative
 
 // 2k psi
-double kp_outer = 1.5;//30; // encoder counts per psi
-double ki_outer = 2.25e-6;//30.0e-6; // time in micros
+double kp_outer = 2.5;//30; // encoder counts per psi
+double ki_outer = 0.5e-6;//30.0e-6; // time in micros
 double kd_outer = 0.125;//2.5; // time in s
+
+// double kp_outer = 0.9;//30; // encoder counts per psi
+// double ki_outer = 0.4e-6;//30.0e-6; // time in micros
+// double kd_outer = 0.0625;//2.5; // time in s
 
 // double kp_outer = 0.75;//30; // encoder counts per psi
 // double ki_outer = 1.125e-6;//30.0e-6; // time in micros
 // double kd_outer = 0.0625;//2.5; // time in s
 
-double pressure_setpoint = 600; //130
+double pressure_setpoint = 500; //130
 double pressure_e = 0;
 double pressure_e_old = 0;
 double pressure_errorInt = 0;
