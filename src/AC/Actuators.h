@@ -14,52 +14,60 @@ namespace Actuators {
 
     const float maxValveCurrent = 1.0;
 
-    extern float act1Voltage;
-    extern float act1Current;
-    extern uint8_t act1State;
+    // ac1
+    extern float propTankVentRBVVoltage;
+    extern float propTankVentRBVCurrent;
+    extern uint8_t propTankVentRBVState;
     extern Task *stop1;
-    const uint8_t act1Pin1 = HAL::hBrg1Pin1;
-    const uint8_t act1Pin2 = HAL::hBrg1Pin2;
+    const uint8_t propTankVentRBVPin1 = HAL::hBrg1Pin1;
+    const uint8_t propTankVentRBVPin2 = HAL::hBrg1Pin2;
 
-    extern float act2Voltage;
-    extern float act2Current;
-    extern uint8_t act2State;
+    // act2
+    extern float loxTankVentRBVVoltage;
+    extern float loxTankVentRBVCurrent;
+    extern uint8_t loxTankVentRBVState;
     extern Task *stop2;
-    const uint8_t act2Pin1 = HAL::hBrg2Pin1;
-    const uint8_t act2Pin2 = HAL::hBrg2Pin2;
+    const uint8_t loxTankVentRBVPin1 = HAL::hBrg2Pin1;
+    const uint8_t loxTankVentRBVPin2 = HAL::hBrg2Pin2;
 
-    extern float act3Voltage;
-    extern float act3Current;
-    extern uint8_t act3State;
+    // act3
+    extern float propFlowRBVVoltage;
+    extern float propFlowRBVCurrent;
+    extern uint8_t propFlowRBVState;
     extern Task *stop3;
-    const uint8_t act3Pin1 = HAL::hBrg3Pin1;
-    const uint8_t act3Pin2 = HAL::hBrg3Pin2;
+    const uint8_t propFlowRBVPin1 = HAL::hBrg3Pin1;
+    const uint8_t propFlowRBVPin2 = HAL::hBrg3Pin2;
 
-    extern float act4Voltage;
-    extern float act4Current;
-    extern uint8_t act4State;
+    // act4
+    extern float loxFlowRBVVoltage;
+    extern float loxFlowRBVCurrent;
+    extern uint8_t loxFlowRBVState;
     extern Task *stop4;
-    const uint8_t act4Pin1 = HAL::hBrg4Pin1;
-    const uint8_t act4Pin2 = HAL::hBrg4Pin2;
+    const uint8_t loxFlowRBVPin1 = HAL::hBrg4Pin1;
+    const uint8_t loxFlowRBVPin2 = HAL::hBrg4Pin2;
 
-    extern float act5Voltage;
-    extern float act5Current;
-    extern uint8_t act5State;
+    // act5
+    extern float pressFillRBVVoltage;
+    extern float pressFillRBVCurrent;
+    extern uint8_t pressFillRBVState;
     extern Task *stop5;
-    const uint8_t act5Pin1 = HAL::hBrg5Pin1;
-    const uint8_t act5Pin2 = HAL::hBrg5Pin2;
+    const uint8_t pressFillRBVPin1 = HAL::hBrg5Pin1;
+    const uint8_t pressFillRBVPin2 = HAL::hBrg5Pin2;
 
-    extern float act6Voltage;
-    extern float act6Current;
-    extern uint8_t act6State;
+    // act6
+    extern float pressLineVentRBVVoltage;
+    extern float pressLineVentRBVCurrent;
+    extern uint8_t pressLineVentRBVState;
     extern Task *stop6;
-    const uint8_t act6Pin1 = HAL::hBrg6Pin1;
-    const uint8_t act6Pin2 = HAL::hBrg6Pin2;
+    const uint8_t pressLineVentRBVPin1 = HAL::hBrg6Pin1;
+    const uint8_t pressLineVentRBVPin2 = HAL::hBrg6Pin2;
 
+    // TODO: Currently mapped to Igniter, but may put something else on this channel as well? 
     extern float act7Voltage;
     extern float act7Current;
     extern uint8_t act7State;
     extern Task *stop7;
+    // TODO: The separate pins may get mapped to different things, so TBD on this channel
     const uint8_t act7Pin1 = HAL::hBrg7Pin1;
     const uint8_t act7Pin2 = HAL::hBrg7Pin2;
 
@@ -67,41 +75,41 @@ namespace Actuators {
     const uint8_t OClimits[7] = {4,4,4,4,4,4,4}; //(amps): Act 1, Act 2, Act 3, Act 4, Act 5, Act 6, Act 7
     const float stopCurrent = .1; // Stopped actuator current threshold (amps) 
     
-    void extendAct1();
-    void retractAct1();
-    uint32_t stopAct1();
-    void brakeAct1();
-    void act1PacketHandler(Comms::Packet tmp);
+    void extendpropTankVentRBV();
+    void retractpropTankVentRBV();
+    uint32_t stoppropTankVentRBV();
+    void brakepropTankVentRBV();
+    void propTankVentRBVPacketHandler(Comms::Packet tmp);
 
-    void extendAct2();
-    void retractAct2();
-    uint32_t stopAct2();
-    void brakeAct2();
-    void act2PacketHandler(Comms::Packet tmp);
+    void extendloxTankVentRBV();
+    void retractloxTankVentRBV();
+    uint32_t stoploxTankVentRBV();
+    void brakeloxTankVentRBV();
+    void loxTankVentRBVPacketHandler(Comms::Packet tmp);
 
-    void extendAct3();
-    void retractAct3();
-    uint32_t stopAct3();
-    void brakeAct3();
-    void act3PacketHandler(Comms::Packet tmp);
+    void extendpropFlowRBV();
+    void retractpropFlowRBV();
+    uint32_t stoppropFlowRBV();
+    void brakepropFlowRBV();
+    void propFlowRBVPacketHandler(Comms::Packet tmp);
 
-    void extendAct4();
-    void retractAct4();
-    uint32_t stopAct4();
-    void brakeAct4();
-    void act4PacketHandler(Comms::Packet tmp);
+    void extendloxFlowRBV();
+    void retractloxFlowRBV();
+    uint32_t stoploxFlowRBV();
+    void brakeloxFlowRBV();
+    void loxFlowRBVPacketHandler(Comms::Packet tmp);
 
-    void extendAct5();
-    void retractAct5();
-    uint32_t stopAct5();
-    void brakeAct5();
-    void act5PacketHandler(Comms::Packet tmp);
+    void extendpressFillRBV();
+    void retractpressFillRBV();
+    uint32_t stoppressFillRBV();
+    void brakepressFillRBV();
+    void pressFillRBVPacketHandler(Comms::Packet tmp);
 
-    void extendAct6();
-    void retractAct6();
-    uint32_t stopAct6();
-    void brakeAct6();
-    void act6PacketHandler(Comms::Packet tmp);
+    void extendpressLineVentRBV();
+    void retractpressLineVentRBV();
+    uint32_t stoppressLineVentRBV();
+    void brakepressLineVentRBV();
+    void pressLineVentRBVPacketHandler(Comms::Packet tmp);
 
     void extendAct7();
     void retractAct7();
@@ -116,11 +124,11 @@ namespace Actuators {
     void initActuators();
 
     void sampleActuator(Comms::Packet *packet, INA219 *ina, float *voltage, float *current);
-    uint32_t act1Sample();
-    uint32_t act2Sample();
-    uint32_t act3Sample();
-    uint32_t act4Sample();
-    uint32_t act5Sample();
-    uint32_t act6Sample();
+    uint32_t propTankVentRBVSample();
+    uint32_t loxTankVentRBVSample();
+    uint32_t propFlowRBVSample();
+    uint32_t loxFlowRBVSample();
+    uint32_t pressFillRBVSample();
+    uint32_t pressLineVentRBVSample();
     uint32_t act7Sample();
 };
