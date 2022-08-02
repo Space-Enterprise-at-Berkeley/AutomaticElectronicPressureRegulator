@@ -13,7 +13,7 @@ namespace Comms {
         registerCallback(0, sendFirmwareVersionPacket);
     }
 
-    void sendFirmwareVersionPacket(Packet unused, uint8_t ip) {
+    void sendFirmwareVersionPacket(Packet unused) {
         Packet version = {.id = 0, .len = 7};
 
         char commit[] = FW_COMMIT;
@@ -30,7 +30,7 @@ namespace Comms {
      * 
      * @param packet Packet to be processed.
      */
-    void evokeCallbackFunction(Packet *packet, uint8_t ip) {
+    void evokeCallbackFunction(Packet *packet) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
         if (checksum == computePacketChecksum(packet)) {
             // DEBUG("Packet with ID ");
@@ -177,7 +177,7 @@ namespace Comms {
         Udp.endPacket();
     }
 
-    void emitPacket(Packet *packet, uint8_t end) {
+    void emitPacket(Packet *packet) {
         DEBUG(end);
         DEBUG('\n');
         //add timestamp to struct
@@ -192,7 +192,7 @@ namespace Comms {
         packet->checksum[0] = checksum & 0xFF;
         packet->checksum[1] = checksum >> 8;
 
-        Udp.beginPacket(IPAddress(10, 0, 0, end), port);
+        Udp.beginPacket(groundStation, port);
         Udp.write(packet->id);
         Udp.write(packet->len);
         Udp.write(packet->timestamp, 4);

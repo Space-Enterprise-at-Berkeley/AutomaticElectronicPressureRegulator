@@ -8,13 +8,13 @@ namespace EReg {
     uint32_t samplePeriod = 12.5 * 1000; // 80 Hz
 
     void initEReg();
-    void zero(Comms::Packet tmp, uint8_t ip);
-    void setPressureSetpoint(Comms::Packet tmp, uint8_t ip);
-    void regulation(Comms::Packet tmp, uint8_t ip);
-    void flow(Comms::Packet tmp, uint8_t ip);
-    void fullOpen(Comms::Packet tmp, uint8_t ip);
+    void zero(Comms::Packet tmp);
+    void setPressureSetpoint(Comms::Packet tmp);
+    void regulation(Comms::Packet tmp);
+    void flow(Comms::Packet tmp);
+    void fullOpen(Comms::Packet tmp);
 
-    uint32_t sampleEregReadings();
+    uint32_t sampleEregReadingsTask();
     void sendToEReg(Comms::Packet packet);
     uint32_t receiveFromEreg();
 }

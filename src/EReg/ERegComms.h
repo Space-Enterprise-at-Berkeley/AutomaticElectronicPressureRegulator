@@ -8,7 +8,7 @@
 #define DEBUG(val)
 #endif
 
-namespace Comms {
+namespace ERegComms {
     //https://github.com/sstaub/TeensyID/issues/3
 
     struct Packet {

@@ -40,7 +40,7 @@ namespace Automation {
         Comms::registerCallback(152, handleAutoSettings);
     }
 
-    void handleAutoSettings(Comms::Packet recv, uint8_t ip) {
+    void handleAutoSettings(Comms::Packet recv) {
         if(recv.len > 0) {
             // set relavent settings
             loxLead = Comms::packetGetUint32(&recv, 0);
@@ -61,7 +61,7 @@ namespace Automation {
     Comms::Packet flowPacket = {.id = 50};
     int step = 0;
 
-    void beginFlow(Comms::Packet packet, uint8_t ip) {
+    void beginFlow(Comms::Packet packet) {
         if(!flowTask->enabled) {
             step = 0;
             Ducers::ptUpdatePeriod = 1 * 1000;
@@ -202,7 +202,7 @@ namespace Automation {
     }
 
 
-    void beginManualAbortFlow(Comms::Packet packet, uint8_t ip) {
+    void beginManualAbortFlow(Comms::Packet packet) {
         // beginAbortFlow();
         Valves::deactivateIgniter();
         Valves::openLoxGemValve();
@@ -262,7 +262,7 @@ namespace Automation {
         return Valves::igniter.period; //TODO determine appropriate sampling time
     }
 
-    void readLoadCell(Comms::Packet packet, uint8_t ip) {
+    void readLoadCell(Comms::Packet packet) {
         float loadCellSum = Comms::packetGetFloat(&packet, 8);
         if(ip == 11) {
             loadCell12Value = loadCellSum;

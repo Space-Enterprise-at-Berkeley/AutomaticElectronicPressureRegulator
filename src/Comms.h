@@ -20,9 +20,7 @@ namespace Comms {
         (uint8_t)(__m2 >> 0),
     };
     const int port = 42069;
-    const IPAddress ip(10, 0, 0, IP_ADDRESS_END);
-    const IPAddress groundStation1(10, 0, 0, 69);
-    const IPAddress groundStation2(10, 0, 0, 70);
+    const IPAddress groundStation(10, 0, 0, 69);
 
     struct Packet {
         uint8_t id;
@@ -34,7 +32,7 @@ namespace Comms {
 
     void initComms();
 
-    typedef void (*commFunction)(Packet, uint8_t);
+    typedef void (*commFunction)(Packet);
 
     /**
      * @brief Registers methods to be called when Comms receives a packet with a specific ID.

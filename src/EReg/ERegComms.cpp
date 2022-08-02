@@ -1,6 +1,6 @@
-#include <Comms.h>
+#include <ERegComms.h>
 
-namespace Comms {
+namespace ERegComms {
 
     commFunction callbackMap[5];
     // EthernetUDP Udp;

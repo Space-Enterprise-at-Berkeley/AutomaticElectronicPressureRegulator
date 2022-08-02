@@ -37,13 +37,13 @@ namespace Automation {
     extern bool igniterTriggered;
 
     void initAutomation(Task *flowTask, Task *abortFlowTask, Task *checkForTCAbortTask, Task *checkForLCAbortTask);
-    void beginFlow(Comms::Packet packet, uint8_t ip);
+    void beginFlow(Comms::Packet packet);
     uint32_t flow();
-    void beginManualAbortFlow(Comms::Packet packet, uint8_t ip);
+    void beginManualAbortFlow(Comms::Packet packet);
     void beginAbortFlow();
     uint32_t abortFlow();
     uint32_t checkIgniter();
-    void readLoadCell(Comms::Packet packet, uint8_t ip);
+    void readLoadCell(Comms::Packet packet);
     uint32_t checkForTCAbort();
     uint32_t checkForLCAbort();
     uint32_t autoventFuelGemValveTask();
