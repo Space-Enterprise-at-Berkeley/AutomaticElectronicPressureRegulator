@@ -1,15 +1,11 @@
 #pragma once
 
+#include <Common.h>
+
 #include <Arduino.h>
 
-#ifdef DEBUG_MODE
-#define DEBUG(val) Serial.print(val)
-#else
-#define DEBUG(val)
-#endif
-
 namespace Comms {
-    //https://github.com/sstaub/TeensyID/issues/3
+    const int numIDs = 5;
 
     struct Packet {
         uint8_t id;
@@ -18,6 +14,8 @@ namespace Comms {
         uint8_t checksum[2];
         uint8_t data[256];
     };
+
+    void initComms();
 
     typedef void (*commFunction)(Packet);
 
@@ -32,11 +30,20 @@ namespace Comms {
     void processWaitingPackets();
 
     void packetAddFloat(Packet *packet, float value);
+    void packetAddUint32(Packet *packet, uint32_t value);
+    void packetAddUint16(Packet *packet, uint16_t value);
     void packetAddUint8(Packet *packet, uint8_t value);
-    void packetAddInt32(Packet *packet, int32_t value);
 
+    /**
+     * @brief Interprets the packet data as a float.
+     * 
+     * @param packet 
+     * @param index The index of the byte array at which the float starts (0, 4, 8).
+     * @return float 
+     */
     float packetGetFloat(Packet *packet, uint8_t index);
     uint32_t packetGetUint32(Packet *packet, uint8_t index);
+    uint32_t packetGetUint8(Packet *packet, uint8_t index);
 
     /**
      * @brief Sends packet data over ethernet and serial.
