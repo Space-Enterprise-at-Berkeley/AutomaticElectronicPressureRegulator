@@ -3,24 +3,9 @@
 #include <Common.h>
 
 #include <Arduino.h>
-#include <NativeEthernet.h>
-#include <NativeEthernetUdp.h>
-#include <map>
 
 namespace Comms {
-    //https://github.com/sstaub/TeensyID/issues/3
-    const uint32_t __m1 = HW_OCOTP_MAC1;
-    const uint32_t __m2 = HW_OCOTP_MAC0;
-    const byte mac[] = {
-        (uint8_t)(__m1 >> 8),
-        (uint8_t)(__m1 >> 0),
-        (uint8_t)(__m2 >> 24),
-        (uint8_t)(__m2 >> 16),
-        (uint8_t)(__m2 >> 8),
-        (uint8_t)(__m2 >> 0),
-    };
-    const int port = 42069;
-    const IPAddress groundStation(10, 0, 0, 69);
+    const int numIDs = 5;
 
     struct Packet {
         uint8_t id;
@@ -67,20 +52,5 @@ namespace Comms {
      */
     void emitPacket(Packet *packet);
 
-    /**
-     * @brief Sends the packet to arbitrary address
-     * 
-     * @param packet Packet to be sent.
-     * @param custom IP address to send to
-     */
-    void emitPacket(Packet *packet, uint8_t end);
-
     uint16_t computePacketChecksum(Packet *packet);
-
-    /**
-     * @brief Sends the firmware version packet upon request
-     * 
-     * @param _ unused
-     */
-    void sendFirmwareVersionPacket(Packet unused, uint8_t ip);
 };

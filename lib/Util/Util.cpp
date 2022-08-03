@@ -1,15 +1,16 @@
 #include "Util.h"
 
 namespace Util {
-    int secondsToMillis(int seconds) {
+    //TODO implement overflow correction
+    long secondsToMillis(long seconds) {
         return seconds * 1000;
     }
 
-    int secondsToMicros(int seconds) {
+    long secondsToMicros(long seconds) {
         return seconds * 1000 * 1000;
     }
 
-    int millisToMicros(int millis) {
+    long millisToMicros(long millis) {
         return millis * 1000;
     }
 }

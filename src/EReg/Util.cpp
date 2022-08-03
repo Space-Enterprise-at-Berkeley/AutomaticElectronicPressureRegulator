@@ -1,15 +1,32 @@
-#include <Util.h>
+#include "Util.h"
 #include <Arduino.h>
-#include <HAL.h>
+#include "HAL.h"
 
 namespace Util {
+
+    // valve angle based on pressure setpoint
+    double p_outer = 1.50, i_outer = 2.25e-6, d_outer = 0.125;
+    PIDController outerController(p_outer, i_outer, d_outer, MIN_ANGLE, MAX_ANGLE);
+    // motor angle based on valve setpoint
+
+    // motor angle based on encoder/angle setpoint
+    double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35e-6;
+    PIDController innerController(p_inner, i_inner, d_inner, MIN_SPD, MAX_SPD);
+
+    PIDController* getInnerController() {
+        return &innerController;
+    }
+    PIDController* getOuterController() {
+        return &outerController;
+    }
+
     double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
     // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
     return (encoderValue/560.0)*360*1/3.0;
     }
 
-    double voltageToPressure(double voltage) {
+    double voltageToLowPressure(double voltage) {
         //1024 bits in analog read
         //PT voltage frange .4-4.5
         //PT reads from 0-1000
@@ -40,4 +57,10 @@ namespace Util {
         return 398 + (pressure_setpoint/hp) * 79;
     }
 
+    void runMotors(float speed) {
+        analogWrite(HAL::motor1,-min(0,speed));
+        analogWrite(HAL::motor2,max(0,speed));
+        analogWrite(HAL::motor3,-min(0,speed));
+        analogWrite(HAL::motor4,max(0,speed));
+    }
 }

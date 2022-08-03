@@ -2,7 +2,7 @@
 
 namespace Util {
     //Conversions
-    int secondsToMillis(int seconds);
-    int secondsToMicros(int seconds);
-    int millisToMicros(int millis);
+    long secondsToMillis(long seconds);
+    long secondsToMicros(long seconds);
+    long millisToMicros(long millis);
 }
