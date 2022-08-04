@@ -32,7 +32,7 @@ Task taskTable[] = {
     {Power::supply12Sample, 0},
 
     // ereg
-    {EReg::sampleEregReadingsTask, 0},
+    {EReg::sampleTelemetry, 0},
     {EReg::receiveFromEreg, 0},
 };
 

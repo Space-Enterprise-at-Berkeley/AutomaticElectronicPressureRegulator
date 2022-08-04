@@ -10,11 +10,11 @@ namespace EReg {
     void initEReg();
     void zero(Comms::Packet tmp);
     void setPressureSetpoint(Comms::Packet tmp);
-    void regulation(Comms::Packet tmp);
     void flow(Comms::Packet tmp);
-    void fullOpen(Comms::Packet tmp);
+    void stopFlow(Comms::Packet tmp);
+    void setPIDConstants(Comms::Packet tmp);
+    void abort(Comms::Packet tmp);
 
-    uint32_t sampleEregReadingsTask();
+    uint32_t sampleTelemetry();
     void sendToEReg(Comms::Packet packet);
-    uint32_t receiveFromEreg();
 }

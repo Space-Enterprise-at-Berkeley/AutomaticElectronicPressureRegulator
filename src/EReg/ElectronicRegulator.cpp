@@ -60,8 +60,8 @@ void setup() {
     Comms::registerCallback(1, setPressureSetpoint);
     Comms::registerCallback(2, flow);
     Comms::registerCallback(3, stopFlow);
-    Comms::registerCallback(3, setPIDConstants);
-    Comms::registerCallback(3, abort);
+    Comms::registerCallback(4, setPIDConstants);
+    Comms::registerCallback(5, abort);
 }
 
 void loop() {

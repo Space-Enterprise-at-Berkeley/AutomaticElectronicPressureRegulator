@@ -11,12 +11,14 @@ namespace EReg {
 
     void initEReg() {
         // EReg board connected to Serial8 of AC Teensy
-        Serial8.begin(9600);
+        Serial8.begin(115200);
 
         Comms::registerCallback(1, zero);
         Comms::registerCallback(2, setPressureSetpoint);
         Comms::registerCallback(3, flow);
-        Comms::registerCallback(4, fullOpen);
+        Comms::registerCallback(4, stopFlow);
+        Comms::registerCallback(5, setPIDConstants);
+        Comms::registerCallback(6, abort);
     }
 
     Comms::Packet eRegZeroPacket = {.id = 1};
@@ -44,7 +46,7 @@ namespace EReg {
         sendToEReg(eRegFlowPacket);
     }
 
-    uint32_t sampleEregReadingsTask() {
+    uint32_t sampleTelemetry() {
         Comms::Packet tmp = {.id = 85};
         Comms::packetAddFloat(&tmp, hpPT);
         Comms::packetAddFloat(&tmp, lpPT);
@@ -53,6 +55,15 @@ namespace EReg {
         Comms::emitPacket(&tmp);
 
         return samplePeriod;
+    }
+
+    void sendToEReg(Comms::Packet packet) {
+        Serial8.write(packet->id);
+        Serial8.write(packet->len);
+        Serial8.write(packet->timestamp, 4);
+        Serial8.write(packet->checksum, 2);
+        Serial8.write(packet->data, packet->len);
+        Serial8.write('\n');
     }
 
 }

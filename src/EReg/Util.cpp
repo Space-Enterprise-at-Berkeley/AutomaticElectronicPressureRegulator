@@ -59,7 +59,5 @@ namespace Util {
     void runMotors(float speed) {
         analogWrite(HAL::motor1,-min(0,speed));
         analogWrite(HAL::motor2,max(0,speed));
-        analogWrite(HAL::motor3,-min(0,speed));
-        analogWrite(HAL::motor4,max(0,speed));
     }
 }

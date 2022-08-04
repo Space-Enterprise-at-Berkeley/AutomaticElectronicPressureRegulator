@@ -3,10 +3,11 @@
 #include <stdint.h>
 
 namespace HAL {
-    const int motor1 = 10;
-    const int motor2 = 9;
-    const int motor3 = 6;
-    const int motor4 = 5;
+    const int mainValve1 = 10;
+    const int mainValve2 = 9;
+    
+    const int motor1 = 6;
+    const int motor2 = 5;
 
     const int enc1 = 3;
     const int enc2 = 2;
