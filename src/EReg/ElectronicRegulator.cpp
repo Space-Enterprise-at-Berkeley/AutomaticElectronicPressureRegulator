@@ -5,6 +5,7 @@
 #include "HAL.h"
 #include "Util.h"
 #include "Comms.h"
+#include "Config.h"
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -66,16 +67,17 @@ void setup() {
 void loop() {
     Comms::processWaitingPackets();
 
-    float angle = encoder.read();
-    float motorAngle = angle;
+    float motorAngle = encoder.read();
     float potAngle = Util::readPot();
     float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
     float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
     float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
 
+    float speed = 0;
+
     if (startFlow) {
         //Compute Inner PID Servo loop
-        float speed = innerController->update(motorAngle - angle_setpoint);
+        speed = innerController->update(motorAngle - angle_setpoint);
 
         //Compute Outer Pressure Control Loop
         angle_setpoint = outerController->update(LPpsi - pressure_setpoint);
@@ -88,18 +90,16 @@ void loop() {
     if (micros() - lastPrint > 1000) {
         Comms::Packet packet = {.id = 85};
         //TODO split into two temelemtry packets
-        Comms::packetAddFloat(&packet, Util::p_outer);
-        Comms::packetAddFloat(&packet, Util::i_outer);
-        Comms::packetAddFloat(&packet, Util::d_outer);
-        Comms::packetAddFloat(&packet, Util::p_inner);
-        Comms::packetAddFloat(&packet, Util::i_inner);
-        Comms::packetAddFloat(&packet, Util::d_inner);
+        Comms::packetAddFloat(&packet, Config::p_outer);
+        Comms::packetAddFloat(&packet, Config::i_outer);
+        Comms::packetAddFloat(&packet, Config::d_outer);
         Comms::packetAddFloat(&packet, pressure_setpoint);
         Comms::packetAddFloat(&packet, angle_setpoint);
         Comms::packetAddFloat(&packet, HPpsi);
         Comms::packetAddFloat(&packet, LPpsi);
         Comms::packetAddFloat(&packet, InjectorPT);
         Comms::packetAddFloat(&packet, motorAngle);
+        Comms::packetAddFloat(&packet, speed);
         
         Comms::emitPacket(&packet);
         lastPrint = micros();

@@ -10,14 +10,14 @@ PIDController::PIDController(double kp, double ki, double kd, double minSpeed, d
 }
 
 double PIDController::update(double error) {
-    float curr_time = micros();
-    float dt = curr_time - lastUpdate_;
+    long curr_time = micros();
+    long dt = curr_time - lastUpdate_;
     intError_ += error * dt;
     errorBuffer_->insert(dt/1.0e6, error);
 
     double p = k_p * error;
     double i = k_i * intError_;
-    double d = k_d * (errorBuffer_->get_slope()/dt);
+    double d = k_d * errorBuffer_->get_slope();
 
     double output = p + i + d;
     min(max(output, minOutput_), maxOutput_);

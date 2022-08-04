@@ -6,7 +6,7 @@ namespace Comms {
     char packetBuffer[sizeof(Packet)];
 
     void initComms() {
-        Serial.begin(9600);
+        Serial.begin(115200);
     }
 
     void registerCallback(uint8_t id, commFunction function) {
