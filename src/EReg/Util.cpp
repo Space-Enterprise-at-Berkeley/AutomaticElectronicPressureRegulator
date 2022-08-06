@@ -6,11 +6,11 @@
 namespace Util {
 
     // valve angle based on pressure setpoint
-    PIDController outerController(Config::p_outer, Config::i_outer, Config::d_outer, MIN_ANGLE, MAX_ANGLE);
+    PIDController outerController(Config::p_outer, Config::i_outer, Config::d_outer, MIN_ANGLE, MAX_ANGLE, PIDController::transientControl);
     // motor angle based on valve setpoint
 
     // motor angle based on encoder/angle setpoint
-    PIDController innerController(Config::p_inner, Config::i_inner, Config::d_inner, MIN_SPD, MAX_SPD);
+    PIDController innerController(Config::p_inner, Config::i_inner, Config::d_inner, MIN_SPD, MAX_SPD, PIDController::standard);
 
     PIDController* getInnerController() {
         return &innerController;
