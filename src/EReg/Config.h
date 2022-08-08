@@ -13,4 +13,6 @@ namespace Config {
 
     const double p_outer = 1.50, i_outer = 2.25e-6, d_outer = 0.125;
     const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35e-6;
+
+    const float pressureSetpoint = 500;
 }

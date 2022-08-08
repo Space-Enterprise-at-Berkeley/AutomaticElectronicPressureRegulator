@@ -116,7 +116,6 @@ namespace Comms {
         Serial.write(packet->timestamp, 4);
         Serial.write(packet->checksum, 2);
         Serial.write(packet->data, packet->len);
-        Serial.write('\n');
     }
 
     /**

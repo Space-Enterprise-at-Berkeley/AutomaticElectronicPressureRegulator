@@ -54,3 +54,23 @@ double PIDController::antiwindupTransientCtrl(double integral, double rawOutput,
         return 0;
     }
 }
+
+double PIDController::getPTerm() {
+    return latestP_;
+}
+
+double PIDController::getITerm() {
+    return latestI_;
+}
+
+double PIDController::getDTerm() {
+    return latestD_;
+}
+
+void PIDController::reset() {
+    latestP_, latestI_, latestD_ = 0, 0, 0;
+    lastUpdate_ = micros();
+    previousError_ = 0;
+    intError_ = 0;
+    errorBuffer_->clear();
+}

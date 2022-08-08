@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "HAL.h"
 #include "Config.h"
+#include <Encoder.h>
 
 namespace Util {
 
@@ -12,12 +13,18 @@ namespace Util {
     // motor angle based on encoder/angle setpoint
     PIDController innerController(Config::p_inner, Config::i_inner, Config::d_inner, MIN_SPD, MAX_SPD, PIDController::standard);
 
+    Encoder encoder(HAL::enc1, HAL::enc2);
+
     PIDController* getInnerController() {
         return &innerController;
     }
     PIDController* getOuterController() {
         return &outerController;
     }
+    Encoder* getEncoder() {
+        return &encoder;
+    }
+
 
     double encoderToAngle(double encoderValue) {
     //convert encoder angle to degrees
@@ -38,10 +45,6 @@ namespace Util {
         // return 6.2697*voltage - 1286.7; // new HP PT, based on empirical characterization 12 Feb 22
         // double current = (((voltage/220.0)/1024.0)*5.0);
         // return (current-.004)/.016*5000.0;
-    }
-
-    double readPot(){
-        return (analogRead(HAL::potPin)/1024.0)*90.0;
     }
 
     double compute_feedforward(double pressure_setpoint, double hp) {
