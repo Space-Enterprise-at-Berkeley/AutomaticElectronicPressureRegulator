@@ -1,12 +1,9 @@
 #include "PIDController.h"
+#include "TimeUtil.h"
 
 PIDController::PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, PIDController::AntiwindupMode antiwindup) {
     k_p, k_i, k_d = kp, ki, kd;
     minOutput_, maxOutput_ = minOutput, maxOutput;
-    latestP_, latestI_, latestD_ = 0, 0, 0;
-    lastUpdate_ = micros();
-    previousError_ = 0;
-    intError_ = 0;
     errorBuffer_ = new Buffer(5);
     switch (antiwindup) {
         case standard:
@@ -16,12 +13,13 @@ PIDController::PIDController(double kp, double ki, double kd, double minOutput, 
         antiwindup_ = &(PIDController::antiwindupTransientCtrl);
         break;
     }
+    this->reset();
 }
 
 double PIDController::update(double error) {
-    long curr_time = micros();
-    long dt = curr_time - lastUpdate_;
-    errorBuffer_->insert(dt/1.0e6, error);
+    unsigned long curr_time = micros();
+    unsigned long dt = TimeUtil::timeInterval(lastUpdate_, curr_time);
+    errorBuffer_->insert(TimeUtil::timeInterval(timeStarted_, curr_time)/1.0e6, error);
 
     latestP_ = k_p * error;
     latestD_ = k_d * errorBuffer_->get_slope();
@@ -38,7 +36,7 @@ double PIDController::update(double error) {
     return output;
 }
 
-double PIDController::antiwindupStd(double integral, double rawOutput, double error, long dt) {
+double PIDController::antiwindupStd(double integral, double rawOutput, double error, unsigned long dt) {
     if (rawOutput < maxOutput_ && rawOutput > minOutput_) {
         return integral + error * dt;
     } else {
@@ -46,7 +44,7 @@ double PIDController::antiwindupStd(double integral, double rawOutput, double er
     }
 }
 
-double PIDController::antiwindupTransientCtrl(double integral, double rawOutput, double error, long dt) {
+double PIDController::antiwindupTransientCtrl(double integral, double rawOutput, double error, unsigned long dt) {
     // TODO: Implement proper antiwindup that accounts for inner loop
     if (rawOutput < maxOutput_ && rawOutput > minOutput_) {
         return integral + error * dt;
@@ -70,6 +68,7 @@ double PIDController::getDTerm() {
 void PIDController::reset() {
     latestP_, latestI_, latestD_ = 0, 0, 0;
     lastUpdate_ = micros();
+    timeStarted_ = micros();
     previousError_ = 0;
     intError_ = 0;
     errorBuffer_->clear();

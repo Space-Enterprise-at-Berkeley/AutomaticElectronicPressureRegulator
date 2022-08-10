@@ -15,4 +15,5 @@ namespace Config {
     const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35e-6;
 
     const float pressureSetpoint = 500;
+    const unsigned long flowDuration = 10 * 1000 * 1000; // time in microseconds TODO change to 5s
 }

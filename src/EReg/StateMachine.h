@@ -11,7 +11,11 @@
 
 namespace StateMachine {
 
-    enum State { idleClosedState, partiallyOpenState, ventState, pressurizeState, flowState }; //TODO refactor to make more distinguishable from class names
+    enum State { IDLE_CLOSED, PARTIAL_OPEN, VENT, PRESSURIZE, FLOW }; 
+    
+    void enterFlowState();
+    void enterIdleClosedState();
+    State getCurrentState();
 
     class FlowState {
         private:
@@ -20,7 +24,8 @@ namespace StateMachine {
         PIDController *outerController = Util::getOuterController();
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
-        long lastPrint_;
+        unsigned long timeStarted_; //TODO Overflow detection
+        unsigned long lastPrint_;
         float pressureSetpoint_;
         float angleSetpoint_;
 
@@ -36,7 +41,7 @@ namespace StateMachine {
         PIDController *innerController = Util::getInnerController();
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
-        long lastPrint_;
+        unsigned long lastPrint_;
         float angleSetpoint_;
 
         public:
@@ -53,8 +58,8 @@ namespace StateMachine {
         // Encoder itself is 64CPM (including all edges)
         const float closeSpeed_ = -200;
         const float runTime_ = 3000; // in millis
-        long timeStarted_;
-        long lastPrint_;
+        unsigned long timeStarted_;
+        unsigned long lastPrint_;
 
         public:
         IdleClosedState();
@@ -63,5 +68,9 @@ namespace StateMachine {
     };
 
     // TODO: Write classes for the rest of the states
+
+    FlowState* getFlowState();
+    PartiallyOpenState* getPartiallyOpenState();
+    IdleClosedState* getIdleClosedState();
 
 };

@@ -12,11 +12,9 @@
 //   Best Performance: both pins have interrupt capability
 //   avoid using pins with LEDs attached
 Encoder *encoder = Util::getEncoder();
-StateMachine::State currentState = StateMachine::idleClosedState;
-
-StateMachine::FlowState flowState = StateMachine::FlowState();
-StateMachine::IdleClosedState idleClosedState = StateMachine::IdleClosedState();
-StateMachine::PartiallyOpenState partiallyOpenState = StateMachine::PartiallyOpenState();
+StateMachine::FlowState *flowState = StateMachine::getFlowState();
+StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedState();
+StateMachine::PartiallyOpenState *partiallyOpenState = StateMachine::getPartiallyOpenState();
 
 void zero() {
     Util::runMotors(-150);
@@ -30,16 +28,6 @@ void zero(Comms::Packet packet) {
     zero();
 }
 
-void enterFlowState() {
-    currentState = StateMachine::flowState;
-    flowState.init();
-}
-
-void enterIdleClosedState() {
-    currentState = StateMachine::idleClosedState;
-    idleClosedState.init();
-}
-
 //TODO need to implement rest of commands
 void setPressureSetpoint(Comms::Packet packet) {
     // pressure_setpoint = Comms::packetGetFloat(&packet, 0);
@@ -47,11 +35,11 @@ void setPressureSetpoint(Comms::Packet packet) {
 
 void flow(Comms::Packet packet) {
     // startFlow = packet.data[0];
-    enterFlowState();
+    StateMachine::enterFlowState();
 }
 
 void stopFlow(Comms::Packet packet) {
-    enterIdleClosedState();
+    StateMachine::enterIdleClosedState();
 }
 
 void setPIDConstants(Comms::Packet packet) {
@@ -59,7 +47,7 @@ void setPIDConstants(Comms::Packet packet) {
 }
 
 void abort(Comms::Packet packet) {
-    enterIdleClosedState();
+    StateMachine::enterIdleClosedState();
 }
 
 
@@ -72,23 +60,23 @@ void setup() {
     Comms::registerCallback(4, setPIDConstants);
     Comms::registerCallback(5, abort);
     zero();
-    enterIdleClosedState();
+    StateMachine::enterIdleClosedState();
 }
 
 void loop() {
     Comms::processWaitingPackets();
 
-    switch (currentState) {
-        case StateMachine::idleClosedState:
-        idleClosedState.update();
+    switch (StateMachine::getCurrentState()) {
+        case StateMachine::IDLE_CLOSED:
+        idleClosedState->update();
         break;
         
-        case StateMachine::partiallyOpenState:
-        partiallyOpenState.update();
+        case StateMachine::PARTIAL_OPEN:
+        partiallyOpenState->update();
         break;
 
-        case StateMachine::flowState:
-        flowState.update();
+        case StateMachine::FLOW:
+        flowState->update();
         break;
     };
 }

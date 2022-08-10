@@ -4,8 +4,10 @@
 
 #ifdef DEBUG_MODE
 #define DEBUG(val) Serial.print(val)
+#define DEBUGLN(val) Serial.println(val)
 #else
 #define DEBUG(val)
+#define DEBUGLN(val)
 #endif
 
 #ifdef DEBUG_MODE
