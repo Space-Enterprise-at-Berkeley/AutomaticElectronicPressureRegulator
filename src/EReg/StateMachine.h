@@ -20,11 +20,11 @@ namespace StateMachine {
     class FlowState {
         private:
         Encoder *encoder_ = Util::getEncoder();
-        PIDController *innerController = Util::getInnerController();
-        PIDController *outerController = Util::getOuterController();
+        PIDController *innerController_ = Util::getInnerController();
+        PIDController *outerController_ = Util::getOuterController();
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
-        unsigned long timeStarted_; //TODO Overflow detection
+        unsigned long timeStarted_;
         unsigned long lastPrint_;
         float pressureSetpoint_;
         float angleSetpoint_;
@@ -38,7 +38,7 @@ namespace StateMachine {
     class PartiallyOpenState {
         private:
         Encoder *encoder_ = Util::getEncoder();
-        PIDController *innerController = Util::getInnerController();
+        PIDController *innerController_ = Util::getInnerController();
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
         unsigned long lastPrint_;
@@ -56,7 +56,7 @@ namespace StateMachine {
         Encoder *encoder_ = Util::getEncoder();
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
-        const float closeSpeed_ = -200;
+        const float closeSpeed_ = -OPEN_LOOP_SPEED;
         const float runTime_ = 3000; // in millis
         unsigned long timeStarted_;
         unsigned long lastPrint_;
@@ -67,10 +67,38 @@ namespace StateMachine {
         void update();
     };
 
+    class DiagnosticState {
+        private:
+        Encoder *encoder_ = Util::getEncoder();
+        PIDController *innerController_ = Util::getInnerController();
+
+        const float testSpeed_ = OPEN_LOOP_SPEED;
+        const unsigned long servoInterval_ = Config::servoSettleTime * 2;
+        const unsigned long totalTime_ = (unsigned long)Config::servoTestPoints * servoInterval_;
+
+        unsigned long lastPrint_;
+        unsigned long timeTestStarted_;
+        enum DiagnosticTest:int { TEST_BEGIN = 0, MOTOR_DIR = 1, SERVO = 2, TEST_COMPLETE = 3 };
+        DiagnosticTest currentTest_;
+
+        float motorDirAngle0_, motorDirAngle1_, motorDirAngle2_;
+        int motorDirStage_;
+        float servoSetpoint_;
+        bool servoPassed_;
+
+        public:
+        DiagnosticState();
+        void init();
+        void update();
+        void motorDirTestUpdate();
+        void servoTestUpdate();
+        void startNextTest();
+    };
     // TODO: Write classes for the rest of the states
 
     FlowState* getFlowState();
     PartiallyOpenState* getPartiallyOpenState();
     IdleClosedState* getIdleClosedState();
+    DiagnosticState* getDiagnosticState();
 
 };

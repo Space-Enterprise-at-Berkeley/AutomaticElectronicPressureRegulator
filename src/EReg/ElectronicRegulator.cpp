@@ -15,6 +15,7 @@ Encoder *encoder = Util::getEncoder();
 StateMachine::FlowState *flowState = StateMachine::getFlowState();
 StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedState();
 StateMachine::PartiallyOpenState *partiallyOpenState = StateMachine::getPartiallyOpenState();
+StateMachine::DiagnosticState *diagnosticState = StateMachine::getDiagnosticState();
 
 void zero() {
     Util::runMotors(-150);
