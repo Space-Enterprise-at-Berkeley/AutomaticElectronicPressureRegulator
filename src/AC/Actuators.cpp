@@ -7,13 +7,11 @@ namespace Actuators {
 
     // TODO: set correct telem packet IDs
     /*
+    H Bridge
     Propane tank vent - 1
     LOx tank vent - 2
-    Propane flow - 3
-    LOx flow - 4
-    Press fill - 5
-    Press line vent - 6
-    Igniter - 7
+    Propane fill - 3
+    LOx fill - 4
     */
 
    // act1
@@ -21,51 +19,28 @@ namespace Actuators {
     uint8_t propTankVentRBVState = 0;
     float propTankVentRBVVoltage = 0.0;
     float propTankVentRBVCurrent = 0.0;
-    Task *stop1;
+    Task *stopPropTankVentRBVTask;
     
     // act2
     Comms::Packet loxTankVentRBVPacket = {.id = 71};
     uint8_t loxTankVentRBVState = 0;
     float loxTankVentRBVVoltage = 0.0;
     float loxTankVentRBVCurrent = 0.0;
-    Task *stop2;
+    Task *stopLoxTankVentRBVTask;
 
     // act3
-    Comms::Packet propFlowRBVPacket = {.id = 72};
-    uint8_t propFlowRBVState = 0;
-    float propFlowRBVVoltage = 0.0;
-    float propFlowCurrent = 0.0;
-    Task *stop3;
+    Comms::Packet propFillRBVPacket = {.id = 72};
+    uint8_t propFillRBVState = 0;
+    float propFillRBVVoltage = 0.0;
+    float propFillRBVCurrent = 0.0;
+    Task *stopPropFillRBVTask;
 
     // act4
-    Comms::Packet loxFlowRBVPacket = {.id = 73};
-    uint8_t loxFlowRBVState = 0;
-    float loxFlowRBVVoltage = 0.0;
-    float loxFlowRBVCurrent = 0.0;
-    Task *stop4;
-
-    // act5
-    Comms::Packet pressFillRBVPacket = {.id = 74};
-    uint8_t pressFillRBVState = 0;
-    float pressFillRBVVoltage = 0.0;
-    float pressFillRBVCurrent = 0.0;
-    Task *stop5;
-
-    // act6
-    Comms::Packet pressLineVentRBVPacket = {.id = 75};
-    uint8_t pressLineVentRBVState = 0;
-    float pressLineVentRBVVoltage = 0.0;
-    float pressLineVentRBVCurrent = 0.0;
-    Task *stop6;
-
-    // act7
-    // TODO: Set to Igniter for now, but we can put another thing on this channel -- 
-    // Igniter just needs 1 pin for on/off
-    Comms::Packet igniterPacket = {.id = 76};
-    uint8_t igniterState = 0;
-    float igniterVoltage = 0.0;
-    float igniterCurrent = 0.0;
-    Task *stop7;
+    Comms::Packet loxFillRBVPacket = {.id = 73};
+    uint8_t loxFillRBVState = 0;
+    float loxFillRBVVoltage = 0.0;
+    float loxFillRBVCurrent = 0.0;
+    Task *stopLoxFillRBVTask;
 
     void driveForwards(uint8_t pin1, uint8_t pin2, uint8_t *actState, uint8_t actuatorID){
         digitalWriteFast(pin1, HIGH);
@@ -93,70 +68,29 @@ namespace Actuators {
 
     void extendPropTankVentRBV(){ driveForwards(propTankVentRBVPin1, propTankVentRBVPin2, &propTankVentRBVState, 0); }
     void retractPropTankVentRBV(){ driveBackwards(propTankVentRBVPin1, propTankVentRBVPin2, &propTankVentRBVState, 0); }
-    uint32_t stopPropTankVentRBV(){ stopAct(propTankVentRBVPin1, propTankVentRBVPin2, &propTankVentRBVState, 0); stop1->enabled = false; return 0;}
+    uint32_t stopPropTankVentRBV(){ stopAct(propTankVentRBVPin1, propTankVentRBVPin2, &propTankVentRBVState, 0); stopPropTankVentRBVTask->enabled = false; return 0;}
     void brakePropTankVentRBV(){ brakeAct(propTankVentRBVPin1, propTankVentRBVPin2, &propTankVentRBVState, 0); }
-    void propTankVentRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendpropTankVentRBV, &retractpropTankVentRBV, stop1); }
+    void propTankVentRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendPropTankVentRBV, &retractPropTankVentRBV, stopPropTankVentRBVTask); }
 
     void extendLoxTankVentRBV(){ driveForwards(loxTankVentRBVPin1, loxTankVentRBVPin2, &loxTankVentRBVState, 1); }
     void retractLoxTankVentRBV(){ driveBackwards(loxTankVentRBVPin1, loxTankVentRBVPin2, &loxTankVentRBVState, 1); }
-    uint32_t stopLoxTankVentRBV(){ stopAct(loxTankVentRBVPin1, loxTankVentRBVPin2, &loxTankVentRBVState, 1); stop2->enabled = false; return 0;}
+    uint32_t stopLoxTankVentRBV(){ stopAct(loxTankVentRBVPin1, loxTankVentRBVPin2, &loxTankVentRBVState, 1); stopLoxTankVentRBVTask->enabled = false; return 0;}
     void brakeLoxTankVentRBV(){ brakeAct(loxTankVentRBVPin1, loxTankVentRBVPin2, &loxTankVentRBVState, 1); }
-    void loxTankVentRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendloxTankVentRBV, &retractloxTankVentRBV, stop2); }
+    void loxTankVentRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendLoxFillRBV, &retractLoxFillRBV, stopLoxTankVentRBVTask); }
 
-    void extendPropFlowRBV(){ driveForwards(propFlowRBVPin1, propFlowRBVPin2, &propFlowRBVState, 2); }
-    void retractPropFlowRBV(){ driveBackwards(propFlowRBVPin1, propFlowRBVPin2, &propFlowRBVState, 2); }
-    uint32_t stopPropFlowRBV(){ stopAct(propFlowRBVPin1, propFlowRBVPin2, &propFlowRBVState, 2); stop3->enabled = false; return 0;}
-    void brakePropFlowRBV(){ brakeAct(propFlowRBVPin1, propFlowRBVPin2, &propFlowRBVState, 2); }
-    void propFlowRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendpropFlowRBV, &retractpropFlowRBV, stop3); }
+    void extendPropFillRBV(){ driveForwards(propFillRBVPin1, propFillRBVPin2, &propFillRBVState, 2); }
+    void retractPropFillRBV(){ driveBackwards(propFillRBVPin1, propFillRBVPin2, &propFillRBVState, 2); }
+    uint32_t stopPropFillRBV(){ stopAct(propFillRBVPin1, propFillRBVPin2, &propFillRBVState, 2); stopPropFillRBVTask->enabled = false; return 0;}
+    void brakePropFillRBV(){ brakeAct(propFillRBVPin1, propFillRBVPin2, &propFillRBVState, 2); }
+    void propFillRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendPropFillRBV, &retractPropFillRBV, stopPropFillRBVTask); }
 
-    void extendLoxFlowRBV(){ driveForwards(loxFlowRBVPin1, loxFlowRBVPin2, &loxFlowRBVState, 3); }
-    void retractLoxFlowRBV(){ driveBackwards(loxFlowRBVPin1, loxFlowRBVPin2, &loxFlowRBVState, 3); }
-    uint32_t stopLoxFlowRBV(){ stopAct(loxFlowRBVPin1, loxFlowRBVPin2, &loxFlowRBVState, 3); stop4->enabled = false; return 0;}
-    void brakeLoxFlowRBV(){ brakeAct(loxFlowRBVPin1, loxFlowRBVPin2, &loxFlowRBVState, 3); }
-    void loxFlowRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendloxFlowRBV, &retractloxFlowRBV, stop4); }
-
-    void extendPressFillRBV(){ driveForwards(pressFillRBVPin1, pressFillRBVPin2, &pressFillRBVState, 4); }
-    void retractPressFillRBV(){ driveBackwards(pressFillRBVPin1, pressFillRBVPin2, &pressFillRBVState, 4); }
-    uint32_t stopPressFillRBV(){ stopAct(pressFillRBVPin1, pressFillRBVPin2, &pressFillRBVState, 4); stop5->enabled = false; return 0;}
-    void brakePressFillRBV(){ brakeAct(pressFillRBVPin1, pressFillRBVPin2, &pressFillRBVState, 4); }
-    void pressFillRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendpressFillRBV, &retractpressFillRBV, stop5); }
-
-    void extendPressLineVentRBV(){ driveForwards(pressLineVentRBVPin1, pressLineVentRBVPin2, &pressLineVentRBVState, 5); }
-    void retractPressLineVentRBV(){ driveBackwards(pressLineVentRBVPin1, pressLineVentRBVPin2, &pressLineVentRBVState, 5); }
-    uint32_t stopPressLineVentRBV(){ stopAct(pressLineVentRBVPin1, pressLineVentRBVPin2, &pressLineVentRBVState, 5); stop6->enabled = false; return 0;}
-    void brakePressLineVentRBV(){ brakeAct(pressLineVentRBVPin1, pressLineVentRBVPin2, &pressLineVentRBVState, 5); }
-    void pressLineVentRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendpressLineVentRBV, &retractpressLineVentRBV, stop6); }
-
-    void extendIgniter(){ driveForwards(igniterPin1, igniterPin2, &igniterState, 6); }
-    void retractIgniter(){ driveBackwards(igniterPin1, igniterPin2, &igniterState, 6); }
-    uint32_t stopIgniter(){ stopAct(igniterPin1, igniterPin2, &igniterState, 6); stop7->enabled = false; return 0;}
-    void brakeIgniter(){ brakeAct(igniterPin1, igniterPin2, &igniterState, 6); }
-    void igniterPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendigniter, &retractigniter, stop7); }
+    void extendLoxFillRBV(){ driveForwards(loxFillRBVPin1, loxFillRBVPin2, &loxFillRBVState, 3); }
+    void retractLoxFillRBV(){ driveBackwards(loxFillRBVPin1, loxFillRBVPin2, &loxFillRBVState, 3); }
+    uint32_t stopLoxFillRBV(){ stopAct(loxFillRBVPin1, loxFillRBVPin2, &loxFillRBVState, 3); stopLoxFillRBVTask->enabled = false; return 0;}
+    void brakeLoxFillRBV(){ brakeAct(loxFillRBVPin1, loxFillRBVPin2, &loxFillRBVState, 3); }
+    void loxFillRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendLoxFillRBV, &retractLoxFillRBV, stopLoxFillRBVTask); }
 
     void actPacketHandler(Comms::Packet tmp, void (*extend)(), void (*retract)(), Task *stopTask){
-/*         switch(tmp.data[0]){
-            case 0:
-                (*extend)();
-                break;
-            case 1:
-                (*retract)();
-                break;
-            case 2:
-                (*extend)();
-                if(stopTask->enabled) stopTask->nexttime += Comms::packetGetUint32(&tmp, 1) * 1000;
-                else stopTask->nexttime = micros() + Comms::packetGetUint32(&tmp, 1) * 1000;
-                stopTask->enabled = true;
-                break;
-            case 3:
-                (*retract)();
-                if(stopTask->enabled) stopTask->nexttime += Comms::packetGetUint32(&tmp, 1) * 1000;
-                else stopTask->nexttime = micros() + Comms::packetGetUint32(&tmp, 1) * 1000;
-                stopTask->enabled = true;
-                break;
-        } */
-
-        // (Actuate code) 0: extend fully 1: retract fully 2: extend millis 3: retract millis
-
         if(tmp.data[0]%2)(*extend)();
         else (*retract)();
 
@@ -174,26 +108,20 @@ namespace Actuators {
 
         if (*current > OClimits[actuatorID]){
             switch(actuatorID){
-                case 0: stoppropTankVentRBV(); break;
-                case 1: stoploxTankVentRBV(); break;
-                case 2: stoppropFlowRBV(); break;
-                case 3: stoploxFlowRBV(); break;
-                case 4: stoppressFillRBV(); break;
-                case 5: stoppressLineVentRBV(); break;
-                case 6: stopigniter(); break;
+                case 0: stopPropTankVentRBV(); break;
+                case 1: stopLoxTankVentRBV(); break;
+                case 2: stopPropFillRBV(); break;
+                case 3: stopLoxFillRBV(); break;
             }
             *actState = 3;
         }
 
         if ((*actState == 1 || *actState == 2) && *current < stopCurrent){
             switch(actuatorID){
-                case 0: stoppropTankVentRBV(); break;
-                case 1: stoploxTankVentRBV(); break;
-                case 2: stoppropFlowRBV(); break;
-                case 3: stoploxFlowRBV(); break;
-                case 4: stoppressFillRBV(); break;
-                case 5: stoppressLineVentRBV(); break;
-                case 6: stopigniter(); break;
+                case 0: stopPropTankVentRBV(); break;
+                case 1: stopLoxTankVentRBV(); break;
+                case 2: stopPropFillRBV(); break;
+                case 3: stopLoxFillRBV(); break;
             }
         }
 
@@ -214,38 +142,20 @@ namespace Actuators {
         return actuatorCheckPeriod;
     }
 
-    uint32_t propFlowRBVSample() {
-        sampleActuator(&propFlowRBVPacket, &HAL::chan6, &propFlowRBVVoltage, &propFlowRBVCurrent, &propFlowRBVState, 2);
+    uint32_t propFillRBVSample() {
+        sampleActuator(&propFillRBVPacket, &HAL::chan6, &propFillRBVVoltage, &propFillRBVCurrent, &propFillRBVState, 2);
         return actuatorCheckPeriod;
     }
 
-    uint32_t loxFlowRBVSample() {
-        sampleActuator(&loxFlowRBVPacket, &HAL::chan7, &loxFlowRBVVoltage, &loxFlowRBVCurrent, &loxFlowRBVState, 3);
-        return actuatorCheckPeriod;
-    }
-
-    uint32_t pressFillRBVSample() {
-        sampleActuator(&pressFillRBVPacket, &HAL::chan8, &pressFillRBVVoltage, &pressFillRBVCurrent, &pressFillRBVState, 4);
-        return actuatorCheckPeriod;
-    }
-
-    uint32_t pressLineVentRBVSample() {
-        sampleActuator(&pressLineVentRBVPacket, &HAL::chan9, &pressLineVentRBVVoltage, &pressLineVentRBVCurrent, &pressLineVentRBVState, 5);
-        return actuatorCheckPeriod;
-    }
-
-    uint32_t igniterSample() {
-        sampleActuator(&igniterPacket, &HAL::chan10, &igniterVoltage, &igniterCurrent, &igniterState, 6);
+    uint32_t loxFillRBVSample() {
+        sampleActuator(&loxFillRBVPacket, &HAL::chan7, &loxFillRBVVoltage, &loxFillRBVCurrent, &loxFillRBVState, 3);
         return actuatorCheckPeriod;
     }
 
     void initActuators() {
         Comms::registerCallback(170, propTankVentRBVPacketHandler);
         Comms::registerCallback(171, loxTankVentRBVPacketHandler);
-        Comms::registerCallback(172, propFlowRBVPacketHandler);
-        Comms::registerCallback(173, loxFlowRBVPacketHandler);
-        Comms::registerCallback(174, pressFillRBVPacketHandler);
-        Comms::registerCallback(175, pressLineVentRBVPacketHandler);
-        Comms::registerCallback(176, igniterPacketHandler);
+        Comms::registerCallback(172, propFillRBVPacketHandler);
+        Comms::registerCallback(173, loxFillRBVPacketHandler);
     }
 };

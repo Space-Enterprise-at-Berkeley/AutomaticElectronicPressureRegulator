@@ -2,6 +2,7 @@
 
 namespace EReg {
 
+    uint32_t samplePeriod = 12.5 * 1000; // 80 Hz
     char packetBuffer[sizeof(Comms::Packet)];
 
     float hpPT = 0;
@@ -13,51 +14,67 @@ namespace EReg {
         // EReg board connected to Serial8 of AC Teensy
         Serial8.begin(115200);
 
-        Comms::registerCallback(1, zero);
-        Comms::registerCallback(2, setPressureSetpoint);
-        Comms::registerCallback(3, flow);
-        Comms::registerCallback(4, stopFlow);
-        Comms::registerCallback(5, setPIDConstants);
-        Comms::registerCallback(6, abort);
+        Comms::registerCallback(0, startLoxFlow);
+        Comms::registerCallback(1, startFuelFlow);
+        Comms::registerCallback(2, startFlow);
+        Comms::registerCallback(3, abort);
+        Comms::registerCallback(4, setLoxPosition);
+        Comms::registerCallback(5, setFuelPosition);
+        Comms::registerCallback(6, staticPressurizeLox);
+        Comms::registerCallback(6, staticPressurizeFuel);
+        Comms::registerCallback(6, activateIgniter);
     }
 
-    Comms::Packet eRegZeroPacket = {.id = 1};
-    void zero(Comms::Packet tmp) {
-        eRegZeroPacket.data[0] = tmp.data[0];
-        sendToEReg(eRegZeroPacket);
-    }
-    
-    Comms::Packet eRegPressureSetpointPacket = {.id = 2};
-    void setPressureSetpoint(Comms::Packet tmp) {
-        for (int i = 0; i < 4; i++) {
-            eRegPressureSetpointPacket.data[i] = tmp.data[i];
-        }
-        sendToEReg(eRegPressureSetpointPacket);
+    void startLoxFlow(Comms::Packet tmp, uint8_t ip) {
+
     }
 
-    Comms::Packet eRegFlowPacket = {.id = 3};
-    void flow(Comms::Packet tmp) {
-        eRegFlowPacket.data[0] = tmp.data[0];
-        sendToEReg(eRegFlowPacket);
+    void startFuelFlow(Comms::Packet tmp, uint8_t ip) {
+
     }
 
-    Comms::Packet eRegFullOpenPacket = {.id = 4};
-    void fullOpen(Comms::Packet tmp) {
-        sendToEReg(eRegFlowPacket);
+    void startFlow(Comms::Packet tmp, uint8_t ip) {
+
+    }
+
+    void abort(Comms::Packet tmp, uint8_t ip) {
+
+    }
+
+    void setLoxPosition(Comms::Packet tmp, uint8_t ip) {
+
+    }
+
+    void setFuelPosition(Comms::Packet tmp, uint8_t ip) {
+
+    }
+
+    void staticPressurizeLox(Comms::Packet tmp, uint8_t ip) {
+
+    }
+
+    void staticPressurizeFuel(Comms::Packet tmp, uint8_t ip) {
+        
+    }
+
+    void activateIgniter(Comms::Packet tmp, uint8_t ip) {
+
     }
 
     uint32_t sampleTelemetry() {
-        Comms::Packet tmp = {.id = 85};
-        Comms::packetAddFloat(&tmp, hpPT);
-        Comms::packetAddFloat(&tmp, lpPT);
-        Comms::packetAddFloat(&tmp, injectorPT);
-        Comms::packetAddFloat(&tmp, motorAngle);
-        Comms::emitPacket(&tmp);
-
+        if(Serial8.available()) {
+            int cnt = 0;
+            while(Serial8.available() && cnt < sizeof(Comms::Packet)) {
+                packetBuffer[cnt] = Serial8.read();
+                cnt++;
+            }
+            Comms::Packet *packet = (Comms::Packet *)&packetBuffer;
+            //TODO retrive data from ereg packet
+        }
         return samplePeriod;
     }
 
-    void sendToEReg(Comms::Packet packet) {
+    void sendToEReg(Comms::Packet *packet) {
         Serial8.write(packet->id);
         Serial8.write(packet->len);
         Serial8.write(packet->timestamp, 4);
