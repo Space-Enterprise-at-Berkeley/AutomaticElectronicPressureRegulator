@@ -5,16 +5,22 @@
 
 namespace EReg {
 
-    uint32_t samplePeriod = 12.5 * 1000; // 80 Hz
+    extern uint32_t samplePeriod;
 
     void initEReg();
-    void zero(Comms::Packet tmp);
-    void setPressureSetpoint(Comms::Packet tmp);
-    void flow(Comms::Packet tmp);
-    void stopFlow(Comms::Packet tmp);
-    void setPIDConstants(Comms::Packet tmp);
-    void abort(Comms::Packet tmp);
+    void startLoxFlow(Comms::Packet tmp, uint8_t ip);
+    void startFuelFlow(Comms::Packet tmp, uint8_t ip);
+    void startFlow(Comms::Packet tmp, uint8_t ip);
+    void abort(Comms::Packet tmp, uint8_t ip);
+    void setLoxPosition(Comms::Packet tmp, uint8_t ip);
+    void setFuelPosition(Comms::Packet tmp, uint8_t ip);
+    void staticPressurizeLox(Comms::Packet tmp, uint8_t ip);
+    void staticPressurizeFuel(Comms::Packet tmp, uint8_t ip);
+    void activateIgniter(Comms::Packet tmp, uint8_t ip);
 
     uint32_t sampleTelemetry();
-    void sendToEReg(Comms::Packet packet);
+    void sendToEReg(Comms::Packet *packet);
+
+    void registerEregCallback(uint8_t id, Comms::commFunction function);
+    void evokeCallbackFunction(Comms::Packet *packet, uint8_t ip);
 }

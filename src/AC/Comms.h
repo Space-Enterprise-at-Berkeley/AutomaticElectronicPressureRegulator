@@ -6,6 +6,7 @@
 #include <NativeEthernet.h>
 #include <NativeEthernetUdp.h>
 #include <map>
+#include "stdint.h"
 
 namespace Comms {
     //https://github.com/sstaub/TeensyID/issues/3
@@ -19,8 +20,9 @@ namespace Comms {
         (uint8_t)(__m2 >> 8),
         (uint8_t)(__m2 >> 0),
     };
+    extern EthernetUDP Udp;
     const int port = 42069;
-    const IPAddress ip(10, 0, 0, IP_ADDRESS_END);
+    const IPAddress ip(10, 0, 0, 21);
     const IPAddress groundStation1(10, 0, 0, 69);
     const IPAddress groundStation2(10, 0, 0, 70);
 
@@ -78,11 +80,4 @@ namespace Comms {
     void emitPacket(Packet *packet, uint8_t end);
 
     uint16_t computePacketChecksum(Packet *packet);
-
-    /**
-     * @brief Sends the firmware version packet upon request
-     * 
-     * @param _ unused
-     */
-    void sendFirmwareVersionPacket(Packet unused, uint8_t ip);
 };

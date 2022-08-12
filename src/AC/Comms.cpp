@@ -1,4 +1,4 @@
-#include <Comms.h>
+#include "Comms.h"
 
 namespace Comms {
 
@@ -9,16 +9,6 @@ namespace Comms {
     void initComms() {
         Ethernet.begin((uint8_t *)mac, ip);
         Udp.begin(port);
-
-        registerCallback(0, sendFirmwareVersionPacket);
-    }
-
-    void sendFirmwareVersionPacket(Packet unused, uint8_t ip) {
-        Packet version = {.id = 0, .len = 7};
-
-        char commit[] = FW_COMMIT;
-        memcpy(&(version.data), &commit, 7);
-        emitPacket(&version);
     }
 
     void registerCallback(uint8_t id, commFunction function) {
