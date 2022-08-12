@@ -6,21 +6,21 @@ namespace Toggles {
     uint32_t toggleCheckPeriod = 50 * 1000;
 
     // TODO: set correct telem packet IDs
-    Comms::Packet ctl12vChan1Packet = {.id = 0};
+    Comms::Packet ctl12vChan1Packet = {.id = 17};
     float ctl12vChan1Voltage = 0.0;
     float ctl12vChan1Current = 0.0;
 
-    Comms::Packet ctl12vChan2Packet = {.id = 0};
+    Comms::Packet ctl12vChan2Packet = {.id = 18};
     float ctl12vChan2Voltage = 0.0;
     float ctl12vChan2Current = 0.0;
 
-    Comms::Packet ctl24vChan1Packet = {.id = 0};
-    float igniterVoltage = 0.0;
-    float igniterCurrent = 0.0;
+    Comms::Packet ctl24vChan1Packet = {.id = 19};
+    float fuelGemsVoltage = 0.0;
+    float fuelGemsCurrent = 0.0;
 
-    Comms::Packet ctl24vChan2Packet = {.id = 0};
-    float twoWayVoltage = 0.0;
-    float twoWayCurrent = 0.0;
+    Comms::Packet ctl24vChan2Packet = {.id = 20};
+    float breakWireVoltage = 0.0;
+    float breakWireCurrent = 0.0;
 
     void sampleToggle(Comms::Packet *packet, INA219 *ina, float *voltage, float *current) {
         *voltage = ina->readBusVoltage();
@@ -42,12 +42,12 @@ namespace Toggles {
         return toggleCheckPeriod;
     }
 
-    uint32_t igniterSample() {
-        sampleToggle(&ctl24vChan1Packet, &HAL::chan2, &igniterVoltage, &igniterCurrent);
+    uint32_t fuelGemsSample() {
+        sampleToggle(&ctl24vChan1Packet, &HAL::chan2, &fuelGemsVoltage, &fuelGemsCurrent);
         return toggleCheckPeriod;
     }
-    uint32_t twoWaySample() {
-        sampleToggle(&ctl24vChan2Packet, &HAL::chan3, &twoWayVoltage, &twoWayCurrent);
+    uint32_t breakWireSample() {
+        sampleToggle(&ctl24vChan2Packet, &HAL::chan3, &breakWireVoltage, &breakWireCurrent);
         return toggleCheckPeriod;
     }
 
@@ -55,17 +55,17 @@ namespace Toggles {
         digitalWrite(pin, packet.data[0]);
     }
 
-    void toggleIgniter(Comms::Packet packet) {
-        toggleToggle(packet, igniterPin);
+    void toggleFuelGems(Comms::Packet packet, uint8_t ip) {
+        toggleToggle(packet, fuelGemsPin);
     }
 
-    void toggleTwoWay(Comms::Packet packet) {
-        toggleToggle(packet, twoWayPin);
+    void toggleBreakWire(Comms::Packet packet, uint8_t ip) {
+        toggleToggle(packet, breakWirePin);
     }
 
     void initToggles() {
         //todo fill in correct telem
-        Comms::registerCallback(toggleIgniter, 182);
-        Comms::registerCallback(toggleTwoWay, 183);
+        Comms::registerCallback(182, toggleFuelGems);
+        Comms::registerCallback(183, toggleBreakWire);
     }
 };

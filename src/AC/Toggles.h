@@ -22,19 +22,23 @@ namespace Toggles {
     extern float ctl12vChan2Current;
     const uint8_t ctl12vChan2Pin = HAL::ctl12vChan2;
 
-    extern float igniterVoltage;
-    extern float igniterCurrent;
-    const uint8_t igniterPin = HAL::ctl24vChan1;
+    extern float fuelGemsVoltage;
+    extern float fuelGemsCurrent;
+    const uint8_t fuelGemsPin = HAL::ctl24vChan1;
 
-    extern float twoWayVoltage;
-    extern float twoWayCurrent;
-    const uint8_t twoWayPin = HAL::ctl24vChan2;
+    extern float breakWireVoltage;
+    extern float breakWireCurrent;
+    const uint8_t breakWirePin = HAL::ctl24vChan2;
     
     void initToggles();
+
+    void toggleToggle(Comms::Packet packet, uint8_t pin);
+    void toggleFuelGems(Comms::Packet packet, uint8_t ip);
+    void toggleBreakWire(Comms::Packet packet, uint8_t ip);
 
     void sampleToggle(Comms::Packet *packet, INA219 *ina, float *voltage, float *current);
     uint32_t ctl12vChan1Sample();
     uint32_t ctl12vChan2Sample();
-    uint32_t igniterSample();
-    uint32_t twoWaySample();
+    uint32_t fuelGemsSample();
+    uint32_t breakWireSample();
 };
