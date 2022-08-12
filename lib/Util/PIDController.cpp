@@ -2,15 +2,15 @@
 #include "TimeUtil.h"
 
 PIDController::PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, PIDController::AntiwindupMode antiwindup) {
-    k_p, k_i, k_d = kp, ki, kd;
-    minOutput_, maxOutput_ = minOutput, maxOutput;
+    k_p = kp, k_i = ki, k_d = kd;
+    minOutput_ = minOutput, maxOutput_ = maxOutput;
     errorBuffer_ = new Buffer(5);
     switch (antiwindup) {
         case standard:
-        antiwindup_ = &(PIDController::antiwindupStd);
+        antiwindup_ = &PIDController::antiwindupStd;
         break;
         case transientControl:
-        antiwindup_ = &(PIDController::antiwindupTransientCtrl);
+        antiwindup_ = &PIDController::antiwindupTransientCtrl;
         break;
     }
     this->reset();
@@ -66,7 +66,7 @@ double PIDController::getDTerm() {
 }
 
 void PIDController::reset() {
-    latestP_, latestI_, latestD_ = 0, 0, 0;
+    latestP_ = 0, latestI_ = 0, latestD_ = 0;
     lastUpdate_ = micros();
     timeStarted_ = micros();
     previousError_ = 0;

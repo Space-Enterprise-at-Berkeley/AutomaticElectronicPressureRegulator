@@ -1,7 +1,9 @@
 #include "PIDController.h"
 #include "StateMachine.h"
 #include "Config.h"
+#include "Packets.h"
 #include "TimeUtil.h"
+#include "FlowProfiles.h"
 
 namespace StateMachine {
 
@@ -19,6 +21,16 @@ namespace StateMachine {
     void enterIdleClosedState() {
         currentState = IDLE_CLOSED;
         idleClosedState.init();
+    }
+
+    void enterPartialOpenState(float angle) {
+        currentState = PARTIAL_OPEN;
+        partiallyOpenState.init(angle);
+    }
+
+    void enterDiagnosticState() {
+        currentState = DIAGNOSTIC;
+        diagnosticState.init();
     }
 
     FlowState* getFlowState(){
@@ -52,7 +64,7 @@ namespace StateMachine {
         Util::runMotors(0);
         lastPrint_ = 0;
         timeStarted_ = micros();
-        pressureSetpoint_ = Config::pressureSetpoint; // TODO: support changing pressure setpoint at runtime
+        pressureSetpoint_ = 0;
         angleSetpoint_ = 0;
         innerController_->reset();
         outerController_->reset();
@@ -66,6 +78,8 @@ namespace StateMachine {
         float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
         float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
         float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
+        pressureSetpoint_ = FlowProfiles::linearRampup(flowTime);
 
         float speed = 0;
 
@@ -79,26 +93,38 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
-            Comms::Packet packet = {.id = 85};
-            //TODO split into two temelemtry packets
-            //TODO update packet definition with full telemetry
-            Comms::packetAddFloat(&packet, Config::p_outer);
-            Comms::packetAddFloat(&packet, Config::i_outer);
-            Comms::packetAddFloat(&packet, Config::d_outer);
-            Comms::packetAddFloat(&packet, pressureSetpoint_);
-            Comms::packetAddFloat(&packet, angleSetpoint_);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, InjectorPT);
-            Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, speed);
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000UL) {
+            // Comms::Packet packet = {.id = 85};
+            // //TODO split into two temelemtry packets
+            // //TODO update packet definition with full telemetry
+            // Comms::packetAddFloat(&packet, Config::p_outer);
+            // Comms::packetAddFloat(&packet, Config::i_outer);
+            // Comms::packetAddFloat(&packet, Config::d_outer);
+            // Comms::packetAddFloat(&packet, pressureSetpoint_);
+            // Comms::packetAddFloat(&packet, angleSetpoint_);
+            // Comms::packetAddFloat(&packet, HPpsi);
+            // Comms::packetAddFloat(&packet, LPpsi);
+            // Comms::packetAddFloat(&packet, InjectorPT);
+            // Comms::packetAddFloat(&packet, motorAngle);
+            // Comms::packetAddFloat(&packet, speed);
             
-            Comms::emitPacket(&packet);
+            // Comms::emitPacket(&packet);
+            Packets::sendTelemetry(
+                HPpsi,
+                LPpsi,
+                InjectorPT,
+                motorAngle,
+                angleSetpoint_,
+                pressureSetpoint_,
+                speed,
+                outerController_->getPTerm(),
+                outerController_->getITerm(),
+                outerController_->getDTerm()
+            );
             lastPrint_ = micros();
         }
 
-        if (TimeUtil::timeInterval(timeStarted_, micros()) > Config::flowDuration) {
+        if (flowTime > Config::flowDuration) {
             enterIdleClosedState();
         }
     }
@@ -134,22 +160,34 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
-            Comms::Packet packet = {.id = 85};
-            //TODO split into two temelemtry packets
-            //TODO update packet definition with full telemetry
-            Comms::packetAddFloat(&packet, Config::p_outer);
-            Comms::packetAddFloat(&packet, Config::i_outer);
-            Comms::packetAddFloat(&packet, Config::d_outer);
-            Comms::packetAddFloat(&packet, 0);
-            Comms::packetAddFloat(&packet, angleSetpoint_);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, InjectorPT);
-            Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, speed);
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000UL) {
+            // Comms::Packet packet = {.id = 85};
+            // //TODO split into two temelemtry packets
+            // //TODO update packet definition with full telemetry
+            // Comms::packetAddFloat(&packet, Config::p_outer);
+            // Comms::packetAddFloat(&packet, Config::i_outer);
+            // Comms::packetAddFloat(&packet, Config::d_outer);
+            // Comms::packetAddFloat(&packet, 0);
+            // Comms::packetAddFloat(&packet, angleSetpoint_);
+            // Comms::packetAddFloat(&packet, HPpsi);
+            // Comms::packetAddFloat(&packet, LPpsi);
+            // Comms::packetAddFloat(&packet, InjectorPT);
+            // Comms::packetAddFloat(&packet, motorAngle);
+            // Comms::packetAddFloat(&packet, speed);
             
-            Comms::emitPacket(&packet);
+            // Comms::emitPacket(&packet);
+            Packets::sendTelemetry(
+                HPpsi,
+                LPpsi,
+                InjectorPT,
+                motorAngle,
+                angleSetpoint_,
+                0,
+                speed,
+                0,
+                0,
+                0
+            );
             lastPrint_ = micros();
         }
     }
@@ -189,21 +227,32 @@ namespace StateMachine {
 
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
-            Comms::Packet packet = {.id = 85};
-            //TODO split into two temelemtry packets
-            //TODO update packet definition with full telemetry
-            Comms::packetAddFloat(&packet, Config::p_outer);
-            Comms::packetAddFloat(&packet, Config::i_outer);
-            Comms::packetAddFloat(&packet, Config::d_outer);
-            Comms::packetAddFloat(&packet, 0);
-            Comms::packetAddFloat(&packet, 0);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, InjectorPT);
-            Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, speed);
-            
-            Comms::emitPacket(&packet);
+            // Comms::Packet packet = {.id = 85};
+            // //TODO split into two temelemtry packets
+            // //TODO update packet definition with full telemetry
+            // Comms::packetAddFloat(&packet, Config::p_outer);
+            // Comms::packetAddFloat(&packet, Config::i_outer);
+            // Comms::packetAddFloat(&packet, Config::d_outer);
+            // Comms::packetAddFloat(&packet, 0);
+            // Comms::packetAddFloat(&packet, 0);
+            // Comms::packetAddFloat(&packet, HPpsi);
+            // Comms::packetAddFloat(&packet, LPpsi);
+            // Comms::packetAddFloat(&packet, InjectorPT);
+            // Comms::packetAddFloat(&packet, motorAngle);
+            // Comms::packetAddFloat(&packet, speed);
+            // Comms::emitPacket(&packet);
+            Packets::sendTelemetry(
+                HPpsi,
+                LPpsi,
+                InjectorPT,
+                motorAngle,
+                0,
+                0,
+                speed,
+                0,
+                0,
+                0
+            );
             lastPrint_ = micros();
         }
     }
@@ -214,7 +263,7 @@ namespace StateMachine {
 
     void DiagnosticState::init() {
         currentTest_ = TEST_BEGIN;
-        motorDirAngle0_, motorDirAngle1_, motorDirAngle2_ = 0, 0, 0;
+        motorDirAngle0_ = 0, motorDirAngle1_ = 0, motorDirAngle2_ = 0;
         motorDirStage_ = 0;
         servoSetpoint_ = 0;
         servoPassed_ = true;
@@ -222,10 +271,6 @@ namespace StateMachine {
     }
 
     void DiagnosticState::update() {
-        float motorAngle = encoder_->read();
-        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
 
         switch (currentTest_) {
             case MOTOR_DIR:
@@ -251,17 +296,17 @@ namespace StateMachine {
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         float speed;
 
-        if (testTime < 500*1000) { // do nothing for 0.5s
+        if (testTime < 500UL*1000UL) { // do nothing for 0.5s
             speed = 0;
             motorDirAngle0_ = motorAngle;
-        } else if (testTime < 1500*1000) { // open valve for 1s
+        } else if (testTime < 1500UL*1000UL) { // open valve for 1s
             speed = testSpeed_;
-        } else if (testTime < 2000*1000) { // stop for 0.5s
+        } else if (testTime < 2000UL*1000UL) { // stop for 0.5s
             speed = 0;
             motorDirAngle1_ = motorAngle;
-        } else if (testTime < 3000*1000) { // close valve for 1s
+        } else if (testTime < 3000UL*1000UL) { // close valve for 1s
             speed = -testSpeed_;
-        } else if (testTime < 3500*1000) { // stop for 0.5s
+        } else if (testTime < 3500UL*1000UL) { // stop for 0.5s
             speed = 0;
             motorDirAngle2_ = motorAngle;
         } else{
@@ -273,21 +318,32 @@ namespace StateMachine {
         Util::runMotors(speed);
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
-            Comms::Packet packet = {.id = 85};
-            //TODO split into two telemetry packets
-            //TODO update packet definition with full telemetry
-            Comms::packetAddFloat(&packet, Config::p_outer);
-            Comms::packetAddFloat(&packet, Config::i_outer);
-            Comms::packetAddFloat(&packet, Config::d_outer);
-            Comms::packetAddFloat(&packet, 0);
-            Comms::packetAddFloat(&packet, 0);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, InjectorPT);
-            Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, speed);
-            
-            Comms::emitPacket(&packet);
+            // Comms::Packet packet = {.id = 85};
+            // //TODO split into two telemetry packets
+            // //TODO update packet definition with full telemetry
+            // Comms::packetAddFloat(&packet, Config::p_outer);
+            // Comms::packetAddFloat(&packet, Config::i_outer);
+            // Comms::packetAddFloat(&packet, Config::d_outer);
+            // Comms::packetAddFloat(&packet, 0);
+            // Comms::packetAddFloat(&packet, 0);
+            // Comms::packetAddFloat(&packet, HPpsi);
+            // Comms::packetAddFloat(&packet, LPpsi);
+            // Comms::packetAddFloat(&packet, InjectorPT);
+            // Comms::packetAddFloat(&packet, motorAngle);
+            // Comms::packetAddFloat(&packet, speed);
+            // Comms::emitPacket(&packet);
+            Packets::sendTelemetry(
+                HPpsi,
+                LPpsi,
+                InjectorPT,
+                motorAngle,
+                0,
+                0,
+                speed,
+                0,
+                0,
+                0
+            );
             lastPrint_ = micros();
         }
     }
@@ -323,21 +379,32 @@ namespace StateMachine {
 
         // send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
-            Comms::Packet packet = {.id = 85};
-            //TODO split into two telemetry packets
-            //TODO update packet definition with full telemetry
-            Comms::packetAddFloat(&packet, Config::p_outer);
-            Comms::packetAddFloat(&packet, Config::i_outer);
-            Comms::packetAddFloat(&packet, Config::d_outer);
-            Comms::packetAddFloat(&packet, 0);
-            Comms::packetAddFloat(&packet, servoSetpoint_);
-            Comms::packetAddFloat(&packet, HPpsi);
-            Comms::packetAddFloat(&packet, LPpsi);
-            Comms::packetAddFloat(&packet, InjectorPT);
-            Comms::packetAddFloat(&packet, motorAngle);
-            Comms::packetAddFloat(&packet, speed);
-            
-            Comms::emitPacket(&packet);
+            // Comms::Packet packet = {.id = 85};
+            // //TODO split into two telemetry packets
+            // //TODO update packet definition with full telemetry
+            // Comms::packetAddFloat(&packet, Config::p_outer);
+            // Comms::packetAddFloat(&packet, Config::i_outer);
+            // Comms::packetAddFloat(&packet, Config::d_outer);
+            // Comms::packetAddFloat(&packet, 0);
+            // Comms::packetAddFloat(&packet, servoSetpoint_);
+            // Comms::packetAddFloat(&packet, HPpsi);
+            // Comms::packetAddFloat(&packet, LPpsi);
+            // Comms::packetAddFloat(&packet, InjectorPT);
+            // Comms::packetAddFloat(&packet, motorAngle);
+            // Comms::packetAddFloat(&packet, speed);
+            // Comms::emitPacket(&packet);
+            Packets::sendTelemetry(
+                HPpsi,
+                LPpsi,
+                InjectorPT,
+                motorAngle,
+                servoSetpoint_,
+                0,
+                speed,
+                0,
+                0,
+                0
+            );
             lastPrint_ = micros();
         }
     }
@@ -345,7 +412,7 @@ namespace StateMachine {
     void DiagnosticState::startNextTest() {
         timeTestStarted_ = micros();
         Util::runMotors(0);
-        currentTest_ = currentTest_ + 1;
+        currentTest_ = static_cast<DiagnosticTest>((int)currentTest_ + 1);
         if (currentTest_ == SERVO) {
             innerController_->reset();
         }

@@ -17,12 +17,13 @@ namespace Config {
     const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35e-6;
 
     const float pressureSetpoint = 500;
-    const unsigned long flowDuration = 10 * 1000 * 1000; // time in microseconds TODO change to 5s
+    const unsigned long flowDuration = 10UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
+    const unsigned long rampDuration = 300UL * 1000UL; // time in microseconds
 
     // Diagnostic configs
     const float minAngleMovement = 300;
     const int servoTestPoints = 5;
     const float servoTravelInterval = 100; // encoder counts
-    const unsigned long servoSettleTime = 200 * 1000; // micros
+    const unsigned long servoSettleTime = 200UL * 1000UL; // micros
     const float servoSettleThresh = 10; // encoder counts
 }

@@ -11,10 +11,12 @@
 
 namespace StateMachine {
 
-    enum State { IDLE_CLOSED, PARTIAL_OPEN, VENT, PRESSURIZE, FLOW }; 
+    enum State { IDLE_CLOSED, PARTIAL_OPEN, FLOW, DIAGNOSTIC }; // TODO implement vent and pressurize
     
     void enterFlowState();
     void enterIdleClosedState();
+    void enterPartialOpenState(float angle);
+    void enterDiagnosticState();
     State getCurrentState();
 
     class FlowState {

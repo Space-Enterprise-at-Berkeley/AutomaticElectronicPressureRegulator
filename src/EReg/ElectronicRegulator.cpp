@@ -43,23 +43,21 @@ void stopFlow(Comms::Packet packet) {
     StateMachine::enterIdleClosedState();
 }
 
-void setPIDConstants(Comms::Packet packet) {
-
+void partialOpen(Comms::Packet packet) {
+    StateMachine::enterPartialOpenState(Comms::packetGetFloat(&packet, 0));
 }
 
-void abort(Comms::Packet packet) {
-    StateMachine::enterIdleClosedState();
+void runDiagnostics(Comms::Packet packet) {
+    StateMachine::enterDiagnosticState();
 }
-
-
 
 void setup() {
-    Comms::registerCallback(0, zero);
-    Comms::registerCallback(1, setPressureSetpoint);
-    Comms::registerCallback(2, flow);
-    Comms::registerCallback(3, stopFlow);
-    Comms::registerCallback(4, setPIDConstants);
-    Comms::registerCallback(5, abort);
+    Comms::registerCallback(0, flow);
+    Comms::registerCallback(1, stopFlow);
+    Comms::registerCallback(2, partialOpen);
+    // Comms::registerCallback(3, pressurize);
+    Comms::registerCallback(4, runDiagnostics);
+    Comms::registerCallback(5, zero);
     zero();
     StateMachine::enterIdleClosedState();
 }
@@ -78,6 +76,10 @@ void loop() {
 
         case StateMachine::FLOW:
         flowState->update();
+        break;
+
+        case StateMachine::DIAGNOSTIC:
+        diagnosticState->update();
         break;
     };
 }
