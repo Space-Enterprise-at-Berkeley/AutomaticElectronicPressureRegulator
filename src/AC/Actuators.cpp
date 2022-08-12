@@ -153,9 +153,9 @@ namespace Actuators {
     }
 
     void initActuators() {
-        Comms::registerCallback(170, propTankVentRBVPacketHandler);
-        Comms::registerCallback(171, loxTankVentRBVPacketHandler);
-        Comms::registerCallback(172, propFillRBVPacketHandler);
-        Comms::registerCallback(173, loxFillRBVPacketHandler);
+        Comms::registerCallback(10, propTankVentRBVPacketHandler);
+        Comms::registerCallback(11, loxTankVentRBVPacketHandler);
+        Comms::registerCallback(12, propFillRBVPacketHandler);
+        Comms::registerCallback(13, loxFillRBVPacketHandler);
     }
 };

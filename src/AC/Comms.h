@@ -20,8 +20,9 @@ namespace Comms {
         (uint8_t)(__m2 >> 8),
         (uint8_t)(__m2 >> 0),
     };
+    extern EthernetUDP Udp;
     const int port = 42069;
-    const IPAddress ip(10, 0, 0, 42);
+    const IPAddress ip(10, 0, 0, 21);
     const IPAddress groundStation1(10, 0, 0, 69);
     const IPAddress groundStation2(10, 0, 0, 70);
 

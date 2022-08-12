@@ -19,5 +19,8 @@ namespace EReg {
     void activateIgniter(Comms::Packet tmp, uint8_t ip);
 
     uint32_t sampleTelemetry();
-    void sendToEReg(Comms::Packet packet);
+    void sendToEReg(Comms::Packet *packet);
+
+    void registerEregCallback(uint8_t id, Comms::commFunction function);
+    void evokeCallbackFunction(Comms::Packet *packet, uint8_t ip);
 }

@@ -65,7 +65,7 @@ namespace Toggles {
 
     void initToggles() {
         //todo fill in correct telem
-        Comms::registerCallback(toggleIgniter, 0);
-        Comms::registerCallback(toggleTwoWay, 0);
+        Comms::registerCallback(toggleIgniter, 182);
+        Comms::registerCallback(toggleTwoWay, 183);
     }
 };

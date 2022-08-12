@@ -12,10 +12,10 @@
 
 Task taskTable[] = {
     // actuators
-    {Actuators::propTankVentRBVSample, 0},
-    {Actuators::loxTankVentRBVSample, 0},
-    {Actuators::propFillRBVSample, 0},
-    {Actuators::loxFillRBVSample, 0},
+    // {Actuators::propTankVentRBVSample, 0},
+    // {Actuators::loxTankVentRBVSample, 0},
+    // {Actuators::propFillRBVSample, 0},
+    // {Actuators::loxFillRBVSample, 0},
 
     {Actuators::stopPropFillRBV, 0, false},
     {Actuators::stopLoxTankVentRBV, 0, false},
@@ -27,7 +27,11 @@ Task taskTable[] = {
     // {Power::supply12Sample, 0},
 
     // ereg
-    {EReg::sampleTelemetry, 0},
+    // {EReg::sampleTelemetry, 0},
+
+    // toggles
+    // {Toggles::igniterSample, 0},
+    // {Toggles::twoWaySample, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -48,15 +52,16 @@ int main() {
     Actuators::initActuators();
     // Power::initPower();
     EReg::initEReg();
-    Toggles::initToggles();
+    // Toggles::initToggles();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
         for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
-        if (taskTable[i].enabled && ticks >= taskTable[i].nexttime)
+        if (taskTable[i].enabled && ticks >= taskTable[i].nexttime) {
             // DEBUG(i);
             // DEBUG("\n");
             taskTable[i].nexttime = ticks + taskTable[i].taskCall();
+        }
         }
         Comms::processWaitingPackets();
     }
