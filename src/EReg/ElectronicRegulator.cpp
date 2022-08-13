@@ -22,6 +22,7 @@ void zero() {
     delay(2000);
     Util::runMotors(0);
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
+    delay(400);
     encoder->write(-20);
 }
 

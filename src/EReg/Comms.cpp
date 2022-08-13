@@ -2,6 +2,11 @@
 
 namespace Comms {
 
+    
+    #ifdef DEBUG_MODE
+    String inString_ = "";
+    #endif
+
     commFunction callbackMap[numIDs] = {};
     char packetBuffer[sizeof(Packet)];
 
@@ -28,8 +33,29 @@ namespace Comms {
     }
 
     void processWaitingPackets() {
+        #ifdef DEBUG_MODE
         if(Serial.available()) {
-            int cnt = 0;
+            while (Serial.available()) {
+                int inChar = Serial.read();
+                if (isDigit(inChar) || inChar=='-') {
+                    inString_ += (char)inChar;
+                }
+                if (inChar == '\n') {
+                    Packet packet = {.id = inString_.toInt()};
+                    uint16_t checksum = computePacketChecksum(&packet);
+                    packet.checksum[0] = checksum & 0xFF;
+                    packet.checksum[1] = checksum >> 8;
+                    inString_ = "";
+                    DEBUG("Mocking inbound packet with id ");
+                    DEBUGLN(packet.id);
+                    evokeCallbackFunction(&packet);
+                    return;
+                }
+            }
+        }
+        #else
+        if(Serial.available()) {
+            unsigned int cnt = 0;
             while(Serial.available() && cnt < sizeof(Packet)) {
                 packetBuffer[cnt] = Serial.read();
                 cnt++;
@@ -37,6 +63,7 @@ namespace Comms {
             Packet *packet = (Packet *)&packetBuffer;
             evokeCallbackFunction(packet);
         }
+        #endif
     }
 
     void packetAddFloat(Packet *packet, float value) {
@@ -116,6 +143,9 @@ namespace Comms {
         Serial.write(packet->timestamp, 4);
         Serial.write(packet->checksum, 2);
         Serial.write(packet->data, packet->len);
+        Serial.write(0x69);
+        Serial.write(0x69);
+        Serial.write(0x69);
         //TODO check if newline is required
     }
 
