@@ -15,6 +15,8 @@ namespace EReg {
     Comms::Packet eregPressurizePacket = {.id = 3};
     Comms::Packet eregDiagnosticPacket = {.id = 4};
 
+    Comms::Packet mainGroundStationPacket = {.id = 0};
+
     void initEReg() {
         // EReg board connected to Serial8 of AC Teensy
         Serial8.begin(115200);
@@ -59,7 +61,15 @@ namespace EReg {
         if (packet.len > 0) {
             Serial.printf("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
             Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
-
+        }
+        //Serial.printf("id: %d, len: %d\n", packet.id, packet.len);
+        if (packet.id == 0) { //remap packet 0 (ereg POV) to packet 5 (dashboard/AC POV). Everything else is the same.
+            packet.id = 5;
+        }
+        if (packet.len > 0) {
+            Comms::emitPacket(&packet);
+        } else if (packet.len < 0) {
+            Serial.println("wtf");
         }
 
         if (micros() - start > 5e6 && !startedDiagnostic) {
