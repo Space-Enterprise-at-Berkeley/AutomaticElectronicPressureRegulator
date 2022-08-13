@@ -3,9 +3,11 @@
 #include <stdint.h>
 
 namespace HAL {
+    // main valve pins
     const int mainValve1 = 10;
     const int mainValve2 = 9;
     
+    // ereg motor pins
     const int motor1 = 6;
     const int motor2 = 5;
 

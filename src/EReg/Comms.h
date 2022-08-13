@@ -6,13 +6,15 @@
 
 namespace Comms {
     const int numIDs = 6;
+    const unsigned int payloadSize = 256;
+    const unsigned int buf_size = 2 * payloadSize;
 
     struct Packet {
         uint8_t id;
         uint8_t len;
         uint8_t timestamp[4];
         uint8_t checksum[2];
-        uint8_t data[256];
+        uint8_t data[payloadSize];
     };
 
     void initComms();
@@ -33,6 +35,7 @@ namespace Comms {
     void packetAddUint32(Packet *packet, uint32_t value);
     void packetAddUint16(Packet *packet, uint16_t value);
     void packetAddUint8(Packet *packet, uint8_t value);
+    void packetAddString(Packet *packet, String message);
 
     /**
      * @brief Interprets the packet data as a float.

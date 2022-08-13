@@ -4,9 +4,11 @@
 
 namespace Packets {
 
-    const int TELEMETRY_ID = 0;
-    const int CONFIG_ID = 2;
-    const int DIAGNOSTIC_ID = 3;
+    const uint8_t TELEMETRY_ID = 0;
+    const uint8_t CONFIG_ID = 2;
+    const uint8_t DIAGNOSTIC_PASS_ID = 11;
+    const uint8_t DIAGNOSTIC_FAIL_ID = 12;
+    const uint8_t STATE_TRANSITION_FAIL_ID = 13;
 
     void sendTelemetry(
         float highPressure,
@@ -21,6 +23,6 @@ namespace Packets {
         float pressureControlD
     );
     void sendConfig();
-    void sendDiagnostic();
-
+    void sendDiagnostic(boolean pass, String message);
+    void sendStateTransitionError(String message);
 }

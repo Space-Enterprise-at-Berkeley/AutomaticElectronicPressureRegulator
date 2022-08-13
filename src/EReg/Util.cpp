@@ -63,4 +63,18 @@ namespace Util {
         analogWrite(HAL::motor1,-min(0,speed));
         analogWrite(HAL::motor2,max(0,speed));
     }
+
+    void actuateMainValve(ValveAction action) {
+        float speed;
+        switch (action) {
+            case MAIN_VALVE_OPEN:
+            speed = 255;
+            break;
+            case MAIN_VALVE_CLOSE:
+            speed = -255;
+            break;
+        }
+        analogWrite(HAL::mainValve1,-min(0,speed));
+        analogWrite(HAL::mainValve2,max(0,speed));
+    }
 }

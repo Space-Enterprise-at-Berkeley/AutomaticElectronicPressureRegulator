@@ -8,7 +8,6 @@ namespace Comms {
     #endif
 
     commFunction callbackMap[numIDs] = {};
-    const unsigned int buf_size = 512;
     char packetBuffer[buf_size];
     unsigned int bufferIndex = 0;
 
@@ -69,9 +68,9 @@ namespace Comms {
                 int lastWrittenIndex = bufferIndex - 1;
                 if (
                     (lastWrittenIndex >= 3) && 
-                    (packetBuffer[lastWrittenIndex]==0x70) &&
-                    (packetBuffer[lastWrittenIndex - 1]==0x69) &&
-                    (packetBuffer[lastWrittenIndex - 2]==0x68)
+                    (packetBuffer[lastWrittenIndex] == 0x70) &&
+                    (packetBuffer[lastWrittenIndex - 1] == 0x69) &&
+                    (packetBuffer[lastWrittenIndex - 2] == 0x68)
                 ) {
                     Packet *packet = (Packet *)&packetBuffer;
                     bufferIndex = 0;
@@ -114,6 +113,22 @@ namespace Comms {
     void packetAddUint8(Packet *packet, uint8_t value) {
         packet->data[packet->len] = value;
         packet->len++;
+    }
+
+    /**
+     * Inserts string into specified packet.
+     * IMPORTANT: String must come after all other data, and there cannot be 2 strings in one packet
+     * This is because the parser will treat all bytes from start of string to end of packet as part of the string
+     * 
+     * @param packet pointer to packet to which message should be appended
+     * @param message string message. If this is too long to fit within the packet, it will be truncated
+     */
+    void packetAddString(Packet *packet, String message) {
+        unsigned int messageLength = min(message.length(), payloadSize - packet->len);
+        for (unsigned int i = 0; i<messageLength; i++) {
+            packet->data[i + packet->len] = message[i];
+        }
+        packet->len += messageLength;
     }
 
     float packetGetFloat(Packet *packet, uint8_t index) {
@@ -168,7 +183,6 @@ namespace Comms {
         Serial.write(0x68);
         Serial.write(0x69);
         Serial.write(0x70);
-        //TODO check if newline is required
     }
 
     /**
