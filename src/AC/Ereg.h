@@ -12,6 +12,8 @@ namespace EReg {
     void startFuelFlow(Comms::Packet tmp, uint8_t ip);
     void startFlow(Comms::Packet tmp, uint8_t ip);
     void abort(Comms::Packet tmp, uint8_t ip);
+
+    void runDiagnostic();
     void setLoxPosition(Comms::Packet tmp, uint8_t ip);
     void setFuelPosition(Comms::Packet tmp, uint8_t ip);
     void staticPressurizeLox(Comms::Packet tmp, uint8_t ip);
