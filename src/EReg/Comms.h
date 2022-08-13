@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 namespace Comms {
-    const int numIDs = 5;
+    const int numIDs = 6;
 
     struct Packet {
         uint8_t id;

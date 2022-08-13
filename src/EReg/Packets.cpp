@@ -28,6 +28,14 @@ namespace Packets {
         float pressureControlI,
         float pressureControlD
     ) {
+        #ifdef DEBUG_MODE
+        DEBUG(encoderAngle);
+        DEBUG("\t");
+        DEBUG(angleSetpoint);
+        DEBUG("\t");
+        DEBUG(motorPower);
+        DEBUGLN("\t");
+        #else
         Comms::Packet packet = {.id = TELEMETRY_ID};
         Comms::packetAddFloat(&packet, highPressure);
         Comms::packetAddFloat(&packet, lowPressure);
@@ -40,6 +48,7 @@ namespace Packets {
         Comms::packetAddFloat(&packet, pressureControlI);
         Comms::packetAddFloat(&packet, pressureControlD);
         Comms::emitPacket(&packet);
+        #endif
     }
 
     /**
