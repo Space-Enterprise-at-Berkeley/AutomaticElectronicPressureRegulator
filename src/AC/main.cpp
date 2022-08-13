@@ -8,17 +8,18 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#define DEBUG_MUL
 #include <SPI.h>
 
 Task taskTable[] = {
     // actuators
-    // {Actuators::propTankVentRBVSample, 0},
-    // {Actuators::loxTankVentRBVSample, 0},
-    // {Actuators::propFillRBVSample, 0},
-    // {Actuators::loxFillRBVSample, 0},
-    // {Actuators::twoWaySample, 0},
-    // {Actuators::loxGemsSample, 0},
-    // {Actuators::igniterSample, 0},
+    {Actuators::propTankVentRBVSample, 0},
+    {Actuators::loxTankVentRBVSample, 0},
+    {Actuators::propFillRBVSample, 0},
+    {Actuators::loxFillRBVSample, 0},
+    {Actuators::twoWaySample, 0},
+    {Actuators::loxGemsSample, 0},
+    {Actuators::igniterSample, 0},
 
     {Actuators::stopPropFillRBV, 0, false},
     {Actuators::stopLoxTankVentRBV, 0, false},
@@ -58,10 +59,12 @@ int main() {
 
     HAL::initHAL();
     Comms::initComms();
+    Serial.println("HII");
     Actuators::initActuators();
     // Power::initPower();
     EReg::initEReg();
     Toggles::initToggles();
+
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
