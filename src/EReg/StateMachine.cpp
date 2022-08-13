@@ -12,6 +12,7 @@ namespace StateMachine {
     IdleClosedState idleClosedState = IdleClosedState();
     PartiallyOpenState partiallyOpenState = PartiallyOpenState();
     DiagnosticState diagnosticState = DiagnosticState();
+    PressurizeState pressurizeState = PressurizeState();
 
     void enterFlowState() {
         currentState = FLOW;
@@ -47,6 +48,10 @@ namespace StateMachine {
 
     DiagnosticState* getDiagnosticState() {
         return &diagnosticState;
+    }
+
+    PressurizeState* getPressurizeState() {
+        return &pressurizeState;
     }
 
     State getCurrentState() {
@@ -93,7 +98,7 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000UL) {
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
                 HPpsi,
                 LPpsi,
@@ -145,7 +150,7 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000UL) {
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
                 HPpsi,
                 LPpsi,
@@ -196,7 +201,7 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
                 HPpsi,
                 LPpsi,
@@ -222,6 +227,7 @@ namespace StateMachine {
         motorDirAngle0_ = 0, motorDirAngle1_ = 0, motorDirAngle2_ = 0;
         motorDirStage_ = 0;
         servoSetpoint_ = 0;
+        longestSettleTime_ = 0;
         servoPassed_ = true;
         startNextTest();
     }
@@ -281,7 +287,7 @@ namespace StateMachine {
         }
         Util::runMotors(speed);
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
                 HPpsi,
                 LPpsi,
@@ -320,15 +326,21 @@ namespace StateMachine {
             if (intervalTime > Config::servoSettleTime) {
                 if (abs(servoSetpoint_ - motorAngle) > servoInterval_) {
                     servoPassed_ = false;
+                    longestSettleTime_ = max(longestSettleTime_, intervalTime);
                 }
             }
         } else {
             // check and report test failure/success
+            String message = "Motor Servo Test: " +
+            String(servoPassed_ ? "PASS" : "FAIL") +
+            " Target settle time: " + String(Config::servoSettleTime/1000UL) + "ms" +
+            " , Longest settle: " + String(longestSettleTime_/1000UL) + "ms";
+            Packets::sendDiagnostic(servoPassed_, message);
             this->startNextTest();
         }
 
         // send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > 1000) {
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
                 HPpsi,
                 LPpsi,
@@ -351,6 +363,60 @@ namespace StateMachine {
         currentTest_ = static_cast<DiagnosticTest>((int)currentTest_ + 1);
         if (currentTest_ == SERVO) {
             innerController_->reset();
+        }
+    }
+
+    PressurizeState::PressurizeState() {
+        this->init();
+    }
+
+    void PressurizeState::init() {
+        Util::runMotors(0);
+        lastPrint_ = 0;
+        timeStarted_ = micros();
+        angleSetpoint_ = 0;
+        innerController_->reset();
+        outerController_->reset();
+    }
+
+    void PressurizeState::update() {
+        // TODO: replace this with more sophisticated and safe pressurization algorithm
+        float motorAngle = encoder_->read();
+        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
+        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
+        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+
+        float speed = 0;
+
+        //Compute Inner PID Servo loop
+        speed = innerController_->update(motorAngle - angleSetpoint_);
+
+        //Compute Outer Pressure Control Loop
+        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
+        // same constants as flow, just with no feedforward
+        // angleSetpoint_ += Util::compute_feedforward(pressureSetpoint_, HPpsi);
+
+        Util::runMotors(speed);
+
+        //send data to AC
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
+            Packets::sendTelemetry(
+                HPpsi,
+                LPpsi,
+                InjectorPT,
+                motorAngle,
+                angleSetpoint_,
+                pressureSetpoint_,
+                speed,
+                outerController_->getPTerm(),
+                outerController_->getITerm(),
+                outerController_->getDTerm()
+            );
+            lastPrint_ = micros();
+        }
+
+        if (LPpsi > Config::staticPressureThresh) {
+            enterIdleClosedState();
         }
     }
 }

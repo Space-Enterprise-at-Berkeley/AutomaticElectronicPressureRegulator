@@ -16,6 +16,7 @@ StateMachine::FlowState *flowState = StateMachine::getFlowState();
 StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedState();
 StateMachine::PartiallyOpenState *partiallyOpenState = StateMachine::getPartiallyOpenState();
 StateMachine::DiagnosticState *diagnosticState = StateMachine::getDiagnosticState();
+StateMachine::PressurizeState *pressurizeState = StateMachine::getPressurizeState();
 
 void zero() {
     Util::runMotors(-150);
@@ -54,6 +55,7 @@ void runDiagnostics(Comms::Packet packet) {
 
 void setup() {
     Comms::initComms();
+    StateMachine::enterIdleClosedState();
     zero();
     Comms::registerCallback(0, flow);
     Comms::registerCallback(1, stopFlow);
@@ -61,7 +63,6 @@ void setup() {
     // Comms::registerCallback(3, pressurize);
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
-    StateMachine::enterIdleClosedState();
 }
 
 void loop() {
@@ -74,6 +75,10 @@ void loop() {
         
         case StateMachine::PARTIAL_OPEN:
         partiallyOpenState->update();
+        break;
+
+        case StateMachine::PRESSURIZE:
+        pressurizeState->update();
         break;
 
         case StateMachine::FLOW:

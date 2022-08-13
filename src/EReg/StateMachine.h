@@ -11,7 +11,7 @@
 
 namespace StateMachine {
 
-    enum State { IDLE_CLOSED, PARTIAL_OPEN, FLOW, DIAGNOSTIC }; // TODO implement vent and pressurize
+    enum State { IDLE_CLOSED, PARTIAL_OPEN, PRESSURIZE, FLOW, DIAGNOSTIC }; // TODO implement vent and pressurize
     
     void enterFlowState();
     void enterIdleClosedState();
@@ -59,7 +59,7 @@ namespace StateMachine {
         // Note: 1 rev on main shaft is 3200 counts
         // Encoder itself is 64CPM (including all edges)
         const float closeSpeed_ = -OPEN_LOOP_SPEED;
-        const float runTime_ = 3000; // in millis
+        const float runTime_ = Config::closeTime; // in millis
         unsigned long timeStarted_;
         unsigned long lastPrint_;
 
@@ -87,6 +87,7 @@ namespace StateMachine {
         int motorDirStage_;
         float servoSetpoint_;
         bool servoPassed_;
+        unsigned long longestSettleTime_;
 
         public:
         DiagnosticState();
@@ -96,11 +97,29 @@ namespace StateMachine {
         void servoTestUpdate();
         void startNextTest();
     };
+
+    class PressurizeState {
+        private:
+        Encoder *encoder_ = Util::getEncoder();
+        PIDController *innerController_ = Util::getInnerController(); 
+        PIDController *outerController_ = Util::getOuterController(); //TODO Use special I-only controller!
+        // Note: 1 rev on main shaft is 3200 counts
+        // Encoder itself is 64CPM (including all edges)
+        unsigned long timeStarted_;
+        unsigned long lastPrint_;
+        float pressureSetpoint_ = Config::pressureSetpoint;;
+        float angleSetpoint_;
+
+        public:
+        PressurizeState();
+        void init();
+        void update();
+    };
     // TODO: Write classes for the rest of the states
 
     FlowState* getFlowState();
     PartiallyOpenState* getPartiallyOpenState();
     IdleClosedState* getIdleClosedState();
     DiagnosticState* getDiagnosticState();
-
+    PressurizeState* getPressurizeState();
 };
