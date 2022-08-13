@@ -52,13 +52,14 @@ void runDiagnostics(Comms::Packet packet) {
 }
 
 void setup() {
+    Comms::initComms();
+    zero();
     Comms::registerCallback(0, flow);
     Comms::registerCallback(1, stopFlow);
     Comms::registerCallback(2, partialOpen);
     // Comms::registerCallback(3, pressurize);
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
-    zero();
     StateMachine::enterIdleClosedState();
 }
 
