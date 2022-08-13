@@ -1,9 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
-#define DEBUG_MODE
+// #define DEBUG_MODE
 
-#define DEBUG_MODE
 #ifdef DEBUG_MODE
 #define DEBUG(val) Serial.print(val)
 #define DEBUGLN(val) Serial.println(val)

@@ -8,7 +8,9 @@ namespace Comms {
     #endif
 
     commFunction callbackMap[numIDs] = {};
-    char packetBuffer[sizeof(Packet)];
+    const unsigned int buf_size = 512;
+    char packetBuffer[buf_size];
+    unsigned int bufferIndex = 0;
 
     void initComms() {
         Serial.begin(115200);
@@ -25,6 +27,7 @@ namespace Comms {
      */
     void evokeCallbackFunction(Packet *packet) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
+        Serial.println(computePacketChecksum(packet));
         if (checksum == computePacketChecksum(packet)) {
             if(packet->id < numIDs) {
                 callbackMap[packet->id](*packet);
@@ -55,13 +58,32 @@ namespace Comms {
         }
         #else
         if(Serial.available()) {
-            unsigned int cnt = 0;
-            while(Serial.available() && cnt < sizeof(Packet)) {
-                packetBuffer[cnt] = Serial.read();
-                cnt++;
+
+            if (bufferIndex >= buf_size) {
+                bufferIndex = 0;
             }
-            Packet *packet = (Packet *)&packetBuffer;
-            evokeCallbackFunction(packet);
+            
+            while(Serial.available()) {
+                packetBuffer[bufferIndex] = Serial.read();
+                bufferIndex++;
+                int lastWrittenIndex = bufferIndex - 1;
+                if (
+                    (lastWrittenIndex >= 3) && 
+                    (packetBuffer[lastWrittenIndex]==0x70) &&
+                    (packetBuffer[lastWrittenIndex - 1]==0x69) &&
+                    (packetBuffer[lastWrittenIndex - 2]==0x68)
+                ) {
+                    Packet *packet = (Packet *)&packetBuffer;
+                    bufferIndex = 0;
+                    Serial.print("packet id: ");
+                    Serial.print(packet->id);
+                    Serial.print("\tlen: ");
+                    Serial.print(packet->len);
+                    Serial.print(" \t check");
+                    Serial.println(packet->checksum[0]);
+                    evokeCallbackFunction(packet);
+                }
+            }
         }
         #endif
     }
@@ -143,9 +165,9 @@ namespace Comms {
         Serial.write(packet->timestamp, 4);
         Serial.write(packet->checksum, 2);
         Serial.write(packet->data, packet->len);
+        Serial.write(0x68);
         Serial.write(0x69);
-        Serial.write(0x69);
-        Serial.write(0x69);
+        Serial.write(0x70);
         //TODO check if newline is required
     }
 
