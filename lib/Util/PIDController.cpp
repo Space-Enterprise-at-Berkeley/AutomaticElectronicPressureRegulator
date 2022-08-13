@@ -28,7 +28,7 @@ double PIDController::update(double error) {
     latestI_ = -k_i * intError_;
     output += latestI_;
 
-    min(max(output, minOutput_), maxOutput_);
+    output = min(max(output, minOutput_), maxOutput_);
 
     previousError_ = error;
     lastUpdate_ = curr_time;
