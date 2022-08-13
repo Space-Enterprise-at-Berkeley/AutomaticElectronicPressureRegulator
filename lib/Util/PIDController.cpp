@@ -21,11 +21,11 @@ double PIDController::update(double error) {
     unsigned long dt = TimeUtil::timeInterval(lastUpdate_, curr_time);
     errorBuffer_->insert(TimeUtil::timeInterval(timeStarted_, curr_time)/1.0e6, error);
 
-    latestP_ = k_p * error;
-    latestD_ = k_d * errorBuffer_->get_slope();
+    latestP_ = -k_p * error;
+    latestD_ = -k_d * errorBuffer_->get_slope();
     double output = latestP_ + latestD_;
     intError_ = (this->*antiwindup_)(intError_, output, error, dt);
-    latestI_ = k_i * intError_;
+    latestI_ = -k_i * intError_;
     output += latestI_;
 
     min(max(output, minOutput_), maxOutput_);
