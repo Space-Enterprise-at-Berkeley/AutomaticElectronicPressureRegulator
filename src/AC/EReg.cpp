@@ -26,7 +26,7 @@ namespace EReg {
         // Comms::registerCallback(6, staticPressurizeLox);
         // Comms::registerCallback(6, staticPressurizeFuel);
         // Comms::registerCallback(6, activateIgniter);
-        sendToEReg(eregDiagnosticPacket);
+        registerEregCallback(0, interpretTelemetry);
     }
 
     void registerEregCallback(uint8_t id, Comms::commFunction function) {
@@ -39,6 +39,26 @@ namespace EReg {
             if(eregCallbackMap.count(packet->id)) {
                 eregCallbackMap.at(packet->id)(*packet, ip);
             }
+        }
+    }
+
+    long start = micros();
+    bool startedDiagnostic = false;
+
+    void interpretTelemetry(Comms::Packet packet, uint8_t ip) {
+        DEBUG("Received ereg telem packet with id: ");
+        DEBUG(packet.id);
+        DEBUG("\n");
+        DEBUGLN(Comms::packetGetFloat(&packet, 0));
+        DEBUGLN(Comms::packetGetFloat(&packet, 4));
+        DEBUGLN(Comms::packetGetFloat(&packet, 8));
+        DEBUGLN(Comms::packetGetFloat(&packet, 12));
+        DEBUGLN(Comms::packetGetFloat(&packet, 24));
+
+        if (micros() - start > 5e6 && !startedDiagnostic) {
+            DEBUGLN("SENT TELEMETRY EREG");
+            sendToEReg(&eregDiagnosticPacket);
+            startedDiagnostic = true;
         }
     }
 
@@ -95,7 +115,7 @@ namespace EReg {
                 cnt++;
             }
             Comms::Packet *packet = (Comms::Packet *)&packetBuffer;
-            // evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
+            evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
         }
         return samplePeriod;
     }

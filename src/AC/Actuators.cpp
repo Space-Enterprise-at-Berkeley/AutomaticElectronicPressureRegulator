@@ -42,6 +42,27 @@ namespace Actuators {
     float loxFillRBVCurrent = 0.0;
     Task *stopLoxFillRBVTask;
 
+    // act5
+    Comms::Packet twoWayPacket = {.id = 74};
+    uint8_t twoWayState = 0;
+    float twoWayVoltage = 0.0;
+    float twoWayCurrent = 0.0;
+    Task *stopTwoWayTask;
+
+    // act6
+    Comms::Packet loxGemsPacket = {.id = 75 };
+    uint8_t loxGemsState = 0;
+    float loxGemsVoltage = 0.0;
+    float loxGemsCurrent = 0.0;
+    Task *stopLoxGemsTask;
+
+    // act7
+    Comms::Packet igniterPacket = {.id = 75 };
+    uint8_t igniterState = 0;
+    float igniterVoltage = 0.0;
+    float igniterCurrent = 0.0;
+    Task *stopIgniterTask;
+
     void driveForwards(uint8_t pin1, uint8_t pin2, uint8_t *actState, uint8_t actuatorID){
         digitalWriteFast(pin1, HIGH);
         digitalWriteFast(pin2, LOW);
@@ -90,6 +111,24 @@ namespace Actuators {
     void brakeLoxFillRBV(){ brakeAct(loxFillRBVPin1, loxFillRBVPin2, &loxFillRBVState, 3); }
     void loxFillRBVPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendLoxFillRBV, &retractLoxFillRBV, stopLoxFillRBVTask); }
 
+    void extendTwoWay(){ driveForwards(twoWayPin1, twoWayPin2, &twoWayState, 3); }
+    void retractTwoWay(){ driveBackwards(twoWayPin1, twoWayPin2, &twoWayState, 3); }
+    uint32_t stopTwoWay(){ stopAct(twoWayPin1, twoWayPin2, &twoWayState, 3); stopTwoWayTask->enabled = false; return 0;}
+    void brakeTwoWay(){ brakeAct(twoWayPin1, twoWayPin2, &twoWayState, 3); }
+    void twoWayPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendTwoWay, &retractTwoWay, stopTwoWayTask); }
+
+    void extendLoxGems(){ driveForwards(loxGemsPin1, loxGemsPin2, &loxGemsState, 3); }
+    void retractLoxGems(){ driveBackwards(loxGemsPin1, loxGemsPin2, &loxGemsState, 3); }
+    uint32_t stopLoxGems(){ stopAct(loxGemsPin1, loxGemsPin2, &loxGemsState, 3); stopLoxGemsTask->enabled = false; return 0;}
+    void brakeLoxGems(){ brakeAct(loxGemsPin1, loxGemsPin2, &loxGemsState, 3); }
+    void loxGemsPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendLoxGems, &retractLoxGems, stopLoxGemsTask); }
+
+    void extendIgniter(){ driveForwards(igniterPin1, igniterPin2, &igniterState, 3); }
+    void retractIgniter(){ driveBackwards(igniterPin1, igniterPin2, &igniterState, 3); }
+    uint32_t stopIgniter(){ stopAct(igniterPin1, igniterPin2, &igniterState, 3); stopIgniterTask->enabled = false; return 0;}
+    void brakeIgniter(){ brakeAct(igniterPin1, igniterPin2, &igniterState, 3); }
+    void igniterPacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendIgniter, &retractIgniter, stopIgniterTask); }
+    
     void actPacketHandler(Comms::Packet tmp, void (*extend)(), void (*retract)(), Task *stopTask){
         if(tmp.data[0]%2)(*extend)();
         else (*retract)();
@@ -112,6 +151,9 @@ namespace Actuators {
                 case 1: stopLoxTankVentRBV(); break;
                 case 2: stopPropFillRBV(); break;
                 case 3: stopLoxFillRBV(); break;
+                case 4: stopTwoWay(); break;
+                case 5: stopLoxGems(); break;
+                case 6: stopIgniter(); break;
             }
             *actState = 3;
         }
@@ -122,6 +164,9 @@ namespace Actuators {
                 case 1: stopLoxTankVentRBV(); break;
                 case 2: stopPropFillRBV(); break;
                 case 3: stopLoxFillRBV(); break;
+                case 4: stopTwoWay(); break;
+                case 5: stopLoxGems(); break;
+                case 6: stopIgniter(); break;
             }
         }
 
@@ -152,10 +197,26 @@ namespace Actuators {
         return actuatorCheckPeriod;
     }
 
+    uint32_t twoWaySample() {
+        sampleActuator(&twoWayPacket, &HAL::chan7, &twoWayVoltage, &twoWayCurrent, &twoWayState, 3);
+        return actuatorCheckPeriod;
+    }
+
+    uint32_t loxGemsSample() {
+        sampleActuator(&loxGemsPacket, &HAL::chan7, &loxGemsVoltage, &loxGemsCurrent, &loxGemsState, 3);
+        return actuatorCheckPeriod;
+    }
+
+    uint32_t igniterSample() {
+        sampleActuator(&igniterPacket, &HAL::chan7, &igniterVoltage, &igniterCurrent, &igniterState, 3);
+        return actuatorCheckPeriod;
+    }
+
     void initActuators() {
         Comms::registerCallback(10, propTankVentRBVPacketHandler);
         Comms::registerCallback(11, loxTankVentRBVPacketHandler);
         Comms::registerCallback(12, propFillRBVPacketHandler);
         Comms::registerCallback(13, loxFillRBVPacketHandler);
+        //TODO add other channels
     }
 };

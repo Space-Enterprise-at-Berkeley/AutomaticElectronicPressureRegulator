@@ -16,22 +16,28 @@ Task taskTable[] = {
     // {Actuators::loxTankVentRBVSample, 0},
     // {Actuators::propFillRBVSample, 0},
     // {Actuators::loxFillRBVSample, 0},
+    // {Actuators::twoWaySample, 0},
+    // {Actuators::loxGemsSample, 0},
+    // {Actuators::igniterSample, 0},
 
     {Actuators::stopPropFillRBV, 0, false},
     {Actuators::stopLoxTankVentRBV, 0, false},
     {Actuators::stopPropFillRBV, 0, false},
     {Actuators::stopLoxFillRBV, 0, false},
+    {Actuators::stopTwoWay, 0, false},
+    {Actuators::stopLoxGems, 0, false},
+    {Actuators::stopIgniter, 0, false},
 
     // // power
     // {Power::battSample, 0},
     // {Power::supply12Sample, 0},
 
     // ereg
-    // {EReg::sampleTelemetry, 0},
+    {EReg::sampleTelemetry, 0},
 
     // toggles
-    // {Toggles::igniterSample, 0},
-    // {Toggles::twoWaySample, 0},
+    // {Toggles::fuelGemsSample, 0},
+    // {Toggles::breakWireSample, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -46,13 +52,16 @@ int main() {
     Actuators::stopLoxTankVentRBVTask = &taskTable[5];
     Actuators::stopPropFillRBVTask = &taskTable[6];
     Actuators::stopLoxFillRBVTask = &taskTable[7];
+    Actuators::stopTwoWayTask = &taskTable[8];
+    Actuators::stopLoxGemsTask = &taskTable[9];
+    Actuators::stopIgniterTask = &taskTable[10];
 
     HAL::initHAL();
     Comms::initComms();
     Actuators::initActuators();
     // Power::initPower();
     EReg::initEReg();
-    // Toggles::initToggles();
+    Toggles::initToggles();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
