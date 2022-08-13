@@ -20,7 +20,7 @@ namespace EReg {
     void initEReg() {
         // EReg board connected to Serial8 of AC Teensy
         Serial8.begin(115200);
-
+        Comms::registerCallback(34, runDiagnostic);
         // Comms::registerCallback(0, startLoxFlow);
         // Comms::registerCallback(1, startFuelFlow);
         // Comms::registerCallback(2, startFlow);
@@ -31,7 +31,9 @@ namespace EReg {
         // Comms::registerCallback(6, staticPressurizeFuel);
         // Comms::registerCallback(6, activateIgniter);
         registerEregCallback(0, interpretTelemetry);
+
     }
+
 
     void registerEregCallback(uint8_t id, Comms::commFunction function) {
         eregCallbackMap.insert(std::pair<int, Comms::commFunction>(id, function));
@@ -72,11 +74,15 @@ namespace EReg {
             Serial.println("wtf");
         }
 
-        if (micros() - start > 5e6 && !startedDiagnostic) {
-            DEBUGLN("SENT TELEMETRY EREG");
-            sendToEReg(&eregDiagnosticPacket); 
-            startedDiagnostic = true;
-        }
+        // if (micros() - start > 5e6 && !startedDiagnostic) {
+        //     DEBUGLN("SENT TELEMETRY EREG");
+        //     sendToEReg(&eregDiagnosticPacket); 
+        //     startedDiagnostic = true;
+        // }
+    }
+
+    void runDiagnostic() {
+        sendToEReg(&eregDiagnosticPacket);
     }
 
     void startLoxFlow(Comms::Packet tmp, uint8_t ip) {
@@ -126,12 +132,13 @@ namespace EReg {
     //TODO split this up for each serial port, can pass in serial bus
     uint32_t sampleTelemetry() {
 
+
         while (Serial8.available()) {
             packetBuffer2[packetBuffer2Ctr] = Serial8.read();
             packetBuffer2Ctr++;
             int p = packetBuffer2Ctr - 1;
 
-            if ((eregCallbackMap.count(packetBuffer2[p])) && (p > 3) && (packetBuffer2[p-1]==0x69) && (packetBuffer2[p-2]==0x69) && (packetBuffer2[p-3]==0x69)) {
+            if ((eregCallbackMap.count(packetBuffer2[p])) && (p > 3) && (packetBuffer2[p-1]==0x70) && (packetBuffer2[p-2]==0x69) && (packetBuffer2[p-3]==0x68)) {
                 Comms::Packet *packet = (Comms::Packet*) &packetBuffer2; 
                 packetBuffer2[0] = packetBuffer2[p];
                 packetBuffer2Ctr = 1;
@@ -145,12 +152,27 @@ namespace EReg {
     }
 
     void sendToEReg(Comms::Packet *packet) {
+
+        uint32_t timestamp = millis();
+        packet->timestamp[0] = timestamp & 0xFF;
+        packet->timestamp[1] = (timestamp >> 8) & 0xFF;
+        packet->timestamp[2] = (timestamp >> 16) & 0xFF;
+        packet->timestamp[3] = (timestamp >> 24) & 0xFF;
+
+        uint16_t checksum = computePacketChecksum(packet);
+        packet->checksum[0] = checksum & 0xFF;
+        packet->checksum[1] = checksum >> 8;
+
         Serial8.write(packet->id);
         Serial8.write(packet->len);
         Serial8.write(packet->timestamp, 4);
         Serial8.write(packet->checksum, 2);
+        //Serial.printf("%x%x\n", packet->checksum[0], packet->checksum[1]);
         Serial8.write(packet->data, packet->len);
-        Serial8.write('\n');
+        Serial8.write(0x68);
+        Serial8.write(0x69);
+        Serial8.write(0x70);
+ 
     }
 
 }
