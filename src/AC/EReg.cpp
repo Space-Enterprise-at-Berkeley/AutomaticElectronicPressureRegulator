@@ -3,7 +3,9 @@
 namespace EReg {
 
     uint32_t samplePeriod = 12.5 * 1000; // 80 Hz
-    char packetBuffer[sizeof(Comms::Packet)];
+    //char packetBuffer[sizeof(Comms::Packet)];
+    char packetBuffer2[1000];
+    int packetBuffer2Ctr = 0;
 
     std::map<uint8_t, Comms::commFunction> eregCallbackMap;
 
@@ -46,18 +48,23 @@ namespace EReg {
     bool startedDiagnostic = false;
 
     void interpretTelemetry(Comms::Packet packet, uint8_t ip) {
-        DEBUG("Received ereg telem packet with id: ");
-        DEBUG(packet.id);
-        DEBUG("\n");
-        DEBUGLN(Comms::packetGetFloat(&packet, 0));
-        DEBUGLN(Comms::packetGetFloat(&packet, 4));
-        DEBUGLN(Comms::packetGetFloat(&packet, 8));
-        DEBUGLN(Comms::packetGetFloat(&packet, 12));
-        DEBUGLN(Comms::packetGetFloat(&packet, 24));
+        // DEBUG("Received ereg telem packet with id: ");
+        // DEBUG(packet.id);
+        // DEBUG("\n");
+        // DEBUGLN(Comms::packetGetFloat(&packet, 0));
+        // DEBUGLN(Comms::packetGetFloat(&packet, 4));
+        // DEBUGLN(Comms::packetGetFloat(&packet, 8));
+        // DEBUGLN(Comms::packetGetFloat(&packet, 12));
+        // DEBUGLN(Comms::packetGetFloat(&packet, 24));
+        if (packet.len > 0) {
+            Serial.printf("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
+            Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
+
+        }
 
         if (micros() - start > 5e6 && !startedDiagnostic) {
             DEBUGLN("SENT TELEMETRY EREG");
-            sendToEReg(&eregDiagnosticPacket);
+            sendToEReg(&eregDiagnosticPacket); 
             startedDiagnostic = true;
         }
     }
@@ -108,15 +115,22 @@ namespace EReg {
 
     //TODO split this up for each serial port, can pass in serial bus
     uint32_t sampleTelemetry() {
-        if(Serial8.available()) {
-            int cnt = 0;
-            while(Serial8.available() && cnt < sizeof(Comms::Packet)) {
-                packetBuffer[cnt] = Serial8.read();
-                cnt++;
+
+        while (Serial8.available()) {
+            packetBuffer2[packetBuffer2Ctr] = Serial8.read();
+            packetBuffer2Ctr++;
+            int p = packetBuffer2Ctr - 1;
+
+            if ((eregCallbackMap.count(packetBuffer2[p])) && (p > 3) && (packetBuffer2[p-1]==0x69) && (packetBuffer2[p-2]==0x69) && (packetBuffer2[p-3]==0x69)) {
+                Comms::Packet *packet = (Comms::Packet*) &packetBuffer2; 
+                packetBuffer2[0] = packetBuffer2[p];
+                packetBuffer2Ctr = 1;
+                if (packet->len < 300) {
+                    evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
+                }
             }
-            Comms::Packet *packet = (Comms::Packet *)&packetBuffer;
-            evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
         }
+
         return samplePeriod;
     }
 
