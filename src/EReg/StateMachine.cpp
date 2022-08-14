@@ -380,11 +380,12 @@ namespace StateMachine {
     }
 
     void PressurizeState::update() {
-        // TODO: replace this with more sophisticated and safe pressurization algorithm
         float motorAngle = encoder_->read();
         float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
         float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
         float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
+        pressureSetpoint_ = FlowProfiles::pressurizationRamp(flowTime);
 
         float speed = 0;
 
@@ -393,8 +394,6 @@ namespace StateMachine {
 
         //Compute Outer Pressure Control Loop
         angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
-        // same constants as flow, just with no feedforward
-        // angleSetpoint_ += Util::compute_feedforward(pressureSetpoint_, HPpsi);
 
         Util::runMotors(speed);
 
@@ -415,7 +414,7 @@ namespace StateMachine {
             lastPrint_ = micros();
         }
 
-        if (LPpsi > Config::staticPressureThresh) {
+        if (LPpsi > Config::pressurizationCutoff) {
             enterIdleClosedState();
         }
     }

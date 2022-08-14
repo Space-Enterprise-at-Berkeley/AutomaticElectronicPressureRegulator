@@ -21,9 +21,11 @@ namespace Config {
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
     const float pressureSetpoint = 500;
-    const float staticPressureThresh = pressureSetpoint * 0.9;
     const unsigned long flowDuration = 10UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 300UL * 1000UL; // time in microseconds
+    const unsigned long pressurizationRampDuration = 10 * 1000UL * 1000UL;
+    const float pressurizationCutoff = pressureSetpoint * 0.9;
+    const float pressurizationStartPressure = 100;
 
     // Diagnostic configs
     const float minAngleMovement = 300;
