@@ -8,6 +8,7 @@
 namespace StateMachine {
 
     State currentState = IDLE_CLOSED;
+    ValveAction currentMainValveState = MAIN_VALVE_CLOSE;
     FlowState flowState = FlowState();
     IdleClosedState idleClosedState = IdleClosedState();
     PartiallyOpenState partiallyOpenState = PartiallyOpenState();
@@ -66,6 +67,16 @@ namespace StateMachine {
         }
     }
 
+    void enterMainValveState(uint8_t actionByte) {
+        ValveAction action = actionByte ? MAIN_VALVE_OPEN : MAIN_VALVE_CLOSE;
+        if (currentState == IDLE_CLOSED || currentState == PARTIAL_OPEN) {
+            actuateMainValve(action);
+        } else {
+            // Illegal state transition
+            Packets::sendStateTransitionError("ILLEGAL - Main valve can only be manually controlled in IDLE_CLOSED or PARTIAL_OPEN state");
+        }
+    }
+
     FlowState* getFlowState(){
         return &flowState;
     }
@@ -88,6 +99,26 @@ namespace StateMachine {
 
     State getCurrentState() {
         return currentState;
+    }
+
+    /**
+     * Helper function to actuate main valve. DO NOT have outside code calling this function - 
+     * This function does not validate the current state
+     * @param action Desired valve state
+     */
+    void actuateMainValve(ValveAction action) {
+        float speed;
+        switch (action) {
+            case MAIN_VALVE_OPEN:
+            speed = 255;
+            break;
+            case MAIN_VALVE_CLOSE:
+            speed = 0;
+            break;
+        }
+        analogWrite(HAL::mainValve1,-min(0,speed));
+        analogWrite(HAL::mainValve2,max(0,speed));
+        currentMainValveState = action;
     }
 
     void checkAbortPressure(float currentPressure, float abortPressure) {
@@ -136,6 +167,7 @@ namespace StateMachine {
         angleSetpoint_ += Util::compute_feedforward(pressureSetpoint_, HPpsi);
 
         Util::runMotors(speed);
+        actuateMainValve(MAIN_VALVE_OPEN);
 
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
@@ -223,6 +255,7 @@ namespace StateMachine {
         timeStarted_ = millis();
         lastPrint_ = 0;
         Util::runMotors(closeSpeed_);
+        actuateMainValve(MAIN_VALVE_CLOSE);
     }
 
     /**

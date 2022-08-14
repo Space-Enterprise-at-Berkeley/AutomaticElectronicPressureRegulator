@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 namespace Comms {
-    const int numIDs = 6;
+    const int numIDs = 7;
     const unsigned int payloadSize = 256;
     const unsigned int buf_size = 2 * payloadSize;
 

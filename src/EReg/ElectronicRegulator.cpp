@@ -57,6 +57,10 @@ void pressurize(Comms::Packet packet) {
     StateMachine::enterPressurizeState();
 }
 
+void actuateMainValve(Comms::Packet packet) {
+    StateMachine::enterMainValveState(Comms::packetGetUint8(&packet, 0));
+}
+
 void setup() {
     Comms::initComms();
     StateMachine::enterIdleClosedState();
@@ -67,6 +71,7 @@ void setup() {
     Comms::registerCallback(3, pressurize);
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
+    Comms::registerCallback(6, actuateMainValve);
 }
 
 void loop() {
