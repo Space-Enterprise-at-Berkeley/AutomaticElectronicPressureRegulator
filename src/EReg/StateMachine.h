@@ -18,6 +18,7 @@ namespace StateMachine {
     void enterPartialOpenState(float angle);
     void enterDiagnosticState();
     State getCurrentState();
+    void checkAbortPressure(float currentPressure, float abortPressure);
 
     class FlowState {
         private:

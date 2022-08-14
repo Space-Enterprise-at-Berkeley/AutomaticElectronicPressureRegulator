@@ -58,6 +58,14 @@ namespace StateMachine {
         return currentState;
     }
 
+    void checkAbortPressure(float currentPressure, float abortPressure) {
+        if (currentPressure > abortPressure) {
+            StateMachine::enterIdleClosedState();
+            String message = "ABORT - Pressure detected " + String(currentPressure) + " greater than thresh " + String(abortPressure);
+            Packets::sendStateTransitionError(message);
+        }
+    }
+
     FlowState::FlowState() {
         this->init();
     }
@@ -117,6 +125,8 @@ namespace StateMachine {
         if (flowTime > Config::flowDuration) {
             enterIdleClosedState();
         }
+
+        checkAbortPressure(LPpsi, Config::abortPressureThresh);
     }
 
     PartiallyOpenState::PartiallyOpenState() {
@@ -165,6 +175,8 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
+
+        checkAbortPressure(LPpsi, Config::abortPressureThresh);
     }
 
     IdleClosedState::IdleClosedState() {
@@ -302,6 +314,8 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
+        checkAbortPressure(HPpsi, Config::stopDiagnosticPressureThresh);
+        checkAbortPressure(LPpsi, Config::stopDiagnosticPressureThresh);
     }
 
     void DiagnosticState::servoTestUpdate() {
@@ -355,6 +369,8 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
+        checkAbortPressure(HPpsi, Config::stopDiagnosticPressureThresh);
+        checkAbortPressure(LPpsi, Config::stopDiagnosticPressureThresh);
     }
 
     void DiagnosticState::startNextTest() {
