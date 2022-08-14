@@ -17,6 +17,7 @@ namespace StateMachine {
     void enterIdleClosedState();
     void enterPartialOpenState(float angle);
     void enterDiagnosticState();
+    void enterPressurizeState();
     State getCurrentState();
     void checkAbortPressure(float currentPressure, float abortPressure);
 

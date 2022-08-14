@@ -53,6 +53,10 @@ void runDiagnostics(Comms::Packet packet) {
     StateMachine::enterDiagnosticState();
 }
 
+void pressurize(Comms::Packet packet) {
+    StateMachine::enterPressurizeState();
+}
+
 void setup() {
     Comms::initComms();
     StateMachine::enterIdleClosedState();
@@ -60,7 +64,7 @@ void setup() {
     Comms::registerCallback(0, flow);
     Comms::registerCallback(1, stopFlow);
     Comms::registerCallback(2, partialOpen);
-    // Comms::registerCallback(3, pressurize);
+    Comms::registerCallback(3, pressurize);
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
 }

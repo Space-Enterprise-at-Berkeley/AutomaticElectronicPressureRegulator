@@ -8,7 +8,8 @@ namespace Config {
     #define STATIC_SPD 0
     //old max angle = 1296
     //3200*48/26
-    #define MAX_ANGLE 363
+    // #define MAX_ANGLE 363
+    #define MAX_ANGLE 500
     #define MIN_ANGLE 0
 
     #define OPEN_LOOP_SPEED 200

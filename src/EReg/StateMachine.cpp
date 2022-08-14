@@ -15,8 +15,13 @@ namespace StateMachine {
     PressurizeState pressurizeState = PressurizeState();
 
     void enterFlowState() {
-        currentState = FLOW;
-        flowState.init();
+        if (currentState == IDLE_CLOSED) {
+            currentState = FLOW;
+            flowState.init();
+        } else {
+            // Illegal state transition
+            Packets::sendStateTransitionError("ILLEGAL - Flow can only be initiated from IDLE_CLOSED state");
+        }
     }
 
     void enterIdleClosedState() {
@@ -25,13 +30,40 @@ namespace StateMachine {
     }
 
     void enterPartialOpenState(float angle) {
-        currentState = PARTIAL_OPEN;
-        partiallyOpenState.init(angle);
+        if (currentState == IDLE_CLOSED || currentState == PARTIAL_OPEN) {
+            if (angle > (MIN_ANGLE - 100) && angle < (MAX_ANGLE + 100)) {
+                currentState = PARTIAL_OPEN;
+                partiallyOpenState.init(angle);
+            } else {
+                // Illegal parameters
+                String message = "ILLEGAL - PARTIAL_OPEN angle must be within [" 
+                + String(MIN_ANGLE - 100) + ", " + String(MAX_ANGLE + 100) + "].";
+                Packets::sendStateTransitionError(message);
+            }
+        } else {
+            // Illegal state transition
+            Packets::sendStateTransitionError("ILLEGAL - PARTIAL_OPEN can only be entered from IDLE_CLOSED state");
+        }
     }
 
     void enterDiagnosticState() {
-        currentState = DIAGNOSTIC;
-        diagnosticState.init();
+        if (currentState == IDLE_CLOSED) {
+            currentState = DIAGNOSTIC;
+            diagnosticState.init();
+        } else {
+            // Illegal state transition
+            Packets::sendStateTransitionError("ILLEGAL - Diagnostic can only be initiated from IDLE_CLOSED state");
+        }
+    }
+
+    void enterPressurizeState() {
+        if (currentState == IDLE_CLOSED) {
+            currentState = PRESSURIZE;
+            pressurizeState.init();
+        } else {
+            // Illegal state transition
+            Packets::sendStateTransitionError("ILLEGAL - Pressurization can only be initiated from IDLE_CLOSED state");
+        }
     }
 
     FlowState* getFlowState(){
