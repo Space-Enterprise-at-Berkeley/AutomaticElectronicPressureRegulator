@@ -35,8 +35,8 @@ namespace EReg {
         Comms::registerCallback(3, abort);
         Comms::registerCallback(4, setERegEncoderPosition);
         Comms::registerCallback(5, actuateMainValve);
-        Comms::registerCallback(6, staticPressurize);
-        //packet ID 7
+        //packet ID 6
+        Comms::registerCallback(7, staticPressurize);
         Comms::registerCallback(8, zeroEReg);
         Comms::registerCallback(9, runDiagnostic);
 
@@ -123,11 +123,15 @@ namespace EReg {
     }
 
     void actuateFuelMainValve(Comms::Packet tmp, uint8_t ip) {
-        sendToEReg(&eregActuateMainValve); 
+        Comms::packetAddUint8(&eregActuateMainValve, Comms::packetGetUint8(&tmp, 1));
+        sendToEReg(&eregActuateMainValve);
+        std::fill_n(eregActuateMainValve.data, sizeof(float), 0);
     }
 
     void actuateLOXMainValve(Comms::Packet tmp, uint8_t ip) {
+        Comms::packetAddUint8(&eregActuateMainValve, Comms::packetGetUint8(&tmp, 1));
         sendToEReg(&eregActuateMainValve);
+        std::fill_n(eregActuateMainValve.data, sizeof(float), 0);
     }
 
     void startFlow(Comms::Packet tmp, uint8_t ip) {
