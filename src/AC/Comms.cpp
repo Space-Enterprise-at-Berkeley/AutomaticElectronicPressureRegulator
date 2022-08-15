@@ -189,6 +189,15 @@ namespace Comms {
         Udp.endPacket();
     }
 
+    void dumpPacket(Packet *packet) {
+        DEBUGF("Dumping packet: \nID: 0x%x, length: 0x%x, timestamp: 0x%x%x%x%x, checksum: 0x%x%x\nData: 0x ", 
+        packet->id, packet->len, packet->timestamp[0], packet->timestamp[1], packet->timestamp[2], packet->timestamp[3], packet->checksum[0], packet->checksum[1]);
+        for (int i = 0; i < 256; i++) {
+            DEBUGF("%x ", packet->data[i]);
+        }
+        DEBUGF("\n");
+    }
+
     /**
      * @brief generates a 2 byte checksum from the information of a packet
      * 

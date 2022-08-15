@@ -72,6 +72,13 @@ namespace Comms {
     void emitPacket(Packet *packet);
 
     /**
+     * @brief dump packet to serial (only in debug mode)
+     * 
+     * @param packet The packet in which the data is stored.
+     */
+    void dumpPacket(Packet *packet);
+
+    /**
      * @brief Sends the packet to arbitrary address
      * 
      * @param packet Packet to be sent.

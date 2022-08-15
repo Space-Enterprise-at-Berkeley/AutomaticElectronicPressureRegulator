@@ -24,6 +24,12 @@ namespace EReg {
     
 
     Comms::Packet mainTelemetryPacket = {.id = 0};
+    Comms::Packet mainValveStatePacket = {.id = 1};
+    Comms::Packet configTelemetryPacket = {.id = 2};
+
+    Comms::Packet diagnosticSuccessPacket = {.id = 11};
+    Comms::Packet diagnosticFailPacket = {.id = 12};
+    Comms::Packet commandFailPacket = {.id = 13};
 
     void initEReg() {
         // EReg board connected to Serial8 of AC Teensy
@@ -43,6 +49,12 @@ namespace EReg {
 
 
         registerEregCallback(0, interpretTelemetry);
+        registerEregCallback(1, interpretMainValves);
+        registerEregCallback(2, interpretConfigTelemetry);
+
+        registerEregCallback(11, interpretDiagnosticSuccessTelemetry);
+        registerEregCallback(12, interpretDiagnosticFailTelemetry);
+        registerEregCallback(13, interpretCommandFailTelemetry);
         
 
     }
@@ -72,18 +84,81 @@ namespace EReg {
         if (packet.len > 0) {
             DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
             Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
-        }
-        if (packet.id == 0) { //remap packet 0 (ereg POV) to packet 5 (dashboard/AC POV). Everything else is the same.
             uint8_t oldid  = mainTelemetryPacket.id;
             memcpy(&mainTelemetryPacket, &packet, sizeof(Comms::Packet));
             mainTelemetryPacket.id = oldid;
-        }
-        if (mainTelemetryPacket.len > 0) {
             Comms::emitPacket(&mainTelemetryPacket);
-        } else if (mainTelemetryPacket.len <= 0) {
-            Serial.println("wtf");
+        } else {
+            DEBUGLN("wtf? interpretTelemetry");
+            Comms::dumpPacket(&packet);
         }
 
+    }
+
+    void interpretMainValves(Comms::Packet packet, uint8_t ip) {
+        if (packet.len > 0) {
+            DEBUGF("received mainvalve packet with id %d, length %d. First uint8_t of payload (should be mainvalve state): %d\n", packet.id, packet.len, packet.data[0]);
+            uint8_t oldid = mainValveStatePacket.id;
+            memcpy(&mainValveStatePacket, &packet, sizeof(Comms::Packet));
+            mainValveStatePacket.id = oldid;
+            Comms::emitPacket(&mainValveStatePacket);
+        } else {
+            DEBUGLN("wtf? interpretMainValves");
+            Comms::dumpPacket(&packet);
+        }
+
+    }
+
+    void interpretConfigTelemetry(Comms::Packet packet, uint8_t ip) {
+        if (packet.len > 0) {
+            DEBUGF("received config telemetry packet\n");
+            uint8_t oldid = configTelemetryPacket.id; 
+            memcpy(&configTelemetryPacket, &packet, sizeof(Comms::Packet));
+            configTelemetryPacket.id = oldid;
+            Comms::emitPacket(&configTelemetryPacket);
+        } else {
+            DEBUGLN("wtf? interpretConfigTelemetry");
+            Comms::dumpPacket(&packet);
+        }
+    }
+
+    void interpretDiagnosticSuccessTelemetry(Comms::Packet packet, uint8_t ip) {
+        if (packet.len > 0) {
+            DEBUGF("received diagnostic success telemetry packet: payload %s\n", packet.data);
+            uint8_t oldid = diagnosticSuccessPacket.id;
+            memcpy(&diagnosticSuccessPacket, &packet, sizeof(Comms::Packet));
+            diagnosticSuccessPacket.id = oldid;
+            Comms::emitPacket(&diagnosticSuccessPacket);
+        } else {
+            DEBUGLN("wtf? interpretDiagnosticSuccessTelemetry");
+            Comms::dumpPacket(&packet);
+        }
+    }
+    
+    void interpretDiagnosticFailTelemetry(Comms::Packet packet, uint8_t ip) {
+        if (packet.len > 0) {
+            DEBUGF("received diagnostic fail telemetry packet: payload %s\n", packet.data);
+            uint8_t oldid = diagnosticFailPacket.id;
+            memcpy(&diagnosticFailPacket, &packet, sizeof(Comms::Packet));
+            diagnosticFailPacket.id = oldid;
+            Comms::emitPacket(&diagnosticFailPacket);
+        } else {
+            DEBUGLN("wtf? interpretDiagnosticFailTelemetry");
+            Comms::dumpPacket(&packet);
+        }
+    }
+
+    void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t ip) {
+        if (packet.len > 0) {
+            DEBUGF("received command fail telemetry packet: payload %s\n", packet.data);
+            uint8_t oldid = commandFailPacket.id;
+            memcpy(&commandFailPacket, &packet, sizeof(Comms::Packet));
+            commandFailPacket.id = oldid;
+            Comms::emitPacket(&commandFailPacket);
+        } else {
+            DEBUGLN("wtf? interpretCommandFailTelemetry");
+            Comms::dumpPacket(&packet);
+        }
     }
 
     void runDiagnostic(Comms::Packet tmp, uint8_t ip) {
