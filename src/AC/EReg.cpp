@@ -11,26 +11,39 @@ namespace EReg {
 
     Comms::Packet eregStartFlowPacket = {.id = 0};
     Comms::Packet eregAbortPacket = {.id = 1};
-    Comms::Packet eregSetPositionPacket = {.id = 2};
-    Comms::Packet eregPressurizePacket = {.id = 3};
-    Comms::Packet eregDiagnosticPacket = {.id = 4};
+    Comms::Packet eregSetEncoderPositionPacket = {.id = 2};
+    Comms::Packet eregPressurizeStaticPacket = {.id = 3};
+    Comms::Packet eregRunDiagnosticPacket = {.id = 4};
+    Comms::Packet eregZeroEncoderPacket = {.id = 5};
+    Comms::Packet eregActuateMainValve = {.id = 6};
 
-    Comms::Packet mainGroundStationPacket = {.id = 0};
+    Comms::Packet tempPacket = {.id = -1}; //packet to store the received serial telemetry in.
+    //Added because we cast the serial buffer pointer to a packet pointer, so if we overwrite 
+    //the packet fields the serial buffer will also get overwritten (change id/timestamp/checksum)
+    
+    
+
+    Comms::Packet mainTelemetryPacket = {.id = 0};
 
     void initEReg() {
         // EReg board connected to Serial8 of AC Teensy
         Serial8.begin(115200);
-        Comms::registerCallback(34, runDiagnostic);
-        // Comms::registerCallback(0, startLoxFlow);
-        // Comms::registerCallback(1, startFuelFlow);
-        // Comms::registerCallback(2, startFlow);
-        // Comms::registerCallback(3, abort);
-        // Comms::registerCallback(4, setLoxPosition);
-        // Comms::registerCallback(5, setFuelPosition);
-        // Comms::registerCallback(6, staticPressurizeLox);
-        // Comms::registerCallback(6, staticPressurizeFuel);
-        // Comms::registerCallback(6, activateIgniter);
+
+        
+        Comms::registerCallback(1, startOneSidedFlow);
+        Comms::registerCallback(2, startFlow);
+        Comms::registerCallback(3, abort);
+        Comms::registerCallback(4, setERegEncoderPosition);
+        Comms::registerCallback(5, actuateMainValve);
+        Comms::registerCallback(6, staticPressurize);
+        //packet ID 7
+        Comms::registerCallback(8, zeroEReg);
+        Comms::registerCallback(9, runDiagnostic);
+
+
+
         registerEregCallback(0, interpretTelemetry);
+        
 
     }
 
@@ -45,6 +58,9 @@ namespace EReg {
             if(eregCallbackMap.count(packet->id)) {
                 eregCallbackMap.at(packet->id)(*packet, ip);
             }
+        } else {
+
+            DEBUG("packet checksum")
         }
     }
 
@@ -52,37 +68,26 @@ namespace EReg {
     bool startedDiagnostic = false;
 
     void interpretTelemetry(Comms::Packet packet, uint8_t ip) {
-        // DEBUG("Received ereg telem packet with id: ");
-        // DEBUG(packet.id);
-        // DEBUG("\n");
-        // DEBUGLN(Comms::packetGetFloat(&packet, 0));
-        // DEBUGLN(Comms::packetGetFloat(&packet, 4));
-        // DEBUGLN(Comms::packetGetFloat(&packet, 8));
-        // DEBUGLN(Comms::packetGetFloat(&packet, 12));
-        // DEBUGLN(Comms::packetGetFloat(&packet, 24));
+
         if (packet.len > 0) {
-            Serial.printf("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
+            DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
             Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
         }
-        //Serial.printf("id: %d, len: %d\n", packet.id, packet.len);
         if (packet.id == 0) { //remap packet 0 (ereg POV) to packet 5 (dashboard/AC POV). Everything else is the same.
-            packet.id = 5;
+            uint8_t oldid  = mainTelemetryPacket.id;
+            memcpy(&mainTelemetryPacket, &packet, sizeof(Comms::Packet));
+            mainTelemetryPacket.id = oldid;
         }
-        if (packet.len > 0) {
-            Comms::emitPacket(&packet);
-        } else if (packet.len < 0) {
+        if (mainTelemetryPacket.len > 0) {
+            Comms::emitPacket(&mainTelemetryPacket);
+        } else if (mainTelemetryPacket.len <= 0) {
             Serial.println("wtf");
         }
 
-        // if (micros() - start > 5e6 && !startedDiagnostic) {
-        //     DEBUGLN("SENT TELEMETRY EREG");
-        //     sendToEReg(&eregDiagnosticPacket); 
-        //     startedDiagnostic = true;
-        // }
     }
 
-    void runDiagnostic() {
-        sendToEReg(&eregDiagnosticPacket);
+    void runDiagnostic(Comms::Packet tmp, uint8_t ip) {
+        sendToEReg(&eregRunDiagnosticPacket);
     }
 
     void startLoxFlow(Comms::Packet tmp, uint8_t ip) {
@@ -94,9 +99,41 @@ namespace EReg {
         sendToEReg(&eregStartFlowPacket);
     }
 
+    void startOneSidedFlow(Comms::Packet tmp, uint8_t ip) {
+        int i = tmp.data[0];
+        if (i == 0) {
+            startFuelFlow(tmp, ip);
+        } else if (i == 1) {
+            startLoxFlow(tmp, ip);
+        } else {
+            Serial.println("packet data must be either 0 (Fuel) or 1 (LOX) <-- startOneSidedFlow");
+        }
+    }
+
+    void actuateMainValve(Comms::Packet tmp, uint8_t ip) {
+        int i = tmp.data[0];
+        if (i == 0) {
+            actuateFuelMainValve(tmp, ip);
+        } else if (i == 1) {
+            actuateLOXMainValve(tmp, ip);
+        } else {
+            Serial.println("packet data must be either 0 (Fuel) or 1 (LOX) <-- actuateMainValve");
+        } 
+
+    }
+
+    void actuateFuelMainValve(Comms::Packet tmp, uint8_t ip) {
+        sendToEReg(&eregActuateMainValve); 
+    }
+
+    void actuateLOXMainValve(Comms::Packet tmp, uint8_t ip) {
+        sendToEReg(&eregActuateMainValve);
+    }
+
     void startFlow(Comms::Packet tmp, uint8_t ip) {
         startLoxFlow(tmp, ip);
         //TODO add delay
+        //TODO add igniter fire, BW, current, other checks
         startFuelFlow(tmp, ip);
     }
 
@@ -104,26 +141,67 @@ namespace EReg {
         sendToEReg(&eregAbortPacket);
     }
 
+    void setERegEncoderPosition(Comms::Packet tmp, uint8_t ip) {
+        int i = tmp.data[0];
+        if (i == 0) {
+            setFuelPosition(tmp, ip);
+        } else if (i == 1) {
+            setLoxPosition(tmp, ip);
+        } else {
+            Serial.println("packet data must be either 0 (Fuel) or 1 (LOX) <-- setERegEncoderPosition");
+        }
+        
+    }
+
     void setLoxPosition(Comms::Packet tmp, uint8_t ip) {
-        Comms::packetAddFloat(&eregSetPositionPacket, Comms::packetGetFloat(&tmp, 0));
-        sendToEReg(&eregSetPositionPacket);
-        std::fill_n(eregSetPositionPacket.data, sizeof(float), 0);
+        Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
+        sendToEReg(&eregSetEncoderPositionPacket);
+        std::fill_n(eregSetEncoderPositionPacket.data, sizeof(float), 0); 
     }
 
     void setFuelPosition(Comms::Packet tmp, uint8_t ip) {
-        Comms::packetAddFloat(&eregSetPositionPacket, Comms::packetGetFloat(&tmp, 0));
-        sendToEReg(&eregSetPositionPacket);
-        std::fill_n(eregSetPositionPacket.data, sizeof(float), 0);
+        Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
+        sendToEReg(&eregSetEncoderPositionPacket);
+        std::fill_n(eregSetEncoderPositionPacket.data, sizeof(float), 0);
         //TODO differentiate to different serial ports
     }
 
+    void staticPressurize(Comms::Packet tmp, uint8_t ip) {
+        int i = tmp.data[0];
+        if (i == 0) {
+            staticPressurizeFuel(tmp, ip);
+        } else if (i == 1) {
+            staticPressurizeLox(tmp, ip);
+        } else {
+            Serial.println("packet data must be either 0 (Fuel) or 1 (LOX) <-- staticPressurize");
+        } 
+    }
     void staticPressurizeLox(Comms::Packet tmp, uint8_t ip) {
-        sendToEReg(&eregPressurizePacket);
+        sendToEReg(&eregPressurizeStaticPacket);
     }
 
     void staticPressurizeFuel(Comms::Packet tmp, uint8_t ip) {
-        sendToEReg(&eregPressurizePacket);
+        sendToEReg(&eregPressurizeStaticPacket);
     }
+
+    void zeroEReg(Comms::Packet tmp, uint8_t ip) {
+        int i = tmp.data[0];
+        if (i == 0) {
+            zeroFuelERegEncoder(tmp, ip);
+        } else if (i == 1) {
+            zeroLOXERegEncoder(tmp, ip);
+        } else {
+            Serial.println("packet data must be either 0 (Fuel) or 1 (LOX) <-- zeroEReg");
+        }  
+    }
+    void zeroFuelERegEncoder(Comms::Packet tmp, uint8_t ip) {
+        sendToEReg(&eregZeroEncoderPacket);
+    }
+
+    void zeroLOXERegEncoder(Comms::Packet tmp, uint8_t ip) {
+        sendToEReg(&eregZeroEncoderPacket);
+    }
+
 
     void activateIgniter(Comms::Packet tmp, uint8_t ip) {
 
@@ -139,12 +217,12 @@ namespace EReg {
             int p = packetBuffer2Ctr - 1;
 
             if ((eregCallbackMap.count(packetBuffer2[p])) && (p > 3) && (packetBuffer2[p-1]==0x70) && (packetBuffer2[p-2]==0x69) && (packetBuffer2[p-3]==0x68)) {
-                Comms::Packet *packet = (Comms::Packet*) &packetBuffer2; 
+                //Comms::Packet *packet = (Comms::Packet*) &packetBuffer2; 
+                memcpy(&tempPacket, &packetBuffer2, sizeof(Comms::Packet));
+                Comms::Packet *packet = &tempPacket;
                 packetBuffer2[0] = packetBuffer2[p];
                 packetBuffer2Ctr = 1;
-                if (packet->len < 300) {
-                    evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
-                }
+                evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
             }
         }
 
