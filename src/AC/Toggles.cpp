@@ -6,19 +6,19 @@ namespace Toggles {
     uint32_t toggleCheckPeriod = 50 * 1000;
 
     // TODO: set correct telem packet IDs
-    Comms::Packet ctl12vChan1Packet = {.id = 17};
+    Comms::Packet ctl12vChan1Packet = {.id = 77};
     float ctl12vChan1Voltage = 0.0;
     float ctl12vChan1Current = 0.0;
 
-    Comms::Packet ctl12vChan2Packet = {.id = 18};
+    Comms::Packet ctl12vChan2Packet = {.id = 78};
     float ctl12vChan2Voltage = 0.0;
     float ctl12vChan2Current = 0.0;
 
-    Comms::Packet ctl24vChan1Packet = {.id = 19};
+    Comms::Packet ctl24vChan1Packet = {.id = 79};
     float fuelGemsVoltage = 0.0;
     float fuelGemsCurrent = 0.0;
 
-    Comms::Packet ctl24vChan2Packet = {.id = 20};
+    Comms::Packet ctl24vChan2Packet = {.id = 80};
     float breakWireVoltage = 0.0;
     float breakWireCurrent = 0.0;
 
@@ -64,8 +64,7 @@ namespace Toggles {
     }
 
     void initToggles() {
-        //todo fill in correct telem
-        Comms::registerCallback(182, toggleFuelGems);
-        Comms::registerCallback(183, toggleBreakWire);
+        Comms::registerCallback(19, toggleFuelGems);
+        Comms::registerCallback(20, toggleBreakWire);
     }
 };

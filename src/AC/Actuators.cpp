@@ -57,7 +57,7 @@ namespace Actuators {
     Task *stopLoxGemsTask;
 
     // act7
-    Comms::Packet igniterPacket = {.id = 75 };
+    Comms::Packet igniterPacket = {.id = 76 };
     uint8_t igniterState = 0;
     float igniterVoltage = 0.0;
     float igniterCurrent = 0.0;
