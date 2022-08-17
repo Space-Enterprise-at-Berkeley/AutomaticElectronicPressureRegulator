@@ -1,5 +1,4 @@
 #include <Arduino.h>
-
 #include <Encoder.h>
 #include <PIDController.h>
 #include "HAL.h"
@@ -7,6 +6,7 @@
 #include "Comms.h"
 #include "Config.h"
 #include "StateMachine.h"
+#include "Packets.h"
 
 // Change these two numbers to the pins connected to your encoder.
 //   Best Performance: both pins have interrupt capability
@@ -72,10 +72,13 @@ void setup() {
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
+
+    Packets::sendConfig();
 }
 
 void loop() {
     Comms::processWaitingPackets();
+    
 
     switch (StateMachine::getCurrentState()) {
         case StateMachine::IDLE_CLOSED:

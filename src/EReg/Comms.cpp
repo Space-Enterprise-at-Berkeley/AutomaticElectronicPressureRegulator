@@ -12,7 +12,7 @@ namespace Comms {
     unsigned int bufferIndex = 0;
 
     void initComms() {
-        Serial.begin(115200);
+        Serial.begin(38400);
     }
 
     void registerCallback(uint8_t id, commFunction function) {
@@ -124,11 +124,15 @@ namespace Comms {
      * @param message string message. If this is too long to fit within the packet, it will be truncated
      */
     void packetAddString(Packet *packet, String message) {
-        unsigned int messageLength = min(message.length(), payloadSize - packet->len);
-        for (unsigned int i = 0; i<messageLength; i++) {
-            packet->data[i + packet->len] = message[i];
+        // unsigned int messageLength = min(message.length(), payloadSize - packet->len);
+        // for (unsigned int i = 0; i<messageLength; i++) {
+        //     packet->data[i + packet->len] = message[i];
+        // }
+        char message2[] = "hullo"; //len=5
+        for (int i = 0; i < 5; i++) {
+            packet->data[i] = message2[i];
         }
-        packet->len += messageLength;
+        packet->len += 5;
     }
 
     float packetGetFloat(Packet *packet, uint8_t index) {

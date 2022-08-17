@@ -17,7 +17,7 @@ namespace EReg {
     Comms::Packet eregZeroEncoderPacket = {.id = 5};
     Comms::Packet eregActuateMainValve = {.id = 6};
 
-    Comms::Packet tempPacket = {.id = -1}; //packet to store the received serial telemetry in.
+    Comms::Packet tempPacket = {.id = 255}; //packet to store the received serial telemetry in.
     //Added because we cast the serial buffer pointer to a packet pointer, so if we overwrite 
     //the packet fields the serial buffer will also get overwritten (change id/timestamp/checksum)
     
@@ -33,7 +33,7 @@ namespace EReg {
 
     void initEReg() {
         // EReg board connected to Serial8 of AC Teensy
-        Serial8.begin(115200);
+        Serial8.begin(38400);
 
         
         Comms::registerCallback(1, startOneSidedFlow);
@@ -67,12 +67,14 @@ namespace EReg {
     void evokeCallbackFunction(Comms::Packet *packet, uint8_t ip) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
         if (checksum == Comms::computePacketChecksum(packet)) {
+            // DEBUGF("PACket id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet->id, packet->len, Comms::packetGetFloat(packet, 12),
+                        // Comms::packetGetFloat(packet, 16), Comms::packetGetFloat(packet, 20));
             if(eregCallbackMap.count(packet->id)) {
                 eregCallbackMap.at(packet->id)(*packet, ip);
             }
         } else {
-
-            DEBUG("packet checksum")
+            DEBUGF("BADket id %d with len %d. Expected check: %d, received check: %d\n", packet->id, packet->len, Comms::computePacketChecksum(packet), packet->checksum);
+            Comms::dumpPacket(packet);
         }
     }
 
@@ -82,14 +84,14 @@ namespace EReg {
     void interpretTelemetry(Comms::Packet packet, uint8_t ip) {
 
         if (packet.len > 0) {
-            DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
-            Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
+            // DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
+            // Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
             uint8_t oldid  = mainTelemetryPacket.id;
             memcpy(&mainTelemetryPacket, &packet, sizeof(Comms::Packet));
             mainTelemetryPacket.id = oldid;
             Comms::emitPacket(&mainTelemetryPacket);
         } else {
-            DEBUGLN("wtf? interpretTelemetry");
+            // DEBUGLN("wtf? interpretTelemetry");
             Comms::dumpPacket(&packet);
         }
 
@@ -198,12 +200,14 @@ namespace EReg {
     }
 
     void actuateFuelMainValve(Comms::Packet tmp, uint8_t ip) {
+        eregActuateMainValve.len = 0;
         Comms::packetAddUint8(&eregActuateMainValve, Comms::packetGetUint8(&tmp, 1));
         sendToEReg(&eregActuateMainValve);
         std::fill_n(eregActuateMainValve.data, sizeof(float), 0);
     }
 
     void actuateLOXMainValve(Comms::Packet tmp, uint8_t ip) {
+        eregActuateMainValve.len = 0;
         Comms::packetAddUint8(&eregActuateMainValve, Comms::packetGetUint8(&tmp, 1));
         sendToEReg(&eregActuateMainValve);
         std::fill_n(eregActuateMainValve.data, sizeof(float), 0);
@@ -233,12 +237,14 @@ namespace EReg {
     }
 
     void setLoxPosition(Comms::Packet tmp, uint8_t ip) {
+        eregSetEncoderPositionPacket.len = 0;
         Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
         sendToEReg(&eregSetEncoderPositionPacket);
         std::fill_n(eregSetEncoderPositionPacket.data, sizeof(float), 0); 
     }
 
     void setFuelPosition(Comms::Packet tmp, uint8_t ip) {
+        eregSetEncoderPositionPacket.len = 0;
         Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
         sendToEReg(&eregSetEncoderPositionPacket);
         std::fill_n(eregSetEncoderPositionPacket.data, sizeof(float), 0);
@@ -295,13 +301,16 @@ namespace EReg {
             packetBuffer2Ctr++;
             int p = packetBuffer2Ctr - 1;
 
-            if ((eregCallbackMap.count(packetBuffer2[p])) && (p > 3) && (packetBuffer2[p-1]==0x70) && (packetBuffer2[p-2]==0x69) && (packetBuffer2[p-3]==0x68)) {
-                //Comms::Packet *packet = (Comms::Packet*) &packetBuffer2; 
-                memcpy(&tempPacket, &packetBuffer2, sizeof(Comms::Packet));
-                Comms::Packet *packet = &tempPacket;
-                packetBuffer2[0] = packetBuffer2[p];
-                packetBuffer2Ctr = 1;
+            if ((p >= 3) && (packetBuffer2[p]==0x70) && (packetBuffer2[p-1]==0x69) && (packetBuffer2[p-2]==0x68)) {
+                Comms::Packet *packet = (Comms::Packet*) &packetBuffer2; 
+                if (packet->id != 0) {
+                    Serial.printf("length: %d, id: %d\n", packet->len, packet->id);
+                }
+
+                // packetBuffer2[0] = packetBuffer2[p];
+                packetBuffer2Ctr = 0;
                 evokeCallbackFunction(packet, Comms::Udp.remoteIP()[3]);
+                
             }
         }
 
@@ -309,6 +318,7 @@ namespace EReg {
     }
 
     void sendToEReg(Comms::Packet *packet) {
+        DEBUGF("writing packet id %d with len %d to EReg. First uint is %d, first float is %f.\n", packet->id, packet->len, packet->data[0], Comms::packetGetFloat(packet, 0));
 
         uint32_t timestamp = millis();
         packet->timestamp[0] = timestamp & 0xFF;

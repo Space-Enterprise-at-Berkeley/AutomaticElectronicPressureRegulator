@@ -29,9 +29,9 @@ namespace Packets {
         float pressureControlD
     ) {
         #ifdef DEBUG_MODE
-        DEBUG(encoderAngle); DEBUG("\t");
-        DEBUG(angleSetpoint); DEBUG("\t");
-        DEBUG(motorPower); DEBUGLN("\t");
+        // DEBUG(encoderAngle); DEBUG("\t");
+        // DEBUG(angleSetpoint); DEBUG("\t");
+        // DEBUG(motorPower); DEBUGLN("\t");
         #else
         Comms::Packet packet = {.id = TELEMETRY_ID};
         Comms::packetAddFloat(&packet, highPressure);
@@ -60,15 +60,15 @@ namespace Packets {
      */
     void sendConfig() {
         #ifdef DEBUG_MODE
-        DEBUG(pressureSetpoint); 
-        DEBUG("\tOuter PID: ");
-        DEBUG(p_outer); DEBUG("\t");
-        DEBUG(i_outer); DEBUG("\t");
-        DEBUG(d_outer); 
-        DEBUG("\tInner PID: ");
-        DEBUG(p_inner); DEBUG("\t");
-        DEBUG(i_inner); DEBUG("\t");
-        DEBUGLN(d_inner);
+        // DEBUG(pressureSetpoint); 
+        // DEBUG("\tOuter PID: ");
+        // DEBUG(p_outer); DEBUG("\t");
+        // DEBUG(i_outer); DEBUG("\t");
+        // DEBUG(d_outer); 
+        // DEBUG("\tInner PID: ");
+        // DEBUG(p_inner); DEBUG("\t");
+        // DEBUG(i_inner); DEBUG("\t");
+        // DEBUGLN(d_inner);
         #else
         Comms::Packet packet = {.id = CONFIG_ID};
         Comms::packetAddFloat(&packet, Config::pressureSetpoint);
@@ -91,6 +91,7 @@ namespace Packets {
         DEBUGLN(message);
         #else
         Comms::Packet packet = {.id = pass ? DIAGNOSTIC_PASS_ID : DIAGNOSTIC_FAIL_ID};
+        packet.len = 0;
         Comms::packetAddString(&packet, message);
         Comms::emitPacket(&packet);
         #endif
@@ -105,6 +106,7 @@ namespace Packets {
         DEBUGLN(message);
         #else
         Comms::Packet packet = {.id = STATE_TRANSITION_FAIL_ID};
+        packet.len = 0;
         Comms::packetAddString(&packet, message);
         Comms::emitPacket(&packet);
         #endif

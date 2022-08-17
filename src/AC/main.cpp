@@ -13,21 +13,21 @@
 
 Task taskTable[] = {
     // actuators
-    {Actuators::propTankVentRBVSample, 0},
-    {Actuators::loxTankVentRBVSample, 0},
-    {Actuators::propFillRBVSample, 0},
-    {Actuators::loxFillRBVSample, 0},
-    {Actuators::twoWaySample, 0},
-    {Actuators::loxGemsSample, 0},
-    {Actuators::igniterSample, 0},
+    {Actuators::act1Sample, 0},
+    {Actuators::act2Sample, 0},
+    {Actuators::act3Sample, 0},
+    {Actuators::act4Sample, 0},
+    {Actuators::act5Sample, 0},
+    {Actuators::act6Sample, 0},
+    {Actuators::act7Sample, 0},
 
-    {Actuators::stopPropFillRBV, 0, false},
-    {Actuators::stopLoxTankVentRBV, 0, false},
-    {Actuators::stopPropFillRBV, 0, false},
-    {Actuators::stopLoxFillRBV, 0, false},
-    {Actuators::stopTwoWay, 0, false},
-    {Actuators::stopLoxGems, 0, false},
-    {Actuators::stopIgniter, 0, false},
+    {Actuators::stopAct1, 0, false},
+    {Actuators::stopAct2, 0, false},
+    {Actuators::stopAct3, 0, false},
+    {Actuators::stopAct4, 0, false},
+    {Actuators::stopAct5, 0, false},
+    {Actuators::stopAct6, 0, false},
+    {Actuators::stopAct7, 0, false},
 
     // // power
     // {Power::battSample, 0},
@@ -49,22 +49,22 @@ int main() {
     #ifdef DEBUG_MODE
     while(!Serial) {} // wait for user to open serial port (debugging only)
     #endif
-    Actuators::stopPropTankVentRBVTask = &taskTable[4];
-    Actuators::stopLoxTankVentRBVTask = &taskTable[5];
-    Actuators::stopPropFillRBVTask = &taskTable[6];
-    Actuators::stopLoxFillRBVTask = &taskTable[7];
-    Actuators::stopTwoWayTask = &taskTable[8];
-    Actuators::stopLoxGemsTask = &taskTable[9];
-    Actuators::stopIgniterTask = &taskTable[10];
+    Actuators::stop1 = &taskTable[7];
+    Actuators::stop2 = &taskTable[8];
+    Actuators::stop3 = &taskTable[9];
+    Actuators::stop4 = &taskTable[10];
+    Actuators::stop5 = &taskTable[11];
+    Actuators::stop6 = &taskTable[12];
+    Actuators::stop7 = &taskTable[13];
+    DEBUG("hullo");
 
     HAL::initHAL();
     Comms::initComms();
-    Serial.println("HII");
     Actuators::initActuators();
     // Power::initPower();
     EReg::initEReg();
     Toggles::initToggles();
-
+    DEBUG("starting loop");
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
