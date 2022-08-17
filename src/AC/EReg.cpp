@@ -152,7 +152,10 @@ namespace EReg {
 
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t ip) {
         if (packet.len > 0) {
-            DEBUGF("received command fail telemetry packet: payload %s\n", packet.data);
+            DEBUGF("received command fail telemetry packet: payload \n");
+            for (int i = 0; i < packet.len; i++) {
+                DEBUGF("%c", packet.data[i]);
+            }
             uint8_t oldid = commandFailPacket.id;
             memcpy(&commandFailPacket, &packet, sizeof(Comms::Packet));
             commandFailPacket.id = oldid;
