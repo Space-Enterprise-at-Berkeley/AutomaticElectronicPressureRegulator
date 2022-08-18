@@ -90,6 +90,7 @@ namespace StateMachine {
 
         float motorDirAngle0_, motorDirAngle1_, motorDirAngle2_;
         int motorDirStage_;
+        bool motorDirPassed_;
         float servoSetpoint_;
         bool servoPassed_;
         unsigned long longestSettleTime_;

@@ -32,8 +32,7 @@ namespace EReg {
     void interpretTelemetry(Comms::Packet packet, uint8_t ip);
     void interpretMainValves(Comms::Packet packet, uint8_t ip);
     void interpretConfigTelemetry(Comms::Packet packet, uint8_t ip);
-    void interpretDiagnosticSuccessTelemetry(Comms::Packet packet, uint8_t ip);
-    void interpretDiagnosticFailTelemetry(Comms::Packet packet, uint8_t ip);
+    void interpretDiagnosticTelemetry(Comms::Packet packet, uint8_t ip);
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t ip);
 
     uint32_t sampleTelemetry();

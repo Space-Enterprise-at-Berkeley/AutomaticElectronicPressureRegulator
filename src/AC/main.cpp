@@ -56,7 +56,8 @@ int main() {
     Actuators::stop5 = &taskTable[11];
     Actuators::stop6 = &taskTable[12];
     Actuators::stop7 = &taskTable[13];
-    DEBUG("hullo");
+
+    DEBUGLN("Starting AC");
 
     HAL::initHAL();
     Comms::initComms();
@@ -64,14 +65,11 @@ int main() {
     // Power::initPower();
     EReg::initEReg();
     Toggles::initToggles();
-    DEBUG("starting loop");
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
         for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
         if (taskTable[i].enabled && taskTable[i].nexttime - ticks > UINT32_MAX / 2) {
-            // DEBUG(i);
-            // DEBUG("\n");
             taskTable[i].nexttime = ticks + taskTable[i].taskCall();
         }
         }
