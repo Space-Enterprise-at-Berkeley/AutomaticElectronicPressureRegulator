@@ -59,6 +59,7 @@ void actuateMainValve(Comms::Packet packet) {
 }
 
 void setup() {
+    delay(10000);
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
     Comms::initComms();
@@ -68,6 +69,8 @@ void setup() {
     Serial.write(0x70);
     zero();
     digitalWrite(LED_BUILTIN, LOW);
+    pinMode(A5, INPUT);
+    pinMode(A0, INPUT);
     Comms::registerCallback(0, flow);
     Comms::registerCallback(1, stopFlow);
     Comms::registerCallback(2, partialOpen);

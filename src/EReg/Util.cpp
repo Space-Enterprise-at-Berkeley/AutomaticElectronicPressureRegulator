@@ -37,14 +37,15 @@ namespace Util {
         //PT voltage frange .4-4.5
         //PT reads from 0-1000
         //Arduino measures voltage from 0 to 5 V
-        return (voltage/1024.0*5-0.5)*1000/4.0;
+        return max(1, (((voltage/1024.0*5-0.5)*1000/4.0) - 25)); //TODO remove the -30
     }
 
     double voltageToHighPressure(double voltage) {
-        return max(1, 6.5929*voltage - 1257.3);
+        // return max(1, 6.5929*voltage - 1257.3);
         // return 6.2697*voltage - 1286.7; // new HP PT, based on empirical characterization 12 Feb 22
-        // double current = (((voltage/220.0)/1024.0)*5.0);
-        // return (current-.004)/.016*5000.0;
+        // // double current = (((voltage/220.0)/1024.0)*5.0);
+        // // return (current-.004)/.016*5000.0;
+        return max(1, ((5000.0 * (voltage/1024.0)))); //5V corresponds to 5k psi (after voltage divider)
     }
 
     double compute_feedforward(double pressure_setpoint, double hp) {
@@ -56,7 +57,7 @@ namespace Util {
 
         //8.53=140/3200*360*26/48
         //8.53/360*1120*3 = 79
-        return 398 + (pressure_setpoint/hp) * 79;
+        return 300 + (pressure_setpoint/hp) * 79; //CHANGED
     }
 
     void runMotors(float speed) {

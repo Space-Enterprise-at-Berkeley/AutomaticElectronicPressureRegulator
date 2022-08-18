@@ -41,8 +41,8 @@ namespace Packets {
         Comms::packetAddFloat(&packet, injectorPressure);
         Comms::packetAddFloat(&packet, encoderAngle);
         Comms::packetAddFloat(&packet, angleSetpoint);
-        Comms::packetAddFloat(&packet, motorPower);
         Comms::packetAddFloat(&packet, pressureSetpoint);
+        Comms::packetAddFloat(&packet, motorPower);
         Comms::packetAddFloat(&packet, pressureControlP);
         Comms::packetAddFloat(&packet, pressureControlI);
         Comms::packetAddFloat(&packet, pressureControlD);
