@@ -26,7 +26,6 @@ namespace Comms {
      */
     void evokeCallbackFunction(Packet *packet) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
-        Serial.println(computePacketChecksum(packet));
         if (checksum == computePacketChecksum(packet)) {
             if(packet->id < numIDs) {
                 callbackMap[packet->id](*packet);
@@ -114,16 +113,14 @@ namespace Comms {
      * @param packet pointer to packet to which message should be appended
      * @param message string message. If this is too long to fit within the packet, it will be truncated
      */
-    void packetAddString(Packet *packet, String message) {
-        // unsigned int messageLength = min(message.length(), payloadSize - packet->len);
-        // for (unsigned int i = 0; i<messageLength; i++) {
-        //     packet->data[i + packet->len] = message[i];
-        // }
-        char message2[] = "hullo"; //len=5
-        for (int i = 0; i < 5; i++) {
-            packet->data[i] = message2[i];
+    void packetAddString(Packet *packet, char* message) {
+        unsigned int messageLength = min(strlen(message), payloadSize - packet->len);
+        for (unsigned int i = 0; i < messageLength; i++) {
+            packet->data[i + packet->len] = message[i];
         }
-        packet->len += 5;
+        //TODO remove
+        packet->data[messageLength] = 0x45;
+        packet->len += messageLength + 1;
     }
 
     float packetGetFloat(Packet *packet, uint8_t index) {

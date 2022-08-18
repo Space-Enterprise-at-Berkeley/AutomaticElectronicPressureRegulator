@@ -1,6 +1,7 @@
 #include "Packets.h"
 #include "Config.h"
 #include "Comms.h"
+#include "StateMachine.h"
 
 namespace Packets {
     /**
@@ -29,9 +30,10 @@ namespace Packets {
         float pressureControlD
     ) {
         #ifdef DEBUG_MODE
-        // DEBUG(encoderAngle); DEBUG("\t");
-        // DEBUG(angleSetpoint); DEBUG("\t");
-        // DEBUG(motorPower); DEBUGLN("\t");
+        DEBUG(StateMachine::getCurrentState()); DEBUG("\t");
+        DEBUG(encoderAngle); DEBUG("\t");
+        DEBUG(angleSetpoint); DEBUG("\t");
+        DEBUG(motorPower); DEBUGLN("\t");
         #else
         Comms::Packet packet = {.id = TELEMETRY_ID};
         Comms::packetAddFloat(&packet, highPressure);
@@ -86,7 +88,7 @@ namespace Packets {
      * Send diagnostic test report packet:
      * - success / failure message
      */
-    void sendDiagnostic(boolean pass, String message) {
+    void sendDiagnostic(boolean pass, char* message) {
         #ifdef DEBUG_MODE
         DEBUGLN(message);
         #else
@@ -101,8 +103,9 @@ namespace Packets {
      * Send state transition failure packet:
      * - failure message
      */
-    void sendStateTransitionError(String message) {
+    void sendStateTransitionError(char* message) {
         #ifdef DEBUG_MODE
+        DEBUG("State Transition Error: ");
         DEBUGLN(message);
         #else
         Comms::Packet packet = {.id = STATE_TRANSITION_FAIL_ID};

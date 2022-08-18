@@ -23,6 +23,6 @@ namespace Packets {
         float pressureControlD
     );
     void sendConfig();
-    void sendDiagnostic(boolean pass, String message);
-    void sendStateTransitionError(String message);
+    void sendDiagnostic(boolean pass, char* message);
+    void sendStateTransitionError(char* message);
 }

@@ -125,6 +125,7 @@ namespace EReg {
     }
 
     void interpretDiagnosticSuccessTelemetry(Comms::Packet packet, uint8_t ip) {
+        DEBUG("interpretdiagnosticsuccess");
         if (packet.len > 0) {
             DEBUGF("received diagnostic success telemetry packet: payload %s\n", packet.data);
             uint8_t oldid = diagnosticSuccessPacket.id;
@@ -138,6 +139,7 @@ namespace EReg {
     }
     
     void interpretDiagnosticFailTelemetry(Comms::Packet packet, uint8_t ip) {
+        DEBUG("interpretdiagnosticsuccess");
         if (packet.len > 0) {
             DEBUGF("received diagnostic fail telemetry packet: payload %s\n", packet.data);
             uint8_t oldid = diagnosticFailPacket.id;
@@ -206,14 +208,12 @@ namespace EReg {
         eregActuateMainValve.len = 0;
         Comms::packetAddUint8(&eregActuateMainValve, Comms::packetGetUint8(&tmp, 1));
         sendToEReg(&eregActuateMainValve);
-        std::fill_n(eregActuateMainValve.data, sizeof(float), 0);
     }
 
     void actuateLOXMainValve(Comms::Packet tmp, uint8_t ip) {
         eregActuateMainValve.len = 0;
         Comms::packetAddUint8(&eregActuateMainValve, Comms::packetGetUint8(&tmp, 1));
         sendToEReg(&eregActuateMainValve);
-        std::fill_n(eregActuateMainValve.data, sizeof(float), 0);
     }
 
     void startFlow(Comms::Packet tmp, uint8_t ip) {
@@ -243,15 +243,13 @@ namespace EReg {
         eregSetEncoderPositionPacket.len = 0;
         Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
         sendToEReg(&eregSetEncoderPositionPacket);
-        std::fill_n(eregSetEncoderPositionPacket.data, sizeof(float), 0); 
     }
 
     void setFuelPosition(Comms::Packet tmp, uint8_t ip) {
         eregSetEncoderPositionPacket.len = 0;
         Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
+        DEBUGF("Sending to port %d, position %f \n", eregSetEncoderPositionPacket.data[4], Comms::packetGetFloat(&eregSetEncoderPositionPacket, 0));
         sendToEReg(&eregSetEncoderPositionPacket);
-        std::fill_n(eregSetEncoderPositionPacket.data, sizeof(float), 0);
-        //TODO differentiate to different serial ports
     }
 
     void staticPressurize(Comms::Packet tmp, uint8_t ip) {
@@ -301,7 +299,7 @@ namespace EReg {
 
         while (Serial8.available()) {
             packetBuffer2[packetBuffer2Ctr] = Serial8.read();
-            packetBuffer2Ctr++;
+            packetBuffer2Ctr = (packetBuffer2Ctr + 1) % 1000;
             int p = packetBuffer2Ctr - 1;
 
             if ((p >= 3) && (packetBuffer2[p]==0x70) && (packetBuffer2[p-1]==0x69) && (packetBuffer2[p-2]==0x68)) {

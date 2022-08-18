@@ -19,25 +19,22 @@ StateMachine::DiagnosticState *diagnosticState = StateMachine::getDiagnosticStat
 StateMachine::PressurizeState *pressurizeState = StateMachine::getPressurizeState();
 
 void zero() {
+    DEBUGLN("starting zero command");
     Util::runMotors(-150);
     delay(2000);
     Util::runMotors(0);
     // zero encoder value (so encoder readings range from -x (open) to 0 (closed))
     delay(400);
     encoder->write(-20);
+    DEBUG("encoder position after zero: ");
+    DEBUGLN(encoder->read());
 }
 
 void zero(Comms::Packet packet) {
     zero();
 }
 
-//TODO need to implement rest of commands
-void setPressureSetpoint(Comms::Packet packet) {
-    // pressure_setpoint = Comms::packetGetFloat(&packet, 0);
-}
-
 void flow(Comms::Packet packet) {
-    // startFlow = packet.data[0];
     StateMachine::enterFlowState();
 }
 
@@ -62,9 +59,15 @@ void actuateMainValve(Comms::Packet packet) {
 }
 
 void setup() {
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
     Comms::initComms();
     StateMachine::enterIdleClosedState();
+    Serial.write(0x68);
+    Serial.write(0x69);
+    Serial.write(0x70);
     zero();
+    digitalWrite(LED_BUILTIN, LOW);
     Comms::registerCallback(0, flow);
     Comms::registerCallback(1, stopFlow);
     Comms::registerCallback(2, partialOpen);

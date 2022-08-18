@@ -37,13 +37,9 @@ namespace StateMachine {
                 partiallyOpenState.init(angle);
             } else {
                 // Illegal parameters
-                String message = "ILLEGAL - PARTIAL_OPEN angle must be within [" 
-                + String(MIN_ANGLE - 100) + ", " + String(MAX_ANGLE + 100) + "].";
-                Packets::sendStateTransitionError(message);
             }
         } else {
             // Illegal state transition
-            Packets::sendStateTransitionError("ILLEGAL - PARTIAL_OPEN can only be entered from IDLE_CLOSED state");
         }
     }
 
@@ -53,7 +49,6 @@ namespace StateMachine {
             diagnosticState.init();
         } else {
             // Illegal state transition
-            Packets::sendStateTransitionError("ILLEGAL - Diagnostic can only be initiated from IDLE_CLOSED state");
         }
     }
 
@@ -63,7 +58,6 @@ namespace StateMachine {
             pressurizeState.init();
         } else {
             // Illegal state transition
-            Packets::sendStateTransitionError("ILLEGAL - Pressurization can only be initiated from IDLE_CLOSED state");
         }
     }
 
@@ -73,7 +67,6 @@ namespace StateMachine {
             actuateMainValve(action);
         } else {
             // Illegal state transition
-            Packets::sendStateTransitionError("ILLEGAL - Main valve can only be manually controlled in IDLE_CLOSED or PARTIAL_OPEN state");
         }
     }
 
@@ -124,8 +117,6 @@ namespace StateMachine {
     void checkAbortPressure(float currentPressure, float abortPressure) {
         if (currentPressure > abortPressure) {
             StateMachine::enterIdleClosedState();
-            String message = "ABORT - Pressure detected " + String(currentPressure) + " greater than thresh " + String(abortPressure);
-            Packets::sendStateTransitionError(message);
         }
     }
 
@@ -300,6 +291,7 @@ namespace StateMachine {
     }
 
     void DiagnosticState::init() {
+        // Packets::sendDiagnostic(true, "Diagnostic state init");
         currentTest_ = TEST_BEGIN;
         motorDirAngle0_ = 0, motorDirAngle1_ = 0, motorDirAngle2_ = 0;
         motorDirStage_ = 0;
@@ -327,6 +319,8 @@ namespace StateMachine {
 
     void DiagnosticState::motorDirTestUpdate() {
 
+        // Packets::sendDiagnostic(true, "starting motor dir test");
+
         float motorAngle = encoder_->read();
         float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
         float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
@@ -334,6 +328,7 @@ namespace StateMachine {
         
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         float speed;
+
 
         if (testTime < 500UL*1000UL) { // do nothing for 0.5s
             speed = 0;
@@ -353,12 +348,6 @@ namespace StateMachine {
             && (motorDirAngle1_ > motorDirAngle2_ + Config::minAngleMovement);
             
             // send test results to AC
-            String message = "Motor Direction Test: " +
-            String(isPassed ? "PASS" : "FAIL") +
-            " Angles: " + String(motorDirAngle0_) +
-            " , " + String(motorDirAngle1_) +
-            " , " + String(motorDirAngle2_);
-            Packets::sendDiagnostic(isPassed, message);
             
             this->startNextTest();
         }
@@ -410,11 +399,6 @@ namespace StateMachine {
             }
         } else {
             // check and report test failure/success
-            String message = "Motor Servo Test: " +
-            String(servoPassed_ ? "PASS" : "FAIL") +
-            " Target settle time: " + String(Config::servoSettleTime/1000UL) + "ms" +
-            " , Longest settle: " + String(longestSettleTime_/1000UL) + "ms";
-            Packets::sendDiagnostic(servoPassed_, message);
             this->startNextTest();
         }
 
