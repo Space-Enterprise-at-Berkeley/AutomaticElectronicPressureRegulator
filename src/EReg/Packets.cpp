@@ -88,13 +88,14 @@ namespace Packets {
      * Send diagnostic test report packet:
      * - success / failure message
      */
-    void sendDiagnostic(boolean pass, char* message) {
+    void sendDiagnostic(uint8_t motorDirPass, uint8_t servoPass) {
         #ifdef DEBUG_MODE
-        DEBUGLN(message);
+        DEBUGF("Motor Dir Test: %i \t Servo Test: %i \n", motorDirPass, servoPass);
         #else
-        Comms::Packet packet = {.id = pass ? DIAGNOSTIC_PASS_ID : DIAGNOSTIC_FAIL_ID};
+        Comms::Packet packet = {.id = DIAGNOSTIC_ID};
         packet.len = 0;
-        Comms::packetAddString(&packet, message);
+        Comms::packetAddUint8(&packet, motorDirPass);
+        Comms::packetAddUint8(&packet, servoPass);
         Comms::emitPacket(&packet);
         #endif
     }
@@ -103,14 +104,14 @@ namespace Packets {
      * Send state transition failure packet:
      * - failure message
      */
-    void sendStateTransitionError(char* message) {
+    void sendStateTransitionError(uint8_t errorCode) {
         #ifdef DEBUG_MODE
         DEBUG("State Transition Error: ");
-        DEBUGLN(message);
+        DEBUGLN(errorCode);
         #else
         Comms::Packet packet = {.id = STATE_TRANSITION_FAIL_ID};
         packet.len = 0;
-        Comms::packetAddString(&packet, message);
+        Comms::packetAddUint8(&packet, errorCode);
         Comms::emitPacket(&packet);
         #endif
     }

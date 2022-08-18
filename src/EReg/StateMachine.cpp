@@ -21,7 +21,7 @@ namespace StateMachine {
             flowState.init();
         } else {
             // Illegal state transition
-            Packets::sendStateTransitionError("ILLEGAL - Flow can only be initiated from IDLE_CLOSED state");
+            Packets::sendStateTransitionError(0);
         }
     }
 
@@ -37,9 +37,11 @@ namespace StateMachine {
                 partiallyOpenState.init(angle);
             } else {
                 // Illegal parameters
+                Packets::sendStateTransitionError(1);
             }
         } else {
             // Illegal state transition
+            Packets::sendStateTransitionError(2);
         }
     }
 
@@ -49,6 +51,7 @@ namespace StateMachine {
             diagnosticState.init();
         } else {
             // Illegal state transition
+            Packets::sendStateTransitionError(3);
         }
     }
 
@@ -58,6 +61,7 @@ namespace StateMachine {
             pressurizeState.init();
         } else {
             // Illegal state transition
+            Packets::sendStateTransitionError(4);
         }
     }
 
@@ -67,6 +71,7 @@ namespace StateMachine {
             actuateMainValve(action);
         } else {
             // Illegal state transition
+            Packets::sendStateTransitionError(5);
         }
     }
 
@@ -299,6 +304,7 @@ namespace StateMachine {
         servoSetpoint_ = 0;
         longestSettleTime_ = 0;
         servoPassed_ = true;
+        motorDirPassed_ = true;
         startNextTest();
     }
 
@@ -313,6 +319,7 @@ namespace StateMachine {
             break;
             default:
             // all tests completed
+            Packets::sendDiagnostic(motorDirPassed_, servoPassed_);
             enterIdleClosedState();
             return;
         }
@@ -345,11 +352,8 @@ namespace StateMachine {
             speed = 0;
             motorDirAngle2_ = motorAngle;
         } else{
-            boolean isPassed = (motorDirAngle1_ > motorDirAngle0_ + Config::minAngleMovement)
-            && (motorDirAngle1_ > motorDirAngle2_ + Config::minAngleMovement);
-            
-            // send test results to AC
-            
+            motorDirPassed_ = (motorDirAngle1_ > motorDirAngle0_ + Config::minAngleMovement)
+            && (motorDirAngle1_ > motorDirAngle2_ + Config::minAngleMovement);            
             this->startNextTest();
         }
         Util::runMotors(speed);
@@ -399,7 +403,6 @@ namespace StateMachine {
                 }
             }
         } else {
-            // check and report test failure/success
             this->startNextTest();
         }
 

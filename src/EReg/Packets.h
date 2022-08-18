@@ -6,8 +6,7 @@ namespace Packets {
 
     const uint8_t TELEMETRY_ID = 0;
     const uint8_t CONFIG_ID = 2;
-    const uint8_t DIAGNOSTIC_PASS_ID = 11;
-    const uint8_t DIAGNOSTIC_FAIL_ID = 12;
+    const uint8_t DIAGNOSTIC_ID = 12;
     const uint8_t STATE_TRANSITION_FAIL_ID = 13;
 
     void sendTelemetry(
@@ -23,6 +22,6 @@ namespace Packets {
         float pressureControlD
     );
     void sendConfig();
-    void sendDiagnostic(boolean pass, char* message);
-    void sendStateTransitionError(char* message);
+    void sendDiagnostic(uint8_t motorDirPass, uint8_t servoPass);
+    void sendStateTransitionError(uint8_t errorCode);
 }

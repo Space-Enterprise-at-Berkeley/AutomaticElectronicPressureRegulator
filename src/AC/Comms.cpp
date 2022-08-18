@@ -9,6 +9,7 @@ namespace Comms {
     void initComms() {
         Ethernet.begin((uint8_t *)mac, ip);
         Udp.begin(port);
+        DEBUGLN("Ethernet Initialized");
     }
 
     void registerCallback(uint8_t id, commFunction function) {

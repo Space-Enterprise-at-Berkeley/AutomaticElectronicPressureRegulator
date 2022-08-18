@@ -35,7 +35,6 @@ namespace Comms {
     void packetAddUint32(Packet *packet, uint32_t value);
     void packetAddUint16(Packet *packet, uint16_t value);
     void packetAddUint8(Packet *packet, uint8_t value);
-    void packetAddString(Packet *packet, char* message);
 
     /**
      * @brief Interprets the packet data as a float.

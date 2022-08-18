@@ -27,8 +27,7 @@ namespace EReg {
     Comms::Packet mainValveStatePacket = {.id = 1};
     Comms::Packet configTelemetryPacket = {.id = 2};
 
-    Comms::Packet diagnosticSuccessPacket = {.id = 11};
-    Comms::Packet diagnosticFailPacket = {.id = 12};
+    Comms::Packet diagnosticPacket = {.id = 12};
     Comms::Packet commandFailPacket = {.id = 13};
 
     void initEReg() {
@@ -52,8 +51,7 @@ namespace EReg {
         registerEregCallback(1, interpretMainValves);
         registerEregCallback(2, interpretConfigTelemetry);
 
-        registerEregCallback(11, interpretDiagnosticSuccessTelemetry);
-        registerEregCallback(12, interpretDiagnosticFailTelemetry);
+        registerEregCallback(12, interpretDiagnosticTelemetry);
         registerEregCallback(13, interpretCommandFailTelemetry);
         
 
@@ -123,49 +121,18 @@ namespace EReg {
             Comms::dumpPacket(&packet);
         }
     }
-
-    void interpretDiagnosticSuccessTelemetry(Comms::Packet packet, uint8_t ip) {
-        DEBUG("interpretdiagnosticsuccess");
-        if (packet.len > 0) {
-            DEBUGF("received diagnostic success telemetry packet: payload %s\n", packet.data);
-            uint8_t oldid = diagnosticSuccessPacket.id;
-            memcpy(&diagnosticSuccessPacket, &packet, sizeof(Comms::Packet));
-            diagnosticSuccessPacket.id = oldid;
-            Comms::emitPacket(&diagnosticSuccessPacket);
-        } else {
-            DEBUGLN("wtf? interpretDiagnosticSuccessTelemetry");
-            Comms::dumpPacket(&packet);
-        }
-    }
     
-    void interpretDiagnosticFailTelemetry(Comms::Packet packet, uint8_t ip) {
-        DEBUG("interpretdiagnosticsuccess");
-        if (packet.len > 0) {
-            DEBUGF("received diagnostic fail telemetry packet: payload %s\n", packet.data);
-            uint8_t oldid = diagnosticFailPacket.id;
-            memcpy(&diagnosticFailPacket, &packet, sizeof(Comms::Packet));
-            diagnosticFailPacket.id = oldid;
-            Comms::emitPacket(&diagnosticFailPacket);
-        } else {
-            DEBUGLN("wtf? interpretDiagnosticFailTelemetry");
-            Comms::dumpPacket(&packet);
-        }
+    void interpretDiagnosticTelemetry(Comms::Packet packet, uint8_t ip) {
+        diagnosticPacket.len = 0;
+        Comms::packetAddUint8(&diagnosticPacket, packet.data[0]);
+        Comms::packetAddUint8(&diagnosticPacket, packet.data[1]);
+        Comms::emitPacket(&diagnosticPacket);
     }
 
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t ip) {
-        if (packet.len > 0) {
-            DEBUGF("received command fail telemetry packet: payload \n");
-            for (int i = 0; i < packet.len; i++) {
-                DEBUGF("%c", packet.data[i]);
-            }
-            uint8_t oldid = commandFailPacket.id;
-            memcpy(&commandFailPacket, &packet, sizeof(Comms::Packet));
-            commandFailPacket.id = oldid;
-            Comms::emitPacket(&commandFailPacket);
-        } else {
-            DEBUGLN("wtf? interpretCommandFailTelemetry");
-            Comms::dumpPacket(&packet);
-        }
+        commandFailPacket.len = 0;
+        Comms::packetAddUint8(&commandFailPacket, packet.data[0]);
+        Comms::emitPacket(&commandFailPacket);
     }
 
     void runDiagnostic(Comms::Packet tmp, uint8_t ip) {
@@ -248,7 +215,6 @@ namespace EReg {
     void setFuelPosition(Comms::Packet tmp, uint8_t ip) {
         eregSetEncoderPositionPacket.len = 0;
         Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
-        DEBUGF("Sending to port %d, position %f \n", eregSetEncoderPositionPacket.data[4], Comms::packetGetFloat(&eregSetEncoderPositionPacket, 0));
         sendToEReg(&eregSetEncoderPositionPacket);
     }
 

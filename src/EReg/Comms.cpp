@@ -105,24 +105,6 @@ namespace Comms {
         packet->len++;
     }
 
-    /**
-     * Inserts string into specified packet.
-     * IMPORTANT: String must come after all other data, and there cannot be 2 strings in one packet
-     * This is because the parser will treat all bytes from start of string to end of packet as part of the string
-     * 
-     * @param packet pointer to packet to which message should be appended
-     * @param message string message. If this is too long to fit within the packet, it will be truncated
-     */
-    void packetAddString(Packet *packet, char* message) {
-        unsigned int messageLength = min(strlen(message), payloadSize - packet->len);
-        for (unsigned int i = 0; i < messageLength; i++) {
-            packet->data[i + packet->len] = message[i];
-        }
-        //TODO remove
-        packet->data[messageLength] = 0x45;
-        packet->len += messageLength + 1;
-    }
-
     float packetGetFloat(Packet *packet, uint8_t index) {
         uint32_t rawData = packet->data[index+3];
         rawData <<= 8;
