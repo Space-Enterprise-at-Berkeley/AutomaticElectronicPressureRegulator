@@ -396,11 +396,12 @@ namespace StateMachine {
             Util::runMotors(speed);
             
             unsigned long intervalTime = TimeUtil::timeInterval(intervalNumber * servoInterval_, testTime);
-            if (intervalTime > Config::servoSettleTime) {
-                if (abs(servoSetpoint_ - motorAngle) > servoInterval_) {
+            
+            if (abs(servoSetpoint_ - motorAngle) > servoInterval_) {
+                if (intervalTime > Config::servoSettleTime) {
                     servoPassed_ = false;
-                    longestSettleTime_ = max(longestSettleTime_, intervalTime);
                 }
+                longestSettleTime_ = max(longestSettleTime_, intervalTime);
             }
         } else {
             this->startNextTest();

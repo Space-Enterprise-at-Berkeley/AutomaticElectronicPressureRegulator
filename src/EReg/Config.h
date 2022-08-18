@@ -17,7 +17,7 @@ namespace Config {
 
     // Controller Constants
     const double p_outer = 1.0, i_outer = 0.7e-6, d_outer = 0.06;
-    const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35e-6;
+    const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35;
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
