@@ -7,7 +7,7 @@
 namespace Util {
 
     // valve angle based on pressure setpoint
-    PIDController outerController(Config::p_outer, Config::i_outer, Config::d_outer, MIN_ANGLE, MAX_ANGLE, PIDController::transientControl);
+    PIDController outerController(Config::p_outer, Config::i_outer, Config::d_outer, -PID_RANGE, PID_RANGE, PIDController::transientControl);
     // motor angle based on valve setpoint
 
     // motor angle based on encoder/angle setpoint
@@ -25,44 +25,62 @@ namespace Util {
         return &encoder;
     }
 
-
+    /**
+     * Converts encoder angle to valve angle in degrees based on motor gear ratio.
+     * Currently uncalibrated. DO NOT USE
+     */
     double encoderToAngle(double encoderValue) {
-    //convert encoder angle to degrees
-    // return 45.0 + (encoderValue/3200.0)*360*26/48.0;
-    return (encoderValue/560.0)*360*1/3.0;
+        return (encoderValue/560.0)*360*1/3.0;
     }
 
+    /**
+     * Converts analogRead values from low pressure PT to PSI value
+     * PT voltage frange .4-4.5
+     * PT reads from 0-1000
+     * @param voltage analog reading from [0, 1023]
+     * @return PSI pressure 
+     */
     double voltageToLowPressure(double voltage) {
-        //1024 bits in analog read
-        //PT voltage frange .4-4.5
-        //PT reads from 0-1000
-        //Arduino measures voltage from 0 to 5 V
         return max(1, (((voltage/1024.0*5-0.5)*1000/4.0) - 25)); //TODO remove the -30
     }
 
+    /**
+     * Converts analogRead values from high pressure PT to PSI value
+     * @param voltage analog reading from [0, 1023]
+     * @return PSI pressure 
+     */
     double voltageToHighPressure(double voltage) {
-        // return max(1, 6.5929*voltage - 1257.3);
-        // return 6.2697*voltage - 1286.7; // new HP PT, based on empirical characterization 12 Feb 22
-        // // double current = (((voltage/220.0)/1024.0)*5.0);
-        // // return (current-.004)/.016*5000.0;
         return max(1, ((5000.0 * (voltage/1024.0)))); //5V corresponds to 5k psi (after voltage divider)
     }
 
-    double compute_feedforward(double pressure_setpoint, double hp) {
-        //return 700 + (pressure_setpoint/hp) * 140.0; // computed value for ff constant is 140
-        //new feedforward value value
-        //42.65 = (700/3200.0)*360*26/48.0
-        //42.65/360*1680*3 = 597
-        //42.65/360*1120*3 = 398
-
-        //8.53=140/3200*360*26/48
-        //8.53/360*1120*3 = 79
-        return 300 + (pressure_setpoint/hp) * 79; //CHANGED
+    /**
+     * Computes feedforward value for valve angle during regulated flow
+     * @param pressureSetpoint pressure setpoint of propellant tank
+     * @param hp high pressure reading. this is necessary because it determines flow rate
+     * @return feedforward valve angle in encoder ticks 
+     */
+    double compute_feedforward(double pressureSetpoint, double hp) {
+        return 300 + (pressureSetpoint/hp) * 79; //CHANGED
     }
 
+    /**
+     * Non-blocking function to run motors at specified speed. Note that motors will keep running at specified speed until this function is called again.
+     * TODO: Implement better control (see DRV8871 documentation) that uses braking function (instead of coasting motors)
+     * @param speed Desired speed
+     */
     void runMotors(float speed) {
         analogWrite(HAL::motor1,-min(0,speed));
         analogWrite(HAL::motor2,max(0,speed));
     }
 
+    /**
+     * Clips specified value to [minOutput, maxOutput]
+     * @param value Value to clip
+     * @param minOutput lower bound of range to clip to
+     * @param maxOutput upper bound of range to clip to
+     * @return Clipped value
+     */
+    double clip(double value, double minOutput, double maxOutput) {
+        return min(max(value, minOutput), maxOutput);
+    }
 }

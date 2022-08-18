@@ -80,7 +80,7 @@ namespace StateMachine {
         PIDController *innerController_ = Util::getInnerController();
 
         const float testSpeed_ = OPEN_LOOP_SPEED;
-        const unsigned long servoInterval_ = Config::servoSettleTime * 2;
+        const unsigned long servoInterval_ = Config::servoSettleTime * 4;
         const unsigned long totalTime_ = (unsigned long)Config::servoTestPoints * servoInterval_;
 
         unsigned long lastPrint_;

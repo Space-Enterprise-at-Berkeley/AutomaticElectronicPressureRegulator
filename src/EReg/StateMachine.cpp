@@ -156,6 +156,7 @@ namespace StateMachine {
         //Compute Outer Pressure Control Loop
         angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
         angleSetpoint_ += Util::compute_feedforward(pressureSetpoint_, HPpsi);
+        angleSetpoint_ = Util::clip(angleSetpoint_, MIN_ANGLE, MAX_ANGLE);
 
         Util::runMotors(speed);
         actuateMainValve(MAIN_VALVE_OPEN);
@@ -459,7 +460,8 @@ namespace StateMachine {
 
         //Compute Outer Pressure Control Loop
         angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
-        angleSetpoint_ += 100; //CHANGED
+        angleSetpoint_ += 100;
+        angleSetpoint_ = Util::clip(angleSetpoint_, MIN_ANGLE, MAX_ANGLE);
         Util::runMotors(speed);
 
         //send data to AC
