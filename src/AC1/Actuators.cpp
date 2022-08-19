@@ -225,7 +225,7 @@ namespace Actuators {
         Comms::registerCallback(11, loxTankVentRBVPacketHandler);
         Comms::registerCallback(12, igniterRelayPacketHandler);
         Comms::registerCallback(13, twoWayPacketHandler);
-        Comms::registerCallback(14, act5PacketHandler);
+        // Comms::registerCallback(14, act5PacketHandler);
         Comms::registerCallback(15, fuelGemsPacketHandler);
         Comms::registerCallback(16, loxGemsPacketHandler);
     }

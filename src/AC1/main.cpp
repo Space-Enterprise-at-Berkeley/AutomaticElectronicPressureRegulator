@@ -16,7 +16,6 @@ Task taskTable[] = {
     {Actuators::loxTankVentRBVSample, 0},
     {Actuators::igniterEnableSample, 0},
     {Actuators::twoWaySample, 0},
-    {Actuators::act5Sample, 0},
     {Actuators::fuelGemsSample, 0},
     {Actuators::loxGemsSample, 0},
 
@@ -24,7 +23,6 @@ Task taskTable[] = {
     {Actuators::stopLoxTankVentRBV, 0, false},
     {Actuators::stopIgniterRelay, 0, false},
     {Actuators::stopTwoWay, 0, false},
-    {Actuators::stopAct5, 0, false},
     {Actuators::stopFuelGems, 0, false},
     {Actuators::stopLoxGems, 0, false},
 
@@ -33,8 +31,8 @@ Task taskTable[] = {
     {EReg::sampleLoxEregTelemetry, 0},
 
     // toggles
-    // {Toggles::igniterSample, 0},
-    // {Toggles::breakWireSample, 0},
+    {Toggles::igniterSample, 0},
+    {Toggles::breakWireSample, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -49,7 +47,6 @@ int main() {
     Actuators::stopLoxTankVentRBVTask = &taskTable[8];
     Actuators::stopIgniterEnableTask = &taskTable[9];
     Actuators::stopTwoWayTask = &taskTable[10];
-    Actuators::stop5 = &taskTable[11];
     Actuators::stopFuelGemsTask = &taskTable[12];
     Actuators::stopLoxGemsTask = &taskTable[13];
 

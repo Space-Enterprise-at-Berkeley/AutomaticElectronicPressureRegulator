@@ -105,16 +105,16 @@ namespace EReg {
     
     void interpretDiagnosticTelemetry(Comms::Packet packet, uint8_t id) {
         diagnosticPacket.len = 0;
-        Comms::packetAddUint8(&commandFailPacket, id);
         Comms::packetAddUint8(&diagnosticPacket, packet.data[0]);
         Comms::packetAddUint8(&diagnosticPacket, packet.data[1]);
+        Comms::packetAddUint8(&commandFailPacket, id);
         Comms::emitPacket(&diagnosticPacket);
     }
 
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t id) {
         commandFailPacket.len = 0;
-        Comms::packetAddUint8(&commandFailPacket, id);
         Comms::packetAddUint8(&commandFailPacket, packet.data[0]);
+        Comms::packetAddUint8(&commandFailPacket, id);
         Comms::emitPacket(&commandFailPacket);
     }
 
