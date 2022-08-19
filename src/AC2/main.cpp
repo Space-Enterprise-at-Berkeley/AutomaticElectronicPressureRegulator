@@ -1,10 +1,7 @@
 #include <Common.h>
 #include "Comms.h"
 #include "Actuators.h"
-#include "Power.h"
-#include "Ereg.h"
 #include "HAL.h"
-#include "Toggles.h"
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -28,17 +25,6 @@ Task taskTable[] = {
     {Actuators::stopAct5, 0, false},
     {Actuators::stopAct6, 0, false},
     {Actuators::stopAct7, 0, false},
-
-    // // power
-    // {Power::battSample, 0},
-    // {Power::supply12Sample, 0},
-
-    // ereg
-    {EReg::sampleTelemetry, 0},
-
-    // toggles
-    // {Toggles::fuelGemsSample, 0},
-    // {Toggles::breakWireSample, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -57,14 +43,11 @@ int main() {
     Actuators::stop6 = &taskTable[12];
     Actuators::stop7 = &taskTable[13];
 
-    DEBUGLN("Starting AC");
+    DEBUGLN("Starting AC2");
 
     HAL::initHAL();
     Comms::initComms();
     Actuators::initActuators();
-    // Power::initPower();
-    EReg::initEReg();
-    Toggles::initToggles();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds

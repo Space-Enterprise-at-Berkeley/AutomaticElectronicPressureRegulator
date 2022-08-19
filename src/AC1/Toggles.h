@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Common.h>
+#include "Common.h"
 
 #include "HAL.h"
 #include "Comms.h"
@@ -22,9 +22,9 @@ namespace Toggles {
     extern float ctl12vChan2Current;
     const uint8_t ctl12vChan2Pin = HAL::ctl12vChan2;
 
-    extern float fuelGemsVoltage;
-    extern float fuelGemsCurrent;
-    const uint8_t fuelGemsPin = HAL::ctl24vChan1;
+    extern float igniterVoltage;
+    extern float igniterCurrent;
+    const uint8_t igniterPin = HAL::ctl24vChan1;
 
     extern float breakWireVoltage;
     extern float breakWireCurrent;
@@ -33,12 +33,12 @@ namespace Toggles {
     void initToggles();
 
     void toggleToggle(Comms::Packet packet, uint8_t pin);
-    void toggleFuelGems(Comms::Packet packet, uint8_t ip);
+    void toggleIgniter(Comms::Packet packet, uint8_t ip);
     void toggleBreakWire(Comms::Packet packet, uint8_t ip);
 
     void sampleToggle(Comms::Packet *packet, INA219 *ina, float *voltage, float *current);
     uint32_t ctl12vChan1Sample();
     uint32_t ctl12vChan2Sample();
-    uint32_t fuelGemsSample();
+    uint32_t igniterSample();
     uint32_t breakWireSample();
 };

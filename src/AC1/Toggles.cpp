@@ -15,8 +15,8 @@ namespace Toggles {
     float ctl12vChan2Current = 0.0;
 
     Comms::Packet ctl24vChan1Packet = {.id = 79};
-    float fuelGemsVoltage = 0.0;
-    float fuelGemsCurrent = 0.0;
+    float igniterVoltage = 0.0;
+    float igniterCurrent = 0.0;
 
     Comms::Packet ctl24vChan2Packet = {.id = 80};
     float breakWireVoltage = 0.0;
@@ -42,8 +42,8 @@ namespace Toggles {
         return toggleCheckPeriod;
     }
 
-    uint32_t fuelGemsSample() {
-        sampleToggle(&ctl24vChan1Packet, &HAL::chan2, &fuelGemsVoltage, &fuelGemsCurrent);
+    uint32_t igniterSample() {
+        sampleToggle(&ctl24vChan1Packet, &HAL::chan2, &igniterVoltage, &igniterCurrent);
         return toggleCheckPeriod;
     }
     uint32_t breakWireSample() {
@@ -55,8 +55,8 @@ namespace Toggles {
         digitalWrite(pin, packet.data[0]);
     }
 
-    void toggleFuelGems(Comms::Packet packet, uint8_t ip) {
-        toggleToggle(packet, fuelGemsPin);
+    void toggleIgniter(Comms::Packet packet, uint8_t ip) {
+        toggleToggle(packet, igniterPin);
     }
 
     void toggleBreakWire(Comms::Packet packet, uint8_t ip) {
@@ -64,7 +64,7 @@ namespace Toggles {
     }
 
     void initToggles() {
-        Comms::registerCallback(19, toggleFuelGems);
+        Comms::registerCallback(19, toggleIgniter);
         Comms::registerCallback(20, toggleBreakWire);
     }
 };
