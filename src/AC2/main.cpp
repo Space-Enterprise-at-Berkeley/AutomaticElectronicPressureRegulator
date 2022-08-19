@@ -2,7 +2,6 @@
 #include "Comms.h"
 #include "Actuators.h"
 #include "HAL.h"
-#include "ERegBoard.h" //TODO removing this breaks compilation.. why?
 
 #include <Arduino.h>
 #include <Wire.h>
