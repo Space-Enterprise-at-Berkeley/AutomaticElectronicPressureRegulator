@@ -16,7 +16,7 @@ namespace Config {
     const unsigned long telemetryInterval = 1000UL; // time in microseconds between telemetry packets
 
     // Controller Constants
-    const double p_outer = 1.0, i_outer = 0.7e-6, d_outer = 0.06;
+    const double p_outer_nominal = 1.0, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
     const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35;
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds

@@ -3,6 +3,7 @@
 
 PIDController::PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, PIDController::AntiwindupMode antiwindup) {
     k_p = kp, k_i = ki, k_d = kd;
+    k_p_nominal = kp, k_i_nominal = ki, k_d_nominal = kd;
     minOutput_ = minOutput, maxOutput_ = maxOutput;
     errorBuffer_ = new Buffer(5);
     switch (antiwindup) {
@@ -66,10 +67,17 @@ double PIDController::getDTerm() {
 }
 
 void PIDController::reset() {
+    k_p = k_p_nominal, k_i = k_i_nominal, k_d = k_d_nominal;
     latestP_ = 0, latestI_ = 0, latestD_ = 0;
     lastUpdate_ = micros();
     timeStarted_ = micros();
     previousError_ = 0;
     intError_ = 0;
     errorBuffer_->clear();
+}
+
+void PIDController::updateConstants(double kp, double ki, double kd) {
+    k_p = kp;
+    k_i = ki;
+    k_d = kd;
 }

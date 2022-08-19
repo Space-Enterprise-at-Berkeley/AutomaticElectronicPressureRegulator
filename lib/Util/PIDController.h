@@ -9,6 +9,7 @@ class PIDController {
     private:
     unsigned long timeStarted_; // time when current PID episode started
     double k_p, k_i, k_d;
+    double k_p_nominal, k_i_nominal, k_d_nominal;
     double latestP_, latestI_, latestD_;
     double minOutput_, maxOutput_;
     unsigned long lastUpdate_;
@@ -27,4 +28,5 @@ class PIDController {
     double getITerm();
     double getDTerm();
     void reset();
+    void updateConstants(double kp, double ki, double kd);
 };

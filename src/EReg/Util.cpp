@@ -7,7 +7,7 @@
 namespace Util {
 
     // valve angle based on pressure setpoint
-    PIDController outerController(Config::p_outer, Config::i_outer, Config::d_outer, -PID_RANGE, PID_RANGE, PIDController::transientControl);
+    PIDController outerController(Config::p_outer_nominal, Config::i_outer_nominal, Config::d_outer_nominal, -PID_RANGE, PID_RANGE, PIDController::transientControl);
     // motor angle based on valve setpoint
 
     // motor angle based on encoder/angle setpoint
@@ -61,6 +61,23 @@ namespace Util {
      */
     double compute_feedforward(double pressureSetpoint, double hp) {
         return 300 + (pressureSetpoint/hp) * 79; //CHANGED
+    }
+
+    /**
+     * Compute dynamic PID constants. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
+     * Note that this function takes calibrated values from Config.h
+     * @param highPressure Current upstream pressure in PSI
+     * @param lowPressure Current downstream pressure in PSI
+     * @return Pid constants
+     */
+    PidConstants computeDynamicPidConstants(double highPressure, double lowPressure) {
+        double dynamicFactor = clip(((14.7 + lowPressure)/max(1.0, highPressure)), 0, 1) * (7.8); // nominal is 4000 -> 500 psi flow
+        PidConstants dynamicConstants = {
+            .k_p = dynamicFactor * Config::p_outer_nominal,
+            .k_i = dynamicFactor * Config::i_outer_nominal,
+            .k_d = dynamicFactor * Config::d_outer_nominal
+            };
+        return dynamicConstants;
     }
 
     /**
