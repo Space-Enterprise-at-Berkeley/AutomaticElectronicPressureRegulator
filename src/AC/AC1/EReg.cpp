@@ -18,20 +18,24 @@ namespace EReg {
     //Added because we cast the serial buffer pointer to a packet pointer, so if we overwrite 
     //the packet fields the serial buffer will also get overwritten (change id/timestamp/checksum)
 
-    Comms::Packet mainTelemetryPacket = {.id = 0};
-    Comms::Packet mainValveStatePacket = {.id = 1};
-    Comms::Packet configTelemetryPacket = {.id = 2};
+    Comms::Packet fuelMainTelemetryPacket = {.id = 0};
+    Comms::Packet loxMainTelemetryPacket = {.id = 1};
+    Comms::Packet fuelMainValveStateFuelPacket = {.id = 2};
+    Comms::Packet loxMainValveStatePacket = {.id = 3};
+    Comms::Packet fuelConfigTelemetryPacket = {.id = 4};
+    Comms::Packet loxConfigTelemetryPacket = {.id = 5};
 
-    Comms::Packet diagnosticPacket = {.id = 12};
-    Comms::Packet commandFailPacket = {.id = 13};
+    Comms::Packet fuelDiagnosticPacket = {.id = 12};
+    Comms::Packet loxDiagnosticPacket = {.id = 13};
+    Comms::Packet fuelCommandFailPacket = {.id = 14};
+    Comms::Packet loxCommandFailPacket = {.id = 15};
 
-    ERegBoard fuelBoard(Serial5, 0);
-    ERegBoard loxBoard(Serial8, 1);
+    ERegBoard fuelBoard(&Serial5, 0);
+    ERegBoard loxBoard(&Serial8, 1);
 
     ERegBoard *eregBoards[2] = { &fuelBoard, &loxBoard };
 
     void initEReg() {
-
         Comms::registerCallback(1, startOneSidedFlow);
         Comms::registerCallback(2, startFlow);
         Comms::registerCallback(3, abort);
@@ -55,6 +59,11 @@ namespace EReg {
         eregCallbackMap.insert(std::pair<int, Comms::commFunction>(id, function));
     }
 
+    void packetcpy(Comms::Packet *dst, Comms::Packet *src, uint8_t id) {
+        memcpy(dst, src, sizeof(Comms::Packet));
+        dst->id = id;
+    }
+
     void evokeERegCallbackFunction(Comms::Packet *packet, uint8_t id) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
         if (checksum == Comms::computePacketChecksum(packet)) {
@@ -73,49 +82,60 @@ namespace EReg {
         if (packet.len > 0) {
             // DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
             // Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
-            uint8_t oldid  = mainTelemetryPacket.id;
-            memcpy(&mainTelemetryPacket, &packet, sizeof(Comms::Packet));
-            mainTelemetryPacket.id = oldid;
-            Comms::packetAddUint8(&configTelemetryPacket, id);
-            Comms::emitPacket(&mainTelemetryPacket);
+            if (id == 0) {
+                packetcpy(&fuelMainTelemetryPacket, &packet, fuelMainTelemetryPacket.id);
+                Comms::emitPacket(&fuelMainTelemetryPacket);
+            } else if (id == 1) {
+                packetcpy(&loxMainTelemetryPacket, &packet, loxMainTelemetryPacket.id);
+                Comms::emitPacket(&loxMainTelemetryPacket);
+            }
         }
     }
 
     void interpretMainValves(Comms::Packet packet, uint8_t id) {
         if (packet.len > 0) {
             DEBUGF("received mainvalve packet with id %d, length %d. First uint8_t of payload (should be mainvalve state): %d\n", packet.id, packet.len, packet.data[0]);
-            uint8_t oldid = mainValveStatePacket.id;
-            memcpy(&mainValveStatePacket, &packet, sizeof(Comms::Packet));
-            mainValveStatePacket.id = oldid;
-            Comms::packetAddUint8(&configTelemetryPacket, id);
-            Comms::emitPacket(&mainValveStatePacket);
+            if (id == 0) {
+                packetcpy(&fuelMainValveStateFuelPacket, &packet, fuelMainValveStateFuelPacket.id);
+                Comms::emitPacket(&fuelMainValveStateFuelPacket);
+            } else if (id == 1) {
+                packetcpy(&loxMainValveStatePacket, &packet, loxMainValveStatePacket.id);
+                Comms::emitPacket(&loxMainValveStatePacket);
+            }
         }
     }
 
     void interpretConfigTelemetry(Comms::Packet packet, uint8_t id) {
         if (packet.len > 0) {
             DEBUGF("received config telemetry packet\n");
-            uint8_t oldid = configTelemetryPacket.id; 
-            memcpy(&configTelemetryPacket, &packet, sizeof(Comms::Packet));
-            configTelemetryPacket.id = oldid;
-            Comms::packetAddUint8(&configTelemetryPacket, id);
-            Comms::emitPacket(&configTelemetryPacket);
+            if (id == 0) {
+                packetcpy(&fuelMainTelemetryPacket, &packet, fuelConfigTelemetryPacket.id);
+                Comms::emitPacket(&fuelConfigTelemetryPacket);
+            } else if (id == 1) {
+                packetcpy(&loxConfigTelemetryPacket, &packet, loxConfigTelemetryPacket.id);
+                Comms::emitPacket(&loxConfigTelemetryPacket);
+            }
         }
     }
     
     void interpretDiagnosticTelemetry(Comms::Packet packet, uint8_t id) {
-        diagnosticPacket.len = 0;
-        Comms::packetAddUint8(&diagnosticPacket, packet.data[0]);
-        Comms::packetAddUint8(&diagnosticPacket, packet.data[1]);
-        Comms::packetAddUint8(&commandFailPacket, id);
-        Comms::emitPacket(&diagnosticPacket);
+            if (id == 0) {
+                packetcpy(&fuelDiagnosticPacket, &packet, fuelDiagnosticPacket.id);
+                Comms::emitPacket(&fuelDiagnosticPacket);
+            } else if (id == 1) {
+                packetcpy(&loxDiagnosticPacket, &packet, loxDiagnosticPacket.id);
+                Comms::emitPacket(&loxDiagnosticPacket);
+            }
     }
 
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t id) {
-        commandFailPacket.len = 0;
-        Comms::packetAddUint8(&commandFailPacket, packet.data[0]);
-        Comms::packetAddUint8(&commandFailPacket, id);
-        Comms::emitPacket(&commandFailPacket);
+            if (id == 0) {
+                packetcpy(&fuelCommandFailPacket, &packet, fuelCommandFailPacket.id);
+                Comms::emitPacket(&fuelCommandFailPacket);
+            } else if (id == 1) {
+                packetcpy(&loxCommandFailPacket, &packet, loxCommandFailPacket.id);
+                Comms::emitPacket(&loxCommandFailPacket);
+            }
     }
 
     void runDiagnostic(Comms::Packet tmp, uint8_t ip) {
@@ -172,10 +192,10 @@ namespace EReg {
     }
 
     void sampleTelemetry(ERegBoard board) {
-        Comms::Packet packet = board.receiveSerial();
-        
-        if (packet.id != 255) { //TODO figure out what to return when no packet
-            evokeERegCallbackFunction(&packet, board.getID());
+        Comms::Packet *packet = board.receiveSerial();
+        if (packet->id != 255) { //TODO figure out what to return when no packet
+            evokeERegCallbackFunction(packet, board.getID());
+            DEBUGF("Recieved telemetry from board %i \n", board.getID());
         }
     }
 

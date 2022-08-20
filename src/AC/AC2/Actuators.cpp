@@ -6,25 +6,25 @@ namespace Actuators {
     uint32_t actuatorCheckPeriod = 50 * 1000;
 
     // TODO: set correct telem packet IDs
-    Comms::Packet fuelFillRBVPacket = {.id = 70};
+    Comms::Packet fuelFillRBVPacket = {.id = 60};
     uint8_t fuelFillRBVState = 0;
     float fuelFillRBVVoltage = 0.0;
     float fuelFillRBVCurrent = 0.0;
     Task *stopFuelFillRBVTask;
     
-    Comms::Packet loxFillRBVPacket = {.id = 71};
+    Comms::Packet loxFillRBVPacket = {.id = 61};
     uint8_t loxFillRBVState = 0;
     float loxFillRBVVoltage = 0.0;
     float loxFillRBVCurrent = 0.0;
     Task *stopLoxFillRBVTask;
 
-    Comms::Packet pressFillRBVPacket = {.id = 72};
+    Comms::Packet pressFillRBVPacket = {.id = 62};
     uint8_t pressFillRBVState = 0;
     float pressFillRBVVoltage = 0.0;
     float pressFillRBVCurrent = 0.0;
     Task *stopPressFillRBVTask;
 
-    Comms::Packet pressLineVentRBVPacket = {.id = 73};
+    Comms::Packet pressLineVentRBVPacket = {.id = 63};
     uint8_t pressLineVentRBVState = 0;
     float pressLineVentRBVVoltage = 0.0;
     float pressLineVentRBVCurrent = 0.0;
@@ -221,10 +221,10 @@ namespace Actuators {
     }
 
     void initActuators() {
-        Comms::registerCallback(10, fuelFillRBVPacketHandler);
-        Comms::registerCallback(11, loxFillRBVPacketHandler);
-        Comms::registerCallback(12, pressFillRBVPacketHandler);
-        Comms::registerCallback(13, pressLineVentRBVPacketHandler);
+        Comms::registerCallback(20, fuelFillRBVPacketHandler);
+        Comms::registerCallback(21, loxFillRBVPacketHandler);
+        Comms::registerCallback(22, pressFillRBVPacketHandler);
+        Comms::registerCallback(23, pressLineVentRBVPacketHandler);
         // Comms::registerCallback(14, act5PacketHandler);
         // Comms::registerCallback(15, act6PacketHandler);
         // Comms::registerCallback(16, act7PacketHandler);

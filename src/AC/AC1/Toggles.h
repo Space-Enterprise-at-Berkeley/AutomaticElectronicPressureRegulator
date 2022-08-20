@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Common.h"
+#include <Common.h>
 
 #include "HAL.h"
-#include "Comms.h"
+#include "../Comms.h"
 
 #include <Arduino.h>
 #include <INA219.h>

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Arduino.h"
-#include "Comms.h"
-#include "ERegBoard.h"
+#include "../Comms.h"
+#include "../ERegBoard.h"
 
 namespace EReg {
 
@@ -26,6 +26,15 @@ namespace EReg {
     void interpretConfigTelemetry(Comms::Packet packet, uint8_t id);
     void interpretDiagnosticTelemetry(Comms::Packet packet, uint8_t id);
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t id);
+
+    /**
+     * @brief Copies contents of src packet to dst packet
+     * 
+     * @param dst 
+     * @param src 
+     * @param id id of dst packet
+     */
+    void packetcpy(Comms::Packet *dst, Comms::Packet *src, uint8_t id);
 
     uint32_t sampleFuelEregTelemetry();
     uint32_t sampleLoxEregTelemetry();

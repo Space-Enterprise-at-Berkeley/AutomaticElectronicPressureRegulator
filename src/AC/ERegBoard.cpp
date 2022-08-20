@@ -1,13 +1,15 @@
 #include "ERegBoard.h"
 
-ERegBoard::ERegBoard(HardwareSerial &serial, uint8_t id) {
+ERegBoard::ERegBoard(HardwareSerial *serial, uint8_t id) {
     id_ = id;
 
-    serial_ = &serial;
+    serial_ = serial;
     serial_->begin(38400);
 
     packetBuffer_ = new char[1000];
     packetBufferCtr_ = 0;
+
+    failPacket_ = {.id = 255};
 }
 
 void ERegBoard::sendSerial(Comms::Packet packet) {
@@ -31,22 +33,21 @@ void ERegBoard::sendSerial(Comms::Packet packet) {
     serial_->write(0x70);
 }
 
-Comms::Packet ERegBoard::receiveSerial() {
+Comms::Packet *ERegBoard::receiveSerial() {
     while (serial_->available()) {
         packetBuffer_[packetBufferCtr_] = serial_->read();
         packetBufferCtr_ = (packetBufferCtr_ + 1) % 1000;
         int p = packetBufferCtr_ - 1;
 
         if ((p >= 3) && (packetBuffer_[p]==0x70) && (packetBuffer_[p-1]==0x69) && (packetBuffer_[p-2]==0x68)) {
-            Comms::Packet *packet = (Comms::Packet*) &packetBuffer_; 
+            Comms::Packet *packet = (Comms::Packet*) packetBuffer_; 
             packetBufferCtr_ = 0;
 
-            return *packet;
+            return packet;
         }
     }
 
-    Comms::Packet failPacket = {.id = 255};
-    return failPacket;
+    return &failPacket_;
 }
 
 uint8_t ERegBoard::getID() {
