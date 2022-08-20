@@ -151,18 +151,18 @@ namespace EReg {
     }
 
     void runDiagnostic(Comms::Packet tmp, uint8_t ip) {
-        fuelBoard.sendSerial(eregRunDiagnosticPacket);
-        loxBoard.sendSerial(eregRunDiagnosticPacket);
+        fuelBoard.sendSerial(&eregRunDiagnosticPacket);
+        loxBoard.sendSerial(&eregRunDiagnosticPacket);
     }
 
     void startOneSidedFlow(Comms::Packet tmp, uint8_t ip) {
         int i = tmp.data[0];
-        eregBoards[i]->sendSerial(eregStartFlowPacket);
+        eregBoards[i]->sendSerial(&eregStartFlowPacket);
     }
 
     void actuateMainValve(Comms::Packet tmp, uint8_t ip) {
         int i = tmp.data[0];
-        eregBoards[i]->sendSerial(eregActuateMainValve);
+        eregBoards[i]->sendSerial(&eregActuateMainValve);
     }
 
     void startFlow(Comms::Packet tmp, uint8_t ip) {
@@ -171,8 +171,8 @@ namespace EReg {
 
     void abort(Comms::Packet tmp, uint8_t ip) {
         //TODO implement individual aborts?
-        fuelBoard.sendSerial(eregAbortPacket);
-        loxBoard.sendSerial(eregAbortPacket);
+        fuelBoard.sendSerial(&eregAbortPacket);
+        loxBoard.sendSerial(&eregAbortPacket);
     }
 
     void setERegEncoderPosition(Comms::Packet tmp, uint8_t ip) {
@@ -180,17 +180,17 @@ namespace EReg {
         Comms::packetAddFloat(&eregSetEncoderPositionPacket, Comms::packetGetFloat(&tmp, 1));
 
         int i = tmp.data[0];
-        eregBoards[i]->sendSerial(eregSetEncoderPositionPacket);
+        eregBoards[i]->sendSerial(&eregSetEncoderPositionPacket);
     }
 
     void staticPressurize(Comms::Packet tmp, uint8_t ip) {
         int i = tmp.data[0];
-        eregBoards[i]->sendSerial(eregPressurizeStaticPacket);
+        eregBoards[i]->sendSerial(&eregPressurizeStaticPacket);
     }
 
     void zeroEReg(Comms::Packet tmp, uint8_t ip) {
         int i = tmp.data[0];
-        eregBoards[i]->sendSerial(eregZeroEncoderPacket); 
+        eregBoards[i]->sendSerial(&eregZeroEncoderPacket); 
     }
 
     uint32_t sampleFuelEregTelemetry() {

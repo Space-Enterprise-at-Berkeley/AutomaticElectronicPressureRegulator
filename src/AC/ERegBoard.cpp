@@ -15,22 +15,22 @@ ERegBoard::ERegBoard(HardwareSerial *serial, uint8_t id) {
     failPacket_ = {.id = 255};
 }
 
-void ERegBoard::sendSerial(Comms::Packet packet) {
+void ERegBoard::sendSerial(Comms::Packet *packet) {
     uint32_t timestamp = millis();
-    packet.timestamp[0] = timestamp & 0xFF;
-    packet.timestamp[1] = (timestamp >> 8) & 0xFF;
-    packet.timestamp[2] = (timestamp >> 16) & 0xFF;
-    packet.timestamp[3] = (timestamp >> 24) & 0xFF;
+    packet->timestamp[0] = timestamp & 0xFF;
+    packet->timestamp[1] = (timestamp >> 8) & 0xFF;
+    packet->timestamp[2] = (timestamp >> 16) & 0xFF;
+    packet->timestamp[3] = (timestamp >> 24) & 0xFF;
 
-    uint16_t checksum = computePacketChecksum(&packet);
-    packet.checksum[0] = checksum & 0xFF;
-    packet.checksum[1] = checksum >> 8;
+    uint16_t checksum = computePacketChecksum(packet);
+    packet->checksum[0] = checksum & 0xFF;
+    packet->checksum[1] = checksum >> 8;
 
-    serial_->write(packet.id);
-    serial_->write(packet.len);
-    serial_->write(packet.timestamp, 4);
-    serial_->write(packet.checksum, 2);
-    serial_->write(packet.data, packet.len);
+    serial_->write(packet->id);
+    serial_->write(packet->len);
+    serial_->write(packet->timestamp, 4);
+    serial_->write(packet->checksum, 2);
+    serial_->write(packet->data, packet->len);
     serial_->write(0x68);
     serial_->write(0x69);
     serial_->write(0x70);
