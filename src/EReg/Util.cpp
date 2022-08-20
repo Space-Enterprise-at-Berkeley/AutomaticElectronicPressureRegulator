@@ -71,7 +71,8 @@ namespace Util {
      * @return Pid constants
      */
     PidConstants computeDynamicPidConstants(double highPressure, double lowPressure) {
-        double dynamicFactor = clip(((14.7 + lowPressure)/max(1.0, highPressure)), 0, 1) * (7.8); // nominal is 4000 -> 500 psi flow
+        double dynamicFactor = 1.0;
+        // double dynamicFactor = clip(((14.7 + lowPressure)/max(1.0, highPressure)), 0, 1) * (7.8); // nominal is 4000 -> 500 psi flow
         PidConstants dynamicConstants = {
             .k_p = dynamicFactor * Config::p_outer_nominal,
             .k_i = dynamicFactor * Config::i_outer_nominal,
