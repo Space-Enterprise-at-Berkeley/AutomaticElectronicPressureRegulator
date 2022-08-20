@@ -401,7 +401,7 @@ namespace StateMachine {
             
             unsigned long intervalTime = TimeUtil::timeInterval(intervalNumber * servoInterval_, testTime);
             
-            if (abs(servoSetpoint_ - motorAngle) > servoInterval_) {
+            if (abs(servoSetpoint_ - motorAngle) > Config::servoSettleThresh) {
                 if (intervalTime > Config::servoSettleTime) {
                     servoPassed_ = false;
                 }
