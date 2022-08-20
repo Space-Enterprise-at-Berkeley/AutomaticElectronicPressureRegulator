@@ -8,6 +8,7 @@ namespace EReg {
 
     extern uint32_t samplePeriod;
 
+
     void initEReg();
     void startLOXFlow(Comms::Packet tmp, uint8_t ip);
     void startFuelFlow(Comms::Packet tmp, uint8_t ip);

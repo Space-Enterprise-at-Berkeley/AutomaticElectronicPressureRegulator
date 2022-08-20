@@ -50,7 +50,7 @@ int main() {
     Actuators::stopFuelGemsTask = &taskTable[12];
     Actuators::stopLoxGemsTask = &taskTable[13];
 
-    DEBUGLN("Starting AC1");
+    DEBUGLN("hullo"); //sorry minh
 
     HAL::initHAL();
     Comms::initComms();
@@ -59,13 +59,17 @@ int main() {
     Toggles::initToggles();
 
     while(1) {
-        uint32_t ticks = micros(); // current time in microseconds
-        for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
+    uint32_t ticks = micros(); // current time in microseconds
+    for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
         if (taskTable[i].enabled && taskTable[i].nexttime - ticks > UINT32_MAX / 2) {
             taskTable[i].nexttime = ticks + taskTable[i].taskCall();
         }
-        }
-        Comms::processWaitingPackets();
+    }
+    Comms::processWaitingPackets();
+
     }
     return 0;
 }
+
+
+

@@ -35,6 +35,10 @@ namespace EReg {
 
     ERegBoard *eregBoards[2] = { &fuelBoard, &loxBoard };
 
+    uint32_t lastTime = millis();
+
+
+
     void initEReg() {
         Comms::registerCallback(1, startOneSidedFlow);
         Comms::registerCallback(2, startFlow);
@@ -67,20 +71,28 @@ namespace EReg {
     void evokeERegCallbackFunction(Comms::Packet *packet, uint8_t id) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
         if (checksum == Comms::computePacketChecksum(packet)) {
-            // DEBUGF("PACket id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet->id, packet->len, Comms::packetGetFloat(packet, 12),
-                        // Comms::packetGetFloat(packet, 16), Comms::packetGetFloat(packet, 20));
+             //DEBUGF("PACket id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet->id, packet->len, Comms::packetGetFloat(packet, 12),
+                        //Comms::packetGetFloat(packet, 16), Comms::packetGetFloat(packet, 20));
+            if (packet->id == 2) {
+                Serial.println("doing config");
+            }
             if(eregCallbackMap.count(packet->id)) {
                 eregCallbackMap.at(packet->id)(*packet, id);
             }
+            eregBoards[id]->cumPackets_ ++ ;
         } else {
-            DEBUGF("BADket id %d with len %d. Expected check: %d, received check: %d\n", packet->id, packet->len, Comms::computePacketChecksum(packet), packet->checksum);
-            Comms::dumpPacket(packet);
+                //uint16_t expectedCheck = Comms::computePacketChecksum(packet);
+                // DEBUGF("BADket id %d with len %d. received check: 0x%x%x\n", packet->id, packet->len,
+                //    packet->checksum[1], packet->checksum[0]);
+                // Comms::dumpPacket(packet);
+            }
+
         }
-    }
+    
 
     void interpretTelemetry(Comms::Packet packet, uint8_t id) {
         if (packet.len > 0) {
-            // DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
+            //DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
             // Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
             if (id == 0) {
                 packetcpy(&fuelMainTelemetryPacket, &packet, fuelMainTelemetryPacket.id);
@@ -192,11 +204,19 @@ namespace EReg {
     }
 
     void sampleTelemetry(ERegBoard board) {
+
+        if ((millis() - lastTime) > 1000) {
+            lastTime = millis();
+            DEBUGF("in last second: fuel %d, lox %d\n", eregBoards[0]->cumPackets_, eregBoards[1]->cumPackets_);
+            eregBoards[0]->cumPackets_ = 0;
+            eregBoards[1]->cumPackets_ = 0;
+        }
         Comms::Packet *packet = board.receiveSerial();
         if (packet->id != 255) { //TODO figure out what to return when no packet
             evokeERegCallbackFunction(packet, board.getID());
-            DEBUGF("Recieved telemetry from board %i \n", board.getID());
+            //DEBUGF("Recieved telemetry from board %i \n", board.getID());
         }
     }
 
 }
+

@@ -59,7 +59,7 @@ void actuateMainValve(Comms::Packet packet) {
 }
 
 void setup() {
-    delay(10000);
+
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
     Comms::initComms();
@@ -79,7 +79,15 @@ void setup() {
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
 
-    Packets::sendConfig();
+    delay(10000);
+
+    for (int i = 0; i < 5; i++) {
+        Packets::sendConfig();
+        delay(1000);
+    }
+
+
+
 }
 
 void loop() {
