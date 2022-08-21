@@ -7,11 +7,11 @@
 namespace Util {
 
     // valve angle based on pressure setpoint
-    PIDController outerController(Config::p_outer_nominal, Config::i_outer_nominal, Config::d_outer_nominal, -PID_RANGE, PID_RANGE, PIDController::transientControl);
+    PIDController outerController(Config::p_outer_nominal, Config::i_outer_nominal, Config::d_outer_nominal, -PID_RANGE, PID_RANGE, PIDController::transientControl, OUTER_BUFFER_SIZE);
     // motor angle based on valve setpoint
 
     // motor angle based on encoder/angle setpoint
-    PIDController innerController(Config::p_inner, Config::i_inner, Config::d_inner, MIN_SPD, MAX_SPD, PIDController::standard);
+    PIDController innerController(Config::p_inner, Config::i_inner, Config::d_inner, MIN_SPD, MAX_SPD, PIDController::standard, INNER_BUFFER_SIZE);
 
     Encoder encoder(HAL::enc1, HAL::enc2);
 
@@ -41,7 +41,7 @@ namespace Util {
      * @return PSI pressure 
      */
     double voltageToLowPressure(double voltage) {
-        return max(1, (((voltage/1024.0*5-0.5)*1000/4.0) - 25)); //TODO remove the -30
+        return max(1, ((voltage/1024.0*5-0.5)*1000/4.0));
     }
 
     /**
@@ -60,7 +60,7 @@ namespace Util {
      * @return feedforward valve angle in encoder ticks 
      */
     double compute_feedforward(double pressureSetpoint, double hp) {
-        return 300 + (pressureSetpoint/hp) * 79; //CHANGED
+        return 250 + (pressureSetpoint/hp) * 79; //CHANGED
     }
 
     /**

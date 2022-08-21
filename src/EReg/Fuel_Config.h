@@ -8,24 +8,27 @@ namespace Config {
     //old max angle = 1296
     //3200*48/26
     // #define MAX_ANGLE 363
-    #define MAX_ANGLE 500
+    #define MAX_ANGLE 600
     #define MIN_ANGLE 0
     #define PID_RANGE 500
 
     #define OPEN_LOOP_SPEED 200
 
+    #define OUTER_BUFFER_SIZE 5
+    #define INNER_BUFFER_SIZE 2
+
     const unsigned long telemetryInterval = 1000UL; // time in microseconds between telemetry packets
 
     // Controller Constants
-    const double p_outer_nominal = 1.0, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
-    const double p_inner = 11.5, i_inner = 1.5e-6, d_inner = 0.35;
+    const double p_outer_nominal = .5, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
+    const double p_inner = 11, i_inner = 1.5e-6, d_inner = 0.25;
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
     // Flow Parameters
-    const float pressureSetpoint = 500;
+    const float pressureSetpoint = 160;
     const unsigned long flowDuration = 9UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
-    const unsigned long rampDuration = 300UL * 1000UL; // time in microseconds
+    const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
 
     // Pressurization Parameters
     const unsigned long pressurizationRampDuration = 10 * 1000UL * 1000UL;

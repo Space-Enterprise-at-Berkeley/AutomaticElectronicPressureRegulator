@@ -22,7 +22,7 @@ class PIDController {
 
     public:
     enum AntiwindupMode { standard, transientControl };
-    PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, AntiwindupMode antiwindup);
+    PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, AntiwindupMode antiwindup, uint8_t buffSize);
     double update(double error);
     double getPTerm();
     double getITerm();

@@ -78,10 +78,8 @@ void setup() {
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
-
-    delay(10000);
-
-    for (int i = 0; i < 5; i++) {
+    
+    for (int i = 0; i < 10; i++) {
         Packets::sendConfig();
         delay(1000);
     }

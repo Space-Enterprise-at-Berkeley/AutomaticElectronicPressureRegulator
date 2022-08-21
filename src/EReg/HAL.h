@@ -11,11 +11,11 @@ namespace HAL {
     const int motor1 = 6;
     const int motor2 = 5;
 
-    const int enc1 = 3;
-    const int enc2 = 2;
+    const int enc1 = 2;
+    const int enc2 = 3;
 
-    const uint8_t hpPT = A5;
-    const uint8_t lpPT = A0;
+    const uint8_t hpPT = A1;
+    const uint8_t lpPT = A2;
     const uint8_t injectorPT = A3;
 
 

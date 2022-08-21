@@ -1,11 +1,11 @@
 #include "PIDController.h"
 #include "TimeUtil.h"
 
-PIDController::PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, PIDController::AntiwindupMode antiwindup) {
+PIDController::PIDController(double kp, double ki, double kd, double minOutput, double maxOutput, PIDController::AntiwindupMode antiwindup, uint8_t buffSize) {
     k_p = kp, k_i = ki, k_d = kd;
     k_p_nominal = kp, k_i_nominal = ki, k_d_nominal = kd;
     minOutput_ = minOutput, maxOutput_ = maxOutput;
-    errorBuffer_ = new Buffer(5);
+    errorBuffer_ = new Buffer(buffSize);
     switch (antiwindup) {
         case standard:
         antiwindup_ = &PIDController::antiwindupStd;

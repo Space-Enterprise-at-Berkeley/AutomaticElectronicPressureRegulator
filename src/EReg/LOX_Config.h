@@ -15,6 +15,9 @@ namespace Config {
 
     #define OPEN_LOOP_SPEED 200
 
+    #define OUTER_BUFFER_SIZE 5
+    #define INNER_BUFFER_SIZE 2
+
     const unsigned long telemetryInterval = 1000UL; // time in microseconds between telemetry packets
 
     // Controller Constants
