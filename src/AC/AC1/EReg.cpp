@@ -145,6 +145,8 @@ namespace EReg {
     }
 
     void interpretCommandFailTelemetry(Comms::Packet packet, uint8_t id) {
+            DEBUG("RECEIVED Command Fail WITH ID: ");
+            DEBUGLN(Comms::packetGetUint8(&packet, 0));
             if (id == 0) {
                 packetcpy(&fuelCommandFailPacket, &packet, fuelCommandFailPacket.id);
                 Comms::emitPacket(&fuelCommandFailPacket);
@@ -166,6 +168,8 @@ namespace EReg {
 
     void actuateMainValve(Comms::Packet tmp, uint8_t ip) {
         int i = tmp.data[0];
+        eregActuateMainValve.len = 0;
+        Comms::packetAddUint8(&eregActuateMainValve, tmp.data[1]);
         eregBoards[i]->sendSerial(&eregActuateMainValve);
     }
 

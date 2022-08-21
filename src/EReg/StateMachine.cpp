@@ -106,16 +106,17 @@ namespace StateMachine {
      */
     void actuateMainValve(ValveAction action) {
         float speed;
+        //TODO Remove these
         switch (action) {
             case MAIN_VALVE_OPEN:
-            speed = 255;
+                digitalWrite(HAL::mainValve1, HIGH);
+                digitalWrite(HAL::mainValve2, LOW);
             break;
             case MAIN_VALVE_CLOSE:
-            speed = 0;
+                digitalWrite(HAL::mainValve1, LOW);
+                digitalWrite(HAL::mainValve2, LOW);
             break;
         }
-        analogWrite(HAL::mainValve1,-min(0,speed));
-        analogWrite(HAL::mainValve2,max(0,speed));
         currentMainValveState = action;
     }
 
