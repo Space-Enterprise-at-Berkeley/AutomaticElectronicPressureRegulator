@@ -55,9 +55,15 @@ namespace Actuators {
     }
 
     void driveBackwards(uint8_t pin1, uint8_t pin2, uint8_t *actState, uint8_t actuatorID){
-        digitalWriteFast(pin1, LOW);
-        digitalWriteFast(pin2, HIGH);
-        *actState = 2;
+        if (channelTypes[actuatorID] == RBV) {
+            digitalWriteFast(pin1, LOW);
+            digitalWriteFast(pin2, HIGH);
+            *actState = 2;
+        } else {
+            digitalWriteFast(pin1, LOW);
+            digitalWriteFast(pin2, LOW);
+            *actState = 0;
+        }
     }
 
     void stopAct(uint8_t pin1, uint8_t pin2, uint8_t *actState, uint8_t actuatorID){
@@ -139,6 +145,7 @@ namespace Actuators {
         // (Actuate code) 0: extend fully 1: retract fully 2: extend millis 3: retract millis
 
         if(tmp.data[0]%2)(*extend)();
+
         else (*retract)();
 
         if(tmp.data[0]>1){

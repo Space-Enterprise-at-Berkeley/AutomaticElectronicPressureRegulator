@@ -63,8 +63,11 @@ namespace Actuators {
     const uint8_t loxGemsPin1 = HAL::hBrg7Pin1;
     const uint8_t loxGemsPin2 = HAL::hBrg7Pin2;
 
+    enum channelType  {RBV, VALVE};
+
     // TODO: Set correct OC limits
     const uint8_t OClimits[7] = {4,4,4,4,4,4,4}; //(amps): Act 1, Act 2, Act 3, Act 4, Act 5, Act 6, Act 7
+    const channelType channelTypes[7] = {RBV, RBV, RBV, VALVE, RBV, VALVE, VALVE};
     const float stopCurrent = .1; // Stopped actuator current threshold (amps) 
     
     void extendFuelTankVentRBV();
