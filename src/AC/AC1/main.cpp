@@ -4,6 +4,7 @@
 #include "Ereg.h"
 #include "HAL.h"
 #include "Toggles.h"
+#include "Automation.h"
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -25,6 +26,10 @@ Task taskTable[] = {
     {Actuators::stopTwoWay, 0, false},
     {Actuators::stopFuelGems, 0, false},
     {Actuators::stopLoxGems, 0, false},
+
+    //Automation
+    {Automation::autoventFuelGemValveTask},
+    {Automation::autoventLoxGemValveTask},
 
     // ereg
     {EReg::sampleFuelEregTelemetry, 0},

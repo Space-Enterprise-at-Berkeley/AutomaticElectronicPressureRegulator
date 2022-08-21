@@ -3,6 +3,8 @@
 namespace EReg {
 
     uint32_t samplePeriod = 12.5 * 1000; // 80 Hz
+    float fuelTankPTValue = 0;
+    float loxTankPTValue = 0;
 
     std::map<uint8_t, Comms::commFunction> eregCallbackMap;
 
@@ -95,9 +97,11 @@ namespace EReg {
             //DEBUGF("packet id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet.id, packet.len, Comms::packetGetFloat(&packet, 12),
             // Comms::packetGetFloat(&packet, 16), Comms::packetGetFloat(&packet, 20));
             if (id == 0) {
+                fuelTankPTValue = Comms::packetGetFloat(&packet, 4);
                 packetcpy(&fuelMainTelemetryPacket, &packet, fuelMainTelemetryPacket.id);
                 Comms::emitPacket(&fuelMainTelemetryPacket);
             } else if (id == 1) {
+                loxTankPTValue = Comms::packetGetFloat(&packet, 4);
                 packetcpy(&loxMainTelemetryPacket, &packet, loxMainTelemetryPacket.id);
                 Comms::emitPacket(&loxMainTelemetryPacket);
             }

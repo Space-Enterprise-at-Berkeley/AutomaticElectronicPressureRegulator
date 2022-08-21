@@ -7,7 +7,8 @@
 namespace EReg {
 
     extern uint32_t samplePeriod;
-
+    extern float fuelTankPTValue;
+    extern float loxTankPTValue;
 
     void initEReg();
     void startLOXFlow(Comms::Packet tmp, uint8_t ip);
