@@ -45,9 +45,9 @@ Task taskTable[] = {
 int main() {
     // hardware setup
     Serial.begin(115200);
-    #ifdef DEBUG_MODE
-    while(!Serial) {} // wait for user to open serial port (debugging only)
-    #endif
+    // #ifdef DEBUG_MODE
+    // while(!Serial) {} // wait for user to open serial port (debugging only)
+    // #endif
     Actuators::stopFuelTankVentRBVTask = &taskTable[7];
     Actuators::stopLoxTankVentRBVTask = &taskTable[8];
     Actuators::stopIgniterEnableTask = &taskTable[9];
@@ -55,7 +55,7 @@ int main() {
     Actuators::stopFuelGemsTask = &taskTable[12];
     Actuators::stopLoxGemsTask = &taskTable[13];
 
-    DEBUGLN("hullo"); //sorry minh
+    Serial.printf("hullo\n"); //sorry minh
 
     HAL::initHAL();
     Comms::initComms();

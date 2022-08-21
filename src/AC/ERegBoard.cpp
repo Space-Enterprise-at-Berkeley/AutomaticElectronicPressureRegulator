@@ -10,6 +10,7 @@ ERegBoard::ERegBoard(HardwareSerial *serial, uint8_t id) {
     packetBuffer_ = new char[1000];
     packetBufferCtr_ = 0;
     
+    cumPackets_ = 0;
     goodPackets_ = 0; //lol
 
     failPacket_ = {.id = 255};
