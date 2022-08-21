@@ -22,5 +22,6 @@ class ERegBoard {
     void sendSerial(Comms::Packet *packet);
     Comms::Packet *receiveSerial();
     uint8_t getID();
+    uint32_t goodPackets_;
     uint32_t cumPackets_;
 };

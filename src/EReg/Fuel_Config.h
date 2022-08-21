@@ -14,10 +14,10 @@ namespace Config {
 
     #define OPEN_LOOP_SPEED 200
 
-    #define OUTER_BUFFER_SIZE 5
+    #define OUTER_BUFFER_SIZE 2
     #define INNER_BUFFER_SIZE 2
 
-    const unsigned long telemetryInterval = 1000UL; // time in microseconds between telemetry packets
+    const unsigned long telemetryInterval = 10000UL; // time in microseconds between telemetry packets
 
     // Controller Constants
     const double p_outer_nominal = .5, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow

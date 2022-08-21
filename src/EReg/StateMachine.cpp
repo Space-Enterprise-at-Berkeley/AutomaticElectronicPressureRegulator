@@ -155,9 +155,6 @@ namespace StateMachine {
 
         float speed = 0;
 
-        //Compute Inner PID Servo loop
-        speed = innerController_->update(motorAngle - angleSetpoint_);
-
         //Use dynamic PID Constants
         Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
         outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
@@ -166,6 +163,9 @@ namespace StateMachine {
         angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
         angleSetpoint_ += Util::compute_feedforward(pressureSetpoint_, HPpsi);
         angleSetpoint_ = Util::clip(angleSetpoint_, MIN_ANGLE, MAX_ANGLE);
+
+        //Compute Inner PID Servo loop
+        speed = innerController_->update(motorAngle - angleSetpoint_);
 
         Util::runMotors(speed);
         actuateMainValve(MAIN_VALVE_OPEN);
