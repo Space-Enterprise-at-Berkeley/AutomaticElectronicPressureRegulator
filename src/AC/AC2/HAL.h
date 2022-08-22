@@ -5,13 +5,24 @@
 #include <ADS8167.h>
 #include <INA219.h>
 #include <INA226.h>
-#include <MCP9600.h>
+#include <MAX31855.h>
+#include <HX711.h>
 
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
 
 namespace HAL {
+
+    extern HX711 lcAmp0;
+    extern HX711 lcAmp1;
+
+    extern MAX31855 tcAmp0;
+    extern MAX31855 tcAmp1; 
+    extern MAX31855 tcAmp2;
+    extern MAX31855 tcAmp3; 
+    extern MAX31855 tcAmp4;
+
     const float battShuntR = 0.002;
     const float battCurrMax = 8.0;
     const float supplyShuntR = 0.01;

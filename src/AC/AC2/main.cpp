@@ -1,6 +1,8 @@
 #include <Common.h>
 #include <AC/Comms.h>
 #include "Actuators.h"
+#include "Thermocouples.h"
+#include "LoadCells.h"
 #include "HAL.h"
 
 #include <Arduino.h>
@@ -25,6 +27,16 @@ Task taskTable[] = {
     // {Actuators::stopAct5, 0, false},
     // {Actuators::stopAct6, 0, false},
     // {Actuators::stopAct7, 0, false},
+
+    // thermocouples
+    {Thermocouples::tc0Sample, 0},
+    {Thermocouples::tc1Sample, 0},
+    {Thermocouples::tc2Sample, 0},
+    {Thermocouples::tc3Sample, 0},
+    {Thermocouples::tc4Sample, 0},
+
+    // load cells
+    {LoadCells::sampleLoadCells, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -48,6 +60,7 @@ int main() {
     HAL::initHAL();
     Comms::initComms();
     Actuators::initActuators();
+    LoadCells::initLoadCells();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds

@@ -17,6 +17,15 @@ namespace HAL {
     INA219 chan9;
     INA219 chan10;
 
+    HX711 lcAmp0;
+    HX711 lcAmp1;
+
+    MAX31855 tcAmp0;
+    MAX31855 tcAmp1; 
+    MAX31855 tcAmp2;
+    MAX31855 tcAmp3; 
+    MAX31855 tcAmp4;
+
     void initChannel(INA219 *channel, TwoWire *wire, uint8_t address) {
         channel->init(wire, address, chanShuntR, chanCurrMax, INA219_RANGE_32V, INA219_GAIN_160MV, INA219_BUS_RES_12BIT, INA219_SHUNT_RES_12BIT_1S, INA219_MODE_SHUNT_BUS_CONT);
     }
@@ -31,6 +40,19 @@ namespace HAL {
         // Initialize INA219s
         supplyBatt.init(&Wire, 0x40, battShuntR, battCurrMax, INA226_AVERAGES_1, INA226_BUS_CONV_TIME_8244US, INA226_SHUNT_CONV_TIME_8244US, INA226_MODE_SHUNT_BUS_CONT);
         supply12v.init(&Wire, 0x41, supplyShuntR, supplyCurrMax, INA219_RANGE_32V, INA219_GAIN_160MV, INA219_BUS_RES_12BIT, INA219_SHUNT_RES_12BIT_1S, INA219_MODE_SHUNT_BUS_CONT);
+
+        SPI1.begin();
+
+        // MAX31855 TC amps (cs)
+        tcAmp0.init(&SPI1, 8);
+        tcAmp1.init(&SPI1, 9);
+        tcAmp2.init(&SPI1, 10);
+        tcAmp3.init(&SPI1, 13);
+        tcAmp4.init(&SPI1, 20);
+
+        // HX711 load cell amps (data out, clk)
+        lcAmp0.init(40, 39);
+        lcAmp1.init(35, 34);
 
         // Heater monitors
         initChannel(&chan0, &Wire1, 0x40);
