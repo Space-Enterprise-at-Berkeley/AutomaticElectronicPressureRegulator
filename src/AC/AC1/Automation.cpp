@@ -64,7 +64,7 @@ namespace Automation {
                 Actuators::extendAct4(); //two way
                 sendFlowStatus(STATE_ACTIVATE_TWO_WAY);
                 step++;
-                return 0;
+                return 300;
             case 2: // start ereg flow
                 EReg::startFlow();
                 sendFlowStatus(STATE_EREG_BEGIN);
