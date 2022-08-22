@@ -117,4 +117,16 @@ namespace Packets {
         #endif
     }
 
+    /**
+     * @brief sends flow state updates to the AC
+     * 
+     * @param flowState 
+     */
+    void sendFlowState(uint8_t flowState) {
+        Comms::Packet packet = {.id = FLOW_STATE};
+        packet.len = 0;
+        Comms::packetAddUint8(&packet, flowState);
+        Comms::emitPacket(&packet);
+    }
+
 }

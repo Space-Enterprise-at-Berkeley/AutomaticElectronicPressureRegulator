@@ -13,23 +13,27 @@
 
 Task taskTable[] = {
     // actuators
-    {Actuators::fuelTankVentRBVSample, 0},
-    {Actuators::loxTankVentRBVSample, 0},
-    {Actuators::igniterEnableSample, 0},
-    {Actuators::twoWaySample, 0},
-    {Actuators::fuelGemsSample, 0},
-    {Actuators::loxGemsSample, 0},
+    {Actuators::act1Sample, 0},
+    {Actuators::act2Sample, 0},
+    {Actuators::act3Sample, 0},
+    {Actuators::act4Sample, 0},
+    {Actuators::act5Sample, 0},
+    {Actuators::act6Sample, 0},
+    {Actuators::act7Sample, 0},
 
-    {Actuators::stopFuelTankVentRBV, 0, false},
-    {Actuators::stopLoxTankVentRBV, 0, false},
-    {Actuators::stopIgniterRelay, 0, false},
-    {Actuators::stopTwoWay, 0, false},
-    {Actuators::stopFuelGems, 0, false},
-    {Actuators::stopLoxGems, 0, false},
+    {Actuators::stopAct1, 0, false},
+    {Actuators::stopAct2, 0, false},
+    {Actuators::stopAct3, 0, false},
+    {Actuators::stopAct4, 0, false},
+    {Actuators::stopAct5, 0, false},
+    {Actuators::stopAct6, 0, false},
+    {Actuators::stopAct7, 0, false},
 
     //Automation
-    {Automation::autoventFuelGemValveTask},
-    {Automation::autoventLoxGemValveTask},
+    {Automation::flow, 0, false},
+    {Automation::abortFlow, 0, false},
+    {Automation::autoventFuelGemValveTask, 0},
+    {Automation::autoventLoxGemValveTask, 0},
 
     // ereg
     {EReg::sampleFuelEregTelemetry, 0},
@@ -48,12 +52,13 @@ int main() {
     // #ifdef DEBUG_MODE
     // while(!Serial) {} // wait for user to open serial port (debugging only)
     // #endif
-    Actuators::stopFuelTankVentRBVTask = &taskTable[7];
-    Actuators::stopLoxTankVentRBVTask = &taskTable[8];
-    Actuators::stopIgniterEnableTask = &taskTable[9];
-    Actuators::stopTwoWayTask = &taskTable[10];
-    Actuators::stopFuelGemsTask = &taskTable[12];
-    Actuators::stopLoxGemsTask = &taskTable[13];
+    Actuators::stop1 = &taskTable[7];
+    Actuators::stop2 = &taskTable[8];
+    Actuators::stop3 = &taskTable[9];
+    Actuators::stop4 = &taskTable[10];
+    Actuators::stop5 = &taskTable[11];
+    Actuators::stop6 = &taskTable[12];
+    Actuators::stop7 = &taskTable[13];
 
     Serial.printf("hullo\n"); //sorry minh
 
@@ -62,6 +67,7 @@ int main() {
     Actuators::initActuators();
     EReg::initEReg();
     Toggles::initToggles();
+    Automation::initAutomation(&taskTable[14], &taskTable[15], &taskTable[16], &taskTable[17]);
 
     while(1) {
     uint32_t ticks = micros(); // current time in microseconds

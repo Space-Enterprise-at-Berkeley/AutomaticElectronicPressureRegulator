@@ -31,6 +31,8 @@ namespace EReg {
     Comms::Packet loxDiagnosticPacket = {.id = 13};
     Comms::Packet fuelCommandFailPacket = {.id = 14};
     Comms::Packet loxCommandFailPacket = {.id = 15};
+    Comms::Packet fuelFlowStatePacket = {.id = 16};
+    Comms::Packet loxFlowStatePacket = {.id = 17};
 
     ERegBoard fuelBoard(&Serial5, 0);
     ERegBoard loxBoard(&Serial8, 1);
@@ -42,8 +44,6 @@ namespace EReg {
 
     void initEReg() {
         Comms::registerCallback(1, startOneSidedFlow);
-        Comms::registerCallback(2, startFlow);
-        Comms::registerCallback(3, abort);
         Comms::registerCallback(4, setERegEncoderPosition);
         Comms::registerCallback(5, actuateMainValve);
         //packet ID 6
@@ -57,6 +57,9 @@ namespace EReg {
 
         registerEregCallback(12, interpretDiagnosticTelemetry);
         registerEregCallback(13, interpretCommandFailTelemetry);
+        registerEregCallback(14, interpretFlowStateTelemetry);
+
+        Comms::registerCallback(21, resetEreg);
     }
 
 
@@ -156,6 +159,24 @@ namespace EReg {
             }
     }
 
+    void interpretFlowStateTelemetry(Comms::Packet packet, uint8_t id) {
+        uint8_t state = packet.data[0];
+        DEBUG("Recieved flow state: ");
+        DEBUGLN(state);
+        if (id == 0) {
+            packetcpy(&fuelFlowStatePacket, &packet, fuelFlowStatePacket.id);
+            Comms::emitPacket(&fuelFlowStatePacket);
+        } else if (id == 1) {
+            packetcpy(&loxFlowStatePacket, &packet, loxFlowStatePacket.id);
+            Comms::emitPacket(&loxFlowStatePacket);
+        }
+
+        //check for abort
+        if (state == 0) {
+            Automation::beginAbortFlow();
+        }
+    }
+
     void runDiagnostic(Comms::Packet tmp, uint8_t ip) {
         fuelBoard.sendSerial(&eregRunDiagnosticPacket);
         loxBoard.sendSerial(&eregRunDiagnosticPacket);
@@ -173,14 +194,20 @@ namespace EReg {
         eregBoards[i]->sendSerial(&eregActuateMainValve);
     }
 
-    void startFlow(Comms::Packet tmp, uint8_t ip) {
-        //TODO start automation sequence
+    void startFlow() {
+        eregBoards[0]->sendSerial(&eregStartFlowPacket);
+        //TODO start both boards
     }
 
-    void abort(Comms::Packet tmp, uint8_t ip) {
+    void abort() {
         //TODO implement individual aborts?
         fuelBoard.sendSerial(&eregAbortPacket);
         loxBoard.sendSerial(&eregAbortPacket);
+    }
+
+    void resetEreg(Comms::Packet tmp, uint8_t ip) {
+        int i = tmp.data[0];
+        eregBoards[i]->sendSerial(&eregAbortPacket);
     }
 
     void setERegEncoderPosition(Comms::Packet tmp, uint8_t ip) {
@@ -215,8 +242,8 @@ namespace EReg {
 
         if ((millis() - lastTime) > 1000) {
             lastTime = millis();
-            DEBUGF("in last second: fuel percent %f, lox percent %f, fuel good %d, lox good %d, cumPackets %d\n", ((float)eregBoards[0]->goodPackets_ / (float)eregBoards[0]->cumPackets_),
-                                                        ((float)eregBoards[1]->goodPackets_ / (float)eregBoards[1]->cumPackets_), fuelBoard.goodPackets_, loxBoard.goodPackets_, fuelBoard.cumPackets_);
+            // DEBUGF("in last second: fuel percent %f, lox percent %f, fuel good %d, lox good %d, cumPackets %d\n", ((float)eregBoards[0]->goodPackets_ / (float)eregBoards[0]->cumPackets_),
+            //                                             ((float)eregBoards[1]->goodPackets_ / (float)eregBoards[1]->cumPackets_), fuelBoard.goodPackets_, loxBoard.goodPackets_, fuelBoard.cumPackets_);
             eregBoards[0]->goodPackets_ = 0;
             eregBoards[1]->goodPackets_ = 0;
             eregBoards[0]->cumPackets_ = 0;

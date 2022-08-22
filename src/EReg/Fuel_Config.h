@@ -20,14 +20,16 @@ namespace Config {
     const unsigned long telemetryInterval = 10000UL; // time in microseconds between telemetry packets
 
     // Controller Constants
-    const double p_outer_nominal = .5, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
-    const double p_inner = 11, i_inner = 1.5e-6, d_inner = 0.25;
+    const double p_outer_nominal = 1.0, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
+    const double p_inner = 11, i_inner = 1.5e-6, d_inner = 0.35;
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
-    // Flow Parameters
-    const float pressureSetpoint = 160;
-    const unsigned long flowDuration = 9UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
+    const unsigned long leadTime = 100 * 1000UL; //time in microseconds
+
+    // Flow Parameters`
+    const float pressureSetpoint = 250;
+    const unsigned long flowDuration = 10UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
 
     // Pressurization Parameters

@@ -8,6 +8,7 @@ namespace Packets {
     const uint8_t CONFIG_ID = 2;
     const uint8_t DIAGNOSTIC_ID = 12;
     const uint8_t STATE_TRANSITION_FAIL_ID = 13;
+    const uint8_t FLOW_STATE = 14;
 
     void sendTelemetry(
         float highPressure,
@@ -24,4 +25,5 @@ namespace Packets {
     void sendConfig();
     void sendDiagnostic(uint8_t motorDirPass, uint8_t servoPass);
     void sendStateTransitionError(uint8_t errorCode);
+    void sendFlowState(uint8_t flowState);
 }
