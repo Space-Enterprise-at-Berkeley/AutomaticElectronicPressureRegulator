@@ -59,7 +59,7 @@ namespace Automation {
                 autoventFuelTask->enabled = false;
                 autoventLoxTask->enabled = false;
                 step++;
-                return 2 * 1e6;
+                return 4 * 1e6;
             case 1: // step 0 (open arming valve)
                 Actuators::extendAct4(); //two way
                 sendFlowStatus(STATE_ACTIVATE_TWO_WAY);
@@ -70,7 +70,7 @@ namespace Automation {
                 sendFlowStatus(STATE_EREG_BEGIN);
                 step++;
                 //TODO get from config packet
-                return 10 * 1e6 + 5000; // delay 10 seconds
+                return 20 * 1e6 + 1e6; // delay 20 seconds
             case 3: // end config
                 Actuators::retractAct4(); //to way
             default: // end

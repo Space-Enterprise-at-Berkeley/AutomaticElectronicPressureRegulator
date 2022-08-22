@@ -44,13 +44,13 @@ namespace Util {
         return max(1, ((voltage/1024.0*5-0.5)*1000/4.0));
     }
 
-    /**
+    /**                                        
      * Converts analogRead values from high pressure PT to PSI value
      * @param voltage analog reading from [0, 1023]
      * @return PSI pressure 
      */
     double voltageToHighPressure(double voltage) {
-        return max(1, ((5000.0 * (voltage/1024.0)))); //5V corresponds to 5k psi (after voltage divider)
+        return max(1, ((((5000.0 * (voltage/1024.0))) * 0.814)+15)); //5V corresponds to 5k psi (after voltage divider)
     }
 
     /**
@@ -60,7 +60,7 @@ namespace Util {
      * @return feedforward valve angle in encoder ticks 
      */
     double compute_feedforward(double pressureSetpoint, double hp) {
-        return 250 + (pressureSetpoint/hp) * 79; //CHANGED
+        return 250 + min(1, pressureSetpoint/hp) * 79;
     }
 
     /**

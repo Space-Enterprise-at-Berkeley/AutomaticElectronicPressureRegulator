@@ -9,8 +9,8 @@
 
 namespace Automation {
 
-    const float autoVentUpperThreshold = 400; //TODO actual value 650 - 620
-    const float autoVentLowerThreshold = 350;
+    const float autoVentUpperThreshold = 700; //TODO actual value 650 - 620
+    const float autoVentLowerThreshold = 650;
 
     extern Task *flowTask; // perform burn
     extern Task *abortFlowTask;
