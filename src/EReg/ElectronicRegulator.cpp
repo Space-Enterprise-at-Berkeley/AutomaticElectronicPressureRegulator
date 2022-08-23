@@ -56,12 +56,8 @@ void actuateMainValve(Comms::Packet packet) {
 }
 
 void setup() {
-
     Comms::initComms();
     StateMachine::enterIdleClosedState();
-    Serial.write(0x68);
-    Serial.write(0x69);
-    Serial.write(0x70);
     zero();
     pinMode(A5, INPUT);
     pinMode(A0, INPUT);
@@ -73,10 +69,7 @@ void setup() {
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
     
-    for (int i = 0; i < 100; i++) {
-        Packets::sendConfig();
-        delay(100);
-    }
+    Packets::sendConfig();
 }
 
 void loop() {

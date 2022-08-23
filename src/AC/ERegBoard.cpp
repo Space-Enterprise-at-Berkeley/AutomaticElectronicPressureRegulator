@@ -5,7 +5,7 @@ ERegBoard::ERegBoard(HardwareSerial *serial, uint8_t id) {
     id_ = id;
 
     serial_ = serial;
-    serial_->begin(38400);
+    serial_->begin(115200);
 
     packetBuffer_ = new char[sizeof(Comms::Packet) + 3];
     packetBufferCtr_ = 0;
@@ -32,24 +32,21 @@ void ERegBoard::sendSerial(Comms::Packet *packet) {
     serial_->write(packet->timestamp, 4);
     serial_->write(packet->checksum, 2);
     serial_->write(packet->data, packet->len);
-    serial_->write(0x68);
-    serial_->write(0x69);
-    serial_->write(0x70);
+    serial_->write("\n");
 }
 
 Comms::Packet *ERegBoard::receiveSerial() {
-    if (serial_->available()) {
+    if(serial_->available()) {
         packetBufferCtr_ = 0;
-        while (packetBufferCtr_ < 3 || !(packetBuffer_[packetBufferCtr_-3] == 0x68 &&
-            packetBuffer_[packetBufferCtr_-2] == 0x69 && packetBuffer_[packetBufferCtr_-1] == 0x70)) {
-            int serialByte = serial_->read();
-            if (serialByte == -1) return &failPacket_;
-            packetBuffer_[packetBufferCtr_] = serialByte;
-            packetBufferCtr_++;
-            if (packetBufferCtr_ > sizeof(Comms::Packet) + 3) return &failPacket_;
-        }
-        Comms::Packet* packet = (Comms::Packet*) &packetBuffer_;
-        return packet;
+            while(serial_->available() && packetBufferCtr_ < sizeof(Comms::Packet)) {
+                packetBuffer_[packetBufferCtr_] = serial_->read();
+                packetBufferCtr_++;
+            }
+            Comms::Packet *packet = (Comms::Packet *)packetBuffer_;
+            // DEBUG("Got unverified packet with ID ");
+            // DEBUG(packet->id);
+            // DEBUG('\n');
+            return packet;
     }
     return &failPacket_;
 }

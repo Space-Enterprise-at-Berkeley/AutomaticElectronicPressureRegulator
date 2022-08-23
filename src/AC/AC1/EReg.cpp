@@ -239,8 +239,8 @@ namespace EReg {
 
         if ((millis() - lastTime) > 1000) {
             lastTime = millis();
-            // DEBUGF("in last second: fuel percent %f, lox percent %f, fuel good %d, lox good %d, cumPackets %d\n", ((float)eregBoards[0]->goodPackets_ / (float)eregBoards[0]->cumPackets_),
-            //                                             ((float)eregBoards[1]->goodPackets_ / (float)eregBoards[1]->cumPackets_), fuelBoard.goodPackets_, loxBoard.goodPackets_, fuelBoard.cumPackets_);
+            DEBUGF("in last second: fuel percent %f, lox percent %f, fuel good %d, lox good %d, cumPackets %d\n", ((float)eregBoards[0]->goodPackets_ / (float)eregBoards[0]->cumPackets_),
+                                                        ((float)eregBoards[1]->goodPackets_ / (float)eregBoards[1]->cumPackets_), fuelBoard.goodPackets_, loxBoard.goodPackets_, fuelBoard.cumPackets_);
             eregBoards[0]->goodPackets_ = 0;
             eregBoards[1]->goodPackets_ = 0;
             eregBoards[0]->cumPackets_ = 0;
@@ -249,7 +249,7 @@ namespace EReg {
         Comms::Packet *packet = board.receiveSerial();
         if (packet->id != 255) { //TODO figure out what to return when no packet
             evokeERegCallbackFunction(packet, board.getID());
-            //DEBUGF("Recieved telemetry from board %i \n", board.getID());
+            //DEBUGF("Recieved telemetry from board %i \n", board.getID();)
         }
     }
 
