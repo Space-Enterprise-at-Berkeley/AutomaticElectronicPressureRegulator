@@ -7,11 +7,19 @@
 namespace Util {
 
     // valve angle based on pressure setpoint
-    PIDController outerController(Config::p_outer_nominal, Config::i_outer_nominal, Config::d_outer_nominal, -PID_RANGE, PID_RANGE, PIDController::transientControl, OUTER_BUFFER_SIZE);
-    // motor angle based on valve setpoint
+    PIDController outerController(
+        Config::p_outer_nominal, Config::i_outer_nominal, Config::d_outer_nominal, 
+        MIN_ANGLE, MAX_ANGLE,
+        ANTIWINDUP_RANGE_LOWER, ANTIWINDUP_RANGE_UPPER, 
+        PIDController::transientControl, 
+        OUTER_BUFFER_SIZE);
 
     // motor angle based on encoder/angle setpoint
-    PIDController innerController(Config::p_inner, Config::i_inner, Config::d_inner, MIN_SPD, MAX_SPD, PIDController::standard, INNER_BUFFER_SIZE);
+    PIDController innerController(
+        Config::p_inner, Config::i_inner, Config::d_inner, 
+        MIN_SPD, MAX_SPD, 
+        PIDController::standard, 
+        INNER_BUFFER_SIZE);
 
     Encoder encoder(HAL::enc1, HAL::enc2);
 

@@ -35,9 +35,8 @@ namespace StateMachine {
         speed = innerController_->update(motorAngle - angleSetpoint_);
 
         //Compute Outer Pressure Control Loop
-        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
-        angleSetpoint_ += 100;
-        angleSetpoint_ = Util::clip(angleSetpoint_, MIN_ANGLE, MAX_ANGLE);
+        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, 150);
+        
         Util::runMotors(speed);
 
         //send data to AC

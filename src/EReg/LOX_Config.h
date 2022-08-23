@@ -5,12 +5,10 @@ namespace Config {
 
     #define MAX_SPD 255
     #define MIN_SPD -255
-    //old max angle = 1296
-    //3200*48/26
-    // #define MAX_ANGLE 363
-    #define MAX_ANGLE 600
+    #define MAX_ANGLE 500
     #define MIN_ANGLE 0
-    #define PID_RANGE 500
+    #define ANTIWINDUP_RANGE_LOWER 150
+    #define ANTIWINDUP_RANGE_UPPER 400
 
     #define OPEN_LOOP_SPEED 200
 

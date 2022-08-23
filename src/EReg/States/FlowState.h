@@ -20,8 +20,6 @@ namespace StateMachine {
         Encoder *encoder_ = Util::getEncoder();
         PIDController *innerController_ = Util::getInnerController();
         PIDController *outerController_ = Util::getOuterController();
-        // Note: 1 rev on main shaft is 3200 counts
-        // Encoder itself is 64CPM (including all edges)
         unsigned long timeStarted_;
         unsigned long lastPrint_;
         float pressureSetpoint_;

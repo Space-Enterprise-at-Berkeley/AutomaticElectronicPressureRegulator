@@ -43,9 +43,7 @@ namespace StateMachine {
         outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
 
         //Compute Outer Pressure Control Loop
-        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_);
-        angleSetpoint_ += Util::compute_feedforward(pressureSetpoint_, HPpsi);
-        angleSetpoint_ = Util::clip(angleSetpoint_, MIN_ANGLE, MAX_ANGLE);
+        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, HPpsi));
 
         //Compute Inner PID Servo loop
         speed = innerController_->update(motorAngle - angleSetpoint_);
