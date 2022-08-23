@@ -16,6 +16,7 @@ namespace Config {
 
     #define OUTER_BUFFER_SIZE 5
     #define INNER_BUFFER_SIZE 2
+    #define DIAGNOSTIC_BUFFER_SIZE 3
 
     const unsigned long telemetryInterval = 1000UL; // time in microseconds between telemetry packets
 

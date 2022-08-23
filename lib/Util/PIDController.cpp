@@ -23,7 +23,7 @@ double PIDController::update(double error) {
     errorBuffer_->insert(TimeUtil::timeInterval(timeStarted_, curr_time)/1.0e6, error);
 
     latestP_ = -k_p * error;
-    latestD_ = -k_d * errorBuffer_->get_slope();
+    latestD_ = -k_d * errorBuffer_->getSlope();
     double output = latestP_ + latestD_;
     intError_ = (this->*antiwindup_)(intError_, output, error, dt);
     latestI_ = -k_i * intError_;

@@ -78,6 +78,8 @@ namespace StateMachine {
         private:
         Encoder *encoder_ = Util::getEncoder();
         PIDController *innerController_ = Util::getInnerController();
+        Buffer *highPressureAbortBuffer_;
+        Buffer *lowPressureAbortBuffer_;
 
         const float testSpeed_ = OPEN_LOOP_SPEED;
         const unsigned long servoInterval_ = Config::servoSettleTime * 4;

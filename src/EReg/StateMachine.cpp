@@ -105,8 +105,6 @@ namespace StateMachine {
      * @param action Desired valve state
      */
     void actuateMainValve(ValveAction action) {
-        float speed;
-        //TODO Remove these
         switch (action) {
             case MAIN_VALVE_OPEN:
                 digitalWrite(HAL::mainValve1, HIGH);
@@ -299,6 +297,8 @@ namespace StateMachine {
     }
 
     DiagnosticState::DiagnosticState() {
+        highPressureAbortBuffer_ = new Buffer(DIAGNOSTIC_BUFFER_SIZE);
+        lowPressureAbortBuffer_ = new Buffer(DIAGNOSTIC_BUFFER_SIZE);
         this->init();
     }
 
@@ -379,8 +379,10 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
-        checkAbortPressure(HPpsi, Config::stopDiagnosticPressureThresh);
-        checkAbortPressure(LPpsi, Config::stopDiagnosticPressureThresh);
+        highPressureAbortBuffer_->insert(testTime/1.0e6, HPpsi);
+        lowPressureAbortBuffer_->insert(testTime/1.0e6, LPpsi);
+        checkAbortPressure(highPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
+        checkAbortPressure(lowPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
     }
 
     void DiagnosticState::servoTestUpdate() {
@@ -429,8 +431,10 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
-        checkAbortPressure(HPpsi, Config::stopDiagnosticPressureThresh);
-        checkAbortPressure(LPpsi, Config::stopDiagnosticPressureThresh);
+        highPressureAbortBuffer_->insert(testTime/1.0e6, HPpsi);
+        lowPressureAbortBuffer_->insert(testTime/1.0e6, LPpsi);
+        checkAbortPressure(highPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
+        checkAbortPressure(lowPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
     }
 
     void DiagnosticState::startNextTest() {
@@ -440,6 +444,8 @@ namespace StateMachine {
         if (currentTest_ == SERVO) {
             innerController_->reset();
         }
+        highPressureAbortBuffer_->clear();
+        lowPressureAbortBuffer_->clear();
     }
 
     PressurizeState::PressurizeState() {
