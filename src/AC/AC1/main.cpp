@@ -49,9 +49,9 @@ Task taskTable[] = {
 int main() {
     // hardware setup
     Serial.begin(115200);
-    // #ifdef DEBUG_MODE
-    // while(!Serial) {} // wait for user to open serial port (debugging only)
-    // #endif
+    #ifdef DEBUG_MODE
+    while(!Serial) {} // wait for user to open serial port (debugging only)
+    #endif
     Actuators::stop1 = &taskTable[7];
     Actuators::stop2 = &taskTable[8];
     Actuators::stop3 = &taskTable[9];
@@ -60,7 +60,7 @@ int main() {
     Actuators::stop6 = &taskTable[12];
     Actuators::stop7 = &taskTable[13];
 
-    Serial.printf("hullo\n"); //sorry minh
+    DEBUGF("hullo\n"); //sorry minh
 
     HAL::initHAL();
     Comms::initComms();

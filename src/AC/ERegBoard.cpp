@@ -7,7 +7,7 @@ ERegBoard::ERegBoard(HardwareSerial *serial, uint8_t id) {
     serial_ = serial;
     serial_->begin(38400);
 
-    packetBuffer_ = new char[1000];
+    packetBuffer_ = new char[sizeof(Comms::Packet) + 3];
     packetBufferCtr_ = 0;
     
     cumPackets_ = 0;
@@ -38,19 +38,19 @@ void ERegBoard::sendSerial(Comms::Packet *packet) {
 }
 
 Comms::Packet *ERegBoard::receiveSerial() {
-    while (serial_->available()) {
-        packetBuffer_[packetBufferCtr_] = serial_->read();
-        packetBufferCtr_ = (packetBufferCtr_ + 1) % 1000;
-        int p = packetBufferCtr_ - 1;
-
-        if ((p >= 3) && (packetBuffer_[p]==0x70) && (packetBuffer_[p-1]==0x69) && (packetBuffer_[p-2]==0x68)) {
-            Comms::Packet *packet = (Comms::Packet*) packetBuffer_; 
-            packetBufferCtr_ = 0;
-
-            return packet;
+    if (serial_->available()) {
+        packetBufferCtr_ = 0;
+        while (packetBufferCtr_ < 3 || !(packetBuffer_[packetBufferCtr_-3] == 0x68 &&
+            packetBuffer_[packetBufferCtr_-2] == 0x69 && packetBuffer_[packetBufferCtr_-1] == 0x70)) {
+            int serialByte = serial_->read();
+            if (serialByte == -1) return &failPacket_;
+            packetBuffer_[packetBufferCtr_] = serialByte;
+            packetBufferCtr_++;
+            if (packetBufferCtr_ > sizeof(Comms::Packet) + 3) return &failPacket_;
         }
+        Comms::Packet* packet = (Comms::Packet*) &packetBuffer_;
+        return packet;
     }
-
     return &failPacket_;
 }
 
