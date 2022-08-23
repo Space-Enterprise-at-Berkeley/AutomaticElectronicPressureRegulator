@@ -36,12 +36,18 @@ namespace StateMachine {
         bool servoPassed_;
         unsigned long longestSettleTime_;
 
+        bool isMockInitialized_ = false;
+        const unsigned long mockPressurizationDuration_ = Config::pressurizationRampDuration;
+        const unsigned long mockFlowDuration_ = Config::flowDuration - (1000UL * 1000UL); // careful about underflows if flow < 1s
+
         public:
         DiagnosticState();
         void init();
         void update();
         void motorDirTestUpdate();
         void servoTestUpdate();
+        void mockPressurizeTestUpdate();
+        void mockFlowTestUpdate();
         void startNextTest();
     };
 

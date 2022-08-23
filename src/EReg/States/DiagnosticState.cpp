@@ -36,6 +36,12 @@ namespace StateMachine {
             case SERVO:
             servoTestUpdate();
             break;
+            case MOCK_PRESSURIZE:
+            mockPressurizeTestUpdate();
+            break;
+            case MOCK_FLOW:
+            mockFlowTestUpdate();
+            break;
             default:
             // all tests completed
             Packets::sendDiagnostic(motorDirPassed_, servoPassed_);
@@ -150,6 +156,47 @@ namespace StateMachine {
         checkAbortPressure(lowPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
     }
 
+    /**
+     * Runs pressurization state as part of diagnostics
+     * NOTE: We do not do the usual diagnostic abort checks, for performance reasons
+     */
+    void DiagnosticState::mockPressurizeTestUpdate() {
+        unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
+
+        if(testTime < Config::closeTime * 1000UL) {
+            Util::runMotors(-OPEN_LOOP_SPEED);
+        } else if (testTime < mockPressurizationDuration_){
+            if(!isMockInitialized_) {
+                getPressurizeState()->init();
+                isMockInitialized_ = true;
+            }
+            getPressurizeState()->update();
+        } else {
+            this->startNextTest();
+        }
+    }
+
+    /**
+     * Runs flow state as part of diagnostics
+     * NOTE: We do not do the usual diagnostic abort checks, for performance reasons
+     * IMPORTANT: This will try to actuate main valves, ensure that 2-way is not armed, and nobody is nearby
+     */
+    void DiagnosticState::mockFlowTestUpdate() {
+        unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
+
+        if(testTime < Config::closeTime * 1000UL) {
+            Util::runMotors(-OPEN_LOOP_SPEED);
+        } else if (testTime < mockFlowDuration_){
+            if(!isMockInitialized_) {
+                getFlowState()->init();
+                isMockInitialized_ = true;
+            }
+            getFlowState()->update();
+        } else {
+            this->startNextTest();
+        }
+    }
+
     void DiagnosticState::startNextTest() {
         timeTestStarted_ = micros();
         Util::runMotors(0);
@@ -159,5 +206,6 @@ namespace StateMachine {
         }
         highPressureAbortBuffer_->clear();
         lowPressureAbortBuffer_->clear();
+        isMockInitialized_ = false;
     }
 }

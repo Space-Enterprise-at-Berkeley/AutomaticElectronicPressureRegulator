@@ -8,9 +8,6 @@
 #include "StateMachine.h"
 #include "Packets.h"
 
-// Change these two numbers to the pins connected to your encoder.
-//   Best Performance: both pins have interrupt capability
-//   avoid using pins with LEDs attached
 Encoder *encoder = Util::getEncoder();
 StateMachine::FlowState *flowState = StateMachine::getFlowState();
 StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedState();
@@ -83,9 +80,6 @@ void setup() {
         Packets::sendConfig();
         delay(1000);
     }
-
-
-
 }
 
 void loop() {

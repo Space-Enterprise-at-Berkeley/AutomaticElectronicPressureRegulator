@@ -11,6 +11,8 @@ namespace HAL {
     const int motor1 = 6;
     const int motor2 = 5;
 
+    // Best encoder Performance: both pins have interrupt capability
+    // avoid using pins with LEDs attached
     const int enc1 = 2;
     const int enc2 = 3;
 
