@@ -60,15 +60,12 @@ void actuateMainValve(Comms::Packet packet) {
 
 void setup() {
 
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
     Comms::initComms();
     StateMachine::enterIdleClosedState();
     Serial.write(0x68);
     Serial.write(0x69);
     Serial.write(0x70);
     zero();
-    digitalWrite(LED_BUILTIN, LOW);
     pinMode(A5, INPUT);
     pinMode(A0, INPUT);
     Comms::registerCallback(0, flow);
@@ -79,9 +76,9 @@ void setup() {
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
     
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
         Packets::sendConfig();
-        delay(1000);
+        delay(100);
     }
 
 

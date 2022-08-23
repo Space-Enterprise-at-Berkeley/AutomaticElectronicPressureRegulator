@@ -138,15 +138,15 @@ namespace Comms {
         packet->checksum[0] = checksum & 0xFF;
         packet->checksum[1] = checksum >> 8;
 
-        // Send over serial, but disable if in debug mode
-        #ifndef DEBUG_MODE
-        Serial.write(packet->id);
-        Serial.write(packet->len);
-        Serial.write(packet->timestamp, 4);
-        Serial.write(packet->checksum, 2);
-        Serial.write(packet->data, packet->len);
-        Serial.write('\n');
-        #endif
+        // // Send over serial, but disable if in debug mode
+        // #ifndef DEBUG_MODE
+        // Serial.write(packet->id);
+        // Serial.write(packet->len);
+        // Serial.write(packet->timestamp, 4);
+        // Serial.write(packet->checksum, 2);
+        // Serial.write(packet->data, packet->len);
+        // Serial.write('\n');
+        // #endif
 
         //Send over ethernet to both ground stations
         Udp.beginPacket(groundStation1, port);

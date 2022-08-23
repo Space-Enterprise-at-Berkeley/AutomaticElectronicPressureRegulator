@@ -78,9 +78,6 @@ namespace EReg {
         if (checksum == Comms::computePacketChecksum(packet)) {
              //DEBUGF("PACket id %d with len %d: 12:%f, 16: %f, 20: %f\n", packet->id, packet->len, Comms::packetGetFloat(packet, 12),
                         //Comms::packetGetFloat(packet, 16), Comms::packetGetFloat(packet, 20));
-            if (packet->id == 2) {
-                Serial.println("doing config");
-            }
             if(eregCallbackMap.count(packet->id)) {
                 eregCallbackMap.at(packet->id)(*packet, id);
             }
@@ -113,7 +110,7 @@ namespace EReg {
 
     void interpretMainValves(Comms::Packet packet, uint8_t id) {
         if (packet.len > 0) {
-            DEBUGF("received mainvalve packet with id %d, length %d. First uint8_t of payload (should be mainvalve state): %d\n", packet.id, packet.len, packet.data[0]);
+            // DEBUGF("received mainvalve packet with id %d, length %d. First uint8_t of payload (should be mainvalve state): %d\n", packet.id, packet.len, packet.data[0]);
             if (id == 0) {
                 packetcpy(&fuelMainValveStateFuelPacket, &packet, fuelMainValveStateFuelPacket.id);
                 Comms::emitPacket(&fuelMainValveStateFuelPacket);
@@ -126,9 +123,9 @@ namespace EReg {
 
     void interpretConfigTelemetry(Comms::Packet packet, uint8_t id) {
         if (packet.len > 0) {
-            DEBUGF("received config telemetry packet\n");
+            DEBUGLN("received config telemetry packet");
             if (id == 0) {
-                packetcpy(&fuelMainTelemetryPacket, &packet, fuelConfigTelemetryPacket.id);
+                packetcpy(&fuelConfigTelemetryPacket, &packet, fuelConfigTelemetryPacket.id);
                 Comms::emitPacket(&fuelConfigTelemetryPacket);
             } else if (id == 1) {
                 packetcpy(&loxConfigTelemetryPacket, &packet, loxConfigTelemetryPacket.id);
