@@ -16,6 +16,8 @@ StateMachine::DiagnosticState *diagnosticState = StateMachine::getDiagnosticStat
 StateMachine::PressurizeState *pressurizeState = StateMachine::getPressurizeState();
 
 void zero() {
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
     DEBUGLN("starting zero command");
     Util::runMotors(-150);
     delay(2000);
@@ -25,6 +27,7 @@ void zero() {
     encoder->write(-20);
     DEBUG("encoder position after zero: ");
     DEBUGLN(encoder->read());
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
 void zero(Comms::Packet packet) {

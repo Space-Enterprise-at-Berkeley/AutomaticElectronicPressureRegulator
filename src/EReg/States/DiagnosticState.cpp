@@ -165,6 +165,27 @@ namespace StateMachine {
 
         if(testTime < Config::closeTime * 1000UL) {
             Util::runMotors(-OPEN_LOOP_SPEED);
+
+            if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
+                float motorAngle = encoder_->read();
+                float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
+                float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
+                float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+                Packets::sendTelemetry(
+                    HPpsi,
+                    LPpsi,
+                    InjectorPT,
+                    motorAngle,
+                    0,
+                    0,
+                    -OPEN_LOOP_SPEED,
+                    0,
+                    0,
+                    0
+                );
+                lastPrint_ = micros();
+            }
+
         } else if (testTime < mockPressurizationDuration_){
             if(!isMockInitialized_) {
                 getPressurizeState()->init();
@@ -186,6 +207,27 @@ namespace StateMachine {
 
         if(testTime < Config::closeTime * 1000UL) {
             Util::runMotors(-OPEN_LOOP_SPEED);
+
+            if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
+                float motorAngle = encoder_->read();
+                float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
+                float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
+                float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+                Packets::sendTelemetry(
+                    HPpsi,
+                    LPpsi,
+                    InjectorPT,
+                    motorAngle,
+                    0,
+                    0,
+                    -OPEN_LOOP_SPEED,
+                    0,
+                    0,
+                    0
+                );
+                lastPrint_ = micros();
+            }
+
         } else if (testTime < mockFlowDuration_){
             if(!isMockInitialized_) {
                 getFlowState()->init();

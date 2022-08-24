@@ -12,7 +12,7 @@ namespace Comms {
     unsigned int bufferIndex = 0;
 
     void initComms() {
-        Serial.begin(115200);
+        Serial.begin(500000);
     }
 
     void registerCallback(uint8_t id, commFunction function) {
@@ -53,17 +53,26 @@ namespace Comms {
             }
         }
         #else
-        if(Serial.available()) {
-            int cnt = 0;
-            while(Serial.available() && cnt < sizeof(Packet)) {
-                packetBuffer[cnt] = Serial.read();
-                cnt++;
+        while(Serial.available()) {
+            packetBuffer[bufferIndex] = Serial.read();
+            bufferIndex = (bufferIndex + 1U) % buf_size;
+            unsigned int lastWrittenIndex = bufferIndex - 1U;
+            if (
+                (lastWrittenIndex >= 3U) && 
+                (packetBuffer[lastWrittenIndex] == 0x70) &&
+                (packetBuffer[lastWrittenIndex - 1] == 0x69) &&
+                (packetBuffer[lastWrittenIndex - 2] == 0x68)
+            ) {
+                Packet *packet = (Packet *)&packetBuffer;
+                bufferIndex = 0U;
+                DEBUG("packet id: ");
+                DEBUG(packet->id);
+                DEBUG("\tlen: ");
+                DEBUG(packet->len);
+                DEBUG(" \tcheck: ");
+                DEBUGLN(packet->checksum[0]);
+                evokeCallbackFunction(packet);
             }
-            Packet *packet = (Packet *)&packetBuffer;
-            // DEBUG("Got unverified packet with ID ");
-            // DEBUG(packet->id);
-            // DEBUG('\n');
-            evokeCallbackFunction(packet);
         }
         #endif
     }
