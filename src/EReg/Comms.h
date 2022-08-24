@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Common.h>
-
 #include <Arduino.h>
+#include "Config.h"
 
 namespace Comms {
     const int numIDs = 7;

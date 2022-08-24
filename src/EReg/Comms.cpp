@@ -12,7 +12,7 @@ namespace Comms {
     unsigned int bufferIndex = 0;
 
     void initComms() {
-        Serial.begin(500000);
+        SERIAL_COMMS.begin(500000);
     }
 
     void registerCallback(uint8_t id, commFunction function) {
@@ -35,8 +35,8 @@ namespace Comms {
 
     void processWaitingPackets() {
         #ifdef DEBUG_MODE
-        while (Serial.available()) {
-            int inChar = Serial.read();
+        while (SERIAL_COMMS.available()) {
+            int inChar = SERIAL_COMMS.read();
             if (isDigit(inChar) || inChar=='-') {
                 inString_ += (char)inChar;
             }
@@ -53,8 +53,8 @@ namespace Comms {
             }
         }
         #else
-        while(Serial.available()) {
-            packetBuffer[bufferIndex] = Serial.read();
+        while(SERIAL_COMMS.available()) {
+            packetBuffer[bufferIndex] = SERIAL_COMMS.read();
             bufferIndex = (bufferIndex + 1U) % buf_size;
             unsigned int lastWrittenIndex = bufferIndex - 1U;
             if (
@@ -149,12 +149,12 @@ namespace Comms {
         packet->checksum[0] = checksum & 0xFF;
         packet->checksum[1] = checksum >> 8;
 
-        Serial.write(packet->id);
-        Serial.write(packet->len);
-        Serial.write(packet->timestamp, 4);
-        Serial.write(packet->checksum, 2);
-        Serial.write(packet->data, packet->len);
-        Serial.write("\n");
+        SERIAL_COMMS.write(packet->id);
+        SERIAL_COMMS.write(packet->len);
+        SERIAL_COMMS.write(packet->timestamp, 4);
+        SERIAL_COMMS.write(packet->checksum, 2);
+        SERIAL_COMMS.write(packet->data, packet->len);
+        SERIAL_COMMS.write("\n");
     }
 
     /**

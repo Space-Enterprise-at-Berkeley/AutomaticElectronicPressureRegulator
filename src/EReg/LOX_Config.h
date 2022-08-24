@@ -1,4 +1,4 @@
-//Fuel EReg Config 
+//LOX EReg Config 
 #pragma once
 
 namespace Config {

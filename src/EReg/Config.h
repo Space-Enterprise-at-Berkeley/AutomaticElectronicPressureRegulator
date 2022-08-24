@@ -8,6 +8,8 @@
 
 namespace Config {
 
+    #define SERIAL_COMMS Serial1
+
     #define MAX_SPD 255
     #define MIN_SPD -255
     #define MAX_ANGLE 500                                                    
@@ -21,7 +23,7 @@ namespace Config {
     #define INNER_BUFFER_SIZE 2
     #define DIAGNOSTIC_BUFFER_SIZE 5
 
-    const unsigned long telemetryInterval = 2000UL; // time in microseconds between telemetry packets
+    const unsigned long telemetryInterval = 5000UL; // time in microseconds between telemetry packets
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
