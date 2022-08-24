@@ -35,6 +35,8 @@ namespace Toggles {
     void toggleToggle(Comms::Packet packet, uint8_t pin);
     void toggleIgniter(Comms::Packet packet, uint8_t ip);
     void toggleBreakWire(Comms::Packet packet, uint8_t ip);
+    void startIgniter();
+    void stopIgniter();
 
     void sampleToggle(Comms::Packet *packet, INA219 *ina, float *voltage, float *current);
     uint32_t ctl12vChan1Sample();

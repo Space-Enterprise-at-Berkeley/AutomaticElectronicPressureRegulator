@@ -2,7 +2,7 @@
 
 namespace EReg {
 
-    uint32_t samplePeriod = 12.5 * 1000; // 80 Hz
+    uint32_t samplePeriod = 2 * 1000; // 80 Hz
     float fuelTankPTValue = 0;
     float loxTankPTValue = 0;
 
@@ -193,7 +193,7 @@ namespace EReg {
 
     void startFlow() {
         eregBoards[0]->sendSerial(&eregStartFlowPacket);
-        //TODO start both boards
+        eregBoards[1]->sendSerial(&eregStartFlowPacket);
     }
 
     void abort() {

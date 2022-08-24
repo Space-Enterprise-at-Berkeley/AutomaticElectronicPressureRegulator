@@ -1,4 +1,5 @@
 #include "Automation.h"
+#include "Toggles.h"
 
 namespace Automation {
     Task *flowTask = nullptr;
@@ -62,17 +63,19 @@ namespace Automation {
                 return 4 * 1e6;
             case 1: // step 0 (open arming valve)
                 Actuators::extendAct4(); //two way
+                Toggles::startIgniter();
                 sendFlowStatus(STATE_ACTIVATE_TWO_WAY);
                 step++;
-                return 300;
+                return 300 * 1e3;
             case 2: // start ereg flow
+                Toggles::stopIgniter();
                 EReg::startFlow();
                 sendFlowStatus(STATE_EREG_BEGIN);
                 step++;
                 //TODO get from config packet
                 return 20 * 1e6 + 1e6; // delay 20 seconds
             case 3: // end config
-                Actuators::retractAct4(); //to way
+                Actuators::retractAct4(); //two way
             default: // end
                 flowTask->enabled = false;
                 autoventFuelTask->enabled = true;
@@ -85,10 +88,11 @@ namespace Automation {
 
     void beginManualAbortFlow(Comms::Packet packet, uint8_t ip) {
         DEBUG("Beginning manual abort");
-        Actuators::retractAct1();
-        Actuators::retractAct2();
-        Actuators::extendAct6();
-        Actuators::extendAct7();
+        flowTask->enabled = false;
+        Actuators::retractAct1(); //fuel tank vent
+        Actuators::retractAct2(); //lox tank vent
+        Actuators::extendAct6(); //fuel gems
+        Actuators::extendAct7(); //lox gems
         EReg::abort();
         autoventFuelTask->enabled = true;
         autoventLoxTask->enabled = true;

@@ -5,7 +5,7 @@ ERegBoard::ERegBoard(HardwareSerial *serial, uint8_t id) {
     id_ = id;
 
     serial_ = serial;
-    serial_->begin(115200);
+    serial_->begin(EREG_BOARD_BAUD_RATE);
 
     packetBuffer_ = new char[sizeof(Comms::Packet) + 3];
     packetBufferCtr_ = 0;
@@ -32,7 +32,9 @@ void ERegBoard::sendSerial(Comms::Packet *packet) {
     serial_->write(packet->timestamp, 4);
     serial_->write(packet->checksum, 2);
     serial_->write(packet->data, packet->len);
-    serial_->write("\n");
+    serial_->write(0x68);
+    serial_->write(0x69);
+    serial_->write(0x70);
 }
 
 Comms::Packet *ERegBoard::receiveSerial() {

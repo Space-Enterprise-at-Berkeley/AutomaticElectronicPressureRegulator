@@ -51,6 +51,14 @@ namespace Toggles {
         return toggleCheckPeriod;
     }
 
+    void startIgniter() {
+        digitalWrite(igniterPin, 1);
+    }
+
+    void stopIgniter() {
+        digitalWrite(igniterPin, 0);
+    }
+
     void toggleToggle(Comms::Packet packet, uint8_t pin) {
         digitalWrite(pin, packet.data[0]);
     }

@@ -14,6 +14,7 @@ class ERegBoard {
     uint8_t id_;
     HardwareSerial *serial_;
     Comms::Packet failPacket_;
+    uint32_t EREG_BOARD_BAUD_RATE = 500000;
 
     public:
     char* packetBuffer_;
