@@ -12,21 +12,21 @@
 
 Task taskTable[] = {
     // actuators
-    {Actuators::fuelFillRBVSample, 0},
-    {Actuators::loxFillRBVSample, 0},
-    {Actuators::pressFillRBVSample, 0},
-    {Actuators::pressLineVentRBVSample, 0},
-    // {Actuators::act5Sample, 0},
-    // {Actuators::act6Sample, 0},
-    // {Actuators::act7Sample, 0},
+    {Actuators::act1Sample, 0},
+    {Actuators::act2Sample, 0},
+    {Actuators::act3Sample, 0},
+    {Actuators::act4Sample, 0},
+    {Actuators::act5Sample, 0},
+    {Actuators::act6Sample, 0},
+    {Actuators::act7Sample, 0}, //#6
 
-    {Actuators::stopFuelFillRBV, 0, false},
-    {Actuators::stopLoxFillRBV, 0, false},
-    {Actuators::stopPressFillRBV, 0, false},
-    {Actuators::stopPressLineVentRBV, 0, false},
-    // {Actuators::stopAct5, 0, false},
-    // {Actuators::stopAct6, 0, false},
-    // {Actuators::stopAct7, 0, false},
+    {Actuators::stopAct1, 0, false}, //#7
+    {Actuators::stopAct2, 0, false},
+    {Actuators::stopAct3, 0, false},
+    {Actuators::stopAct4, 0, false},
+    {Actuators::stopAct5, 0, false},
+    {Actuators::stopAct6, 0, false},
+    {Actuators::stopAct7, 0, false}, //#13
 
     // thermocouples
     {Thermocouples::tc0Sample, 0},
@@ -47,13 +47,13 @@ int main() {
     #ifdef DEBUG_MODE
     while(!Serial) {} // wait for user to open serial port (debugging only)
     #endif
-    Actuators::stopFuelFillRBVTask = &taskTable[7];
-    Actuators::stopLoxFillRBVTask = &taskTable[8];
-    Actuators::stopPressFillRBVTask = &taskTable[9];
-    Actuators::stopPressLineVentRBVTask = &taskTable[10];
-    // Actuators::stop5 = &taskTable[11];
-    // Actuators::stop6 = &taskTable[12];
-    // Actuators::stop7 = &taskTable[13];
+    Actuators::stop1 = &taskTable[7];
+    Actuators::stop2 = &taskTable[8];
+    Actuators::stop3 = &taskTable[9];
+    Actuators::stop4 = &taskTable[10];
+    Actuators::stop5 = &taskTable[11];
+    Actuators::stop6 = &taskTable[12];
+    Actuators::stop7 = &taskTable[13];
 
     DEBUGLN("Starting AC2");
 
