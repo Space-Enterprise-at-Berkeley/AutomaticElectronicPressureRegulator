@@ -30,19 +30,19 @@ namespace Actuators {
     float pressLineVentRBVCurrent = 0.0;
     Task *stopPressLineVentRBVTask;
 
-    Comms::Packet act5Packet = {.id = 74};
+    Comms::Packet act5Packet = {.id = 64};
     uint8_t act5State = 0;
     float act5Voltage = 0.0;
     float act5Current = 0.0;
     Task *stop5;
 
-    Comms::Packet act6Packet = {.id = 75};
+    Comms::Packet act6Packet = {.id = 65};
     uint8_t act6State = 0;
     float act6Voltage = 0.0;
     float act6Current = 0.0;
     Task *stop6;
 
-    Comms::Packet act7Packet = {.id = 76};
+    Comms::Packet act7Packet = {.id = 66};
     uint8_t act7State = 0;
     float act7Voltage = 0.0;
     float act7Current = 0.0;
@@ -221,10 +221,10 @@ namespace Actuators {
     }
 
     void initActuators() {
-        Comms::registerCallback(20, fuelFillRBVPacketHandler);
-        Comms::registerCallback(21, loxFillRBVPacketHandler);
-        Comms::registerCallback(22, pressFillRBVPacketHandler);
-        Comms::registerCallback(23, pressLineVentRBVPacketHandler);
+        Comms::registerCallback(10, fuelFillRBVPacketHandler);
+        Comms::registerCallback(12, loxFillRBVPacketHandler);
+        Comms::registerCallback(13, pressFillRBVPacketHandler);
+        Comms::registerCallback(14, pressLineVentRBVPacketHandler);
         // Comms::registerCallback(14, act5PacketHandler);
         // Comms::registerCallback(15, act6PacketHandler);
         // Comms::registerCallback(16, act7PacketHandler);

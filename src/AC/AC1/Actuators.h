@@ -13,7 +13,7 @@ namespace Actuators {
     extern uint32_t actuatorCheckPeriod; // interval for checking valve current and voltages
 
     enum channelType  {RBV, VALVE};
-    const channelType channelTypes[7] = {RBV, RBV, RBV, VALVE, RBV, VALVE, VALVE};
+    const channelType channelTypes[7] = {RBV, RBV, VALVE, VALVE, RBV, VALVE, VALVE};
 
     const float maxValveCurrent = 1.0;
 
