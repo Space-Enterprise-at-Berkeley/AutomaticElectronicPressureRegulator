@@ -10,8 +10,15 @@ namespace LoadCells {
 
     extern float loadCell0Value;
     extern float loadCell1Value;
+    extern float loadCellSum;
+    extern float lastLoadCellTime;
+        
+    const float loadCellThreshold = 100.0;
+
+    const uint8_t hysteresisThreshold = 10;
 
     void initLoadCells();
 
     uint32_t sampleLoadCells();
+    uint32_t checkForAbort();
 };

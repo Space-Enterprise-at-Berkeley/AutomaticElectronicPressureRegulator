@@ -6,6 +6,9 @@ namespace Automation {
     Task *abortFlowTask = nullptr;
     Task *autoventFuelTask = nullptr;
     Task *autoventLoxTask = nullptr;
+    
+    bool tcAbortEnabled = false;
+    bool lcAbortEnabled = false;
 
     // uint32_t loxLead = Util::millisToMicros(165);
     // uint32_t burnTime = Util::secondsToMicros(25);
@@ -22,6 +25,9 @@ namespace Automation {
 
         Comms::registerCallback(2, beginFlow);
         Comms::registerCallback(3, beginManualAbortFlow);
+        
+        Comms::registerCallback(30, checkForTCAbort);
+        Comms::registerCallback(31, checkForLCAbort);
     }
 
     Comms::Packet flowPacket = {.id = 50};
@@ -88,16 +94,7 @@ namespace Automation {
 
     void beginManualAbortFlow(Comms::Packet packet, uint8_t ip) {
         DEBUG("Beginning manual abort");
-        flowTask->enabled = false;
-        Actuators::retractAct1(); //fuel tank vent
-        Actuators::retractAct2(); //lox tank vent
-        Actuators::extendAct6(); //fuel gems
-        Actuators::extendAct7(); //lox gems
-        EReg::abort();
-        autoventFuelTask->enabled = true;
-        autoventLoxTask->enabled = true;
-        delay(100);
-        Actuators::retractAct4();
+        beginAbortFlow();
         sendFlowStatus(STATE_MANUAL_ABORT);
     }
 
@@ -109,6 +106,9 @@ namespace Automation {
             abortFlowTask->enabled = true;
             autoventFuelTask->enabled = true;
             autoventLoxTask->enabled = true;
+
+            tcAbortEnabled = false;
+            lcAbortEnabled = false;
         }
     }
 
@@ -168,5 +168,19 @@ namespace Automation {
         }
 
         return 0.25 * 1e6;
+    }
+
+    void checkForLCAbort(Comms::Packet packet, uint8_t ip) {
+        if (lcAbortEnabled) {
+            sendFlowStatus(STATE_LC_ABORT);
+            beginAbortFlow();
+        }
+    }
+
+    void checkForTCAbort(Comms::Packet packet, uint8_t ip) {
+        if (tcAbortEnabled) {
+            sendFlowStatus(STATE_TC_ABORT);
+            beginAbortFlow();
+        }
     }
 };

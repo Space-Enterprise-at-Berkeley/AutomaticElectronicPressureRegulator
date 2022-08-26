@@ -15,6 +15,8 @@ namespace Automation {
     extern Task *abortFlowTask;
     extern Task *autoventFuelTask;
     extern Task *autoventLoxTask;
+    extern Task *checkForTCAbortTask;
+    extern Task *checkForLCAbortTask;
 
     void initAutomation(Task *flowTask, Task *abortFlowTask, Task *autoventFuelTask, Task *autoventLoxTask);
     void beginFlow(Comms::Packet packet, uint8_t ip);
@@ -24,6 +26,8 @@ namespace Automation {
     uint32_t abortFlow();
     uint32_t autoventFuelGemValveTask();
     uint32_t autoventLoxGemValveTask();
+    void checkForLCAbort(Comms::Packet packet, uint8_t ip);
+    void checkForTCAbort(Comms::Packet packet, uint8_t ip);
 
 };
 
@@ -32,4 +36,6 @@ namespace Automation {
 #define STATE_EREG_ABORT 2
 #define STATE_MANUAL_ABORT 3
 #define STATE_END_FLOW 4
+#define STATE_LC_ABORT 5
+#define STATE_TC_ABORT 6
 
