@@ -124,7 +124,9 @@ namespace Automation {
                 Actuators::extendAct7();
                 EReg::abort();
                 step++;
-                return 500;
+                return 100 * 1e3; //TODO - just changed this from 100uS to 100mS - is there anywhere else this needs to be modified? 
+                                            //changed so we have a bigger buffer of the 2way to close mainvalves, and nothing time critical seems
+                                            //to be happening in the next code
             default: // end
                 Actuators::retractAct4();
                 abortFlowTask->enabled = false;
