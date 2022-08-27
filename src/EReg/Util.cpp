@@ -49,7 +49,7 @@ namespace Util {
      * @return PSI pressure 
      */
     double voltageToLowPressure(double voltage) {
-        return max(1, ((voltage/1024.0*5-0.5)*1000/4.0));
+        return (max(1, ((voltage/1024.0*5-0.5)*1000/4.0)) - Config::PT_C) / Config::PT_M;
     }
 
     /**                                        

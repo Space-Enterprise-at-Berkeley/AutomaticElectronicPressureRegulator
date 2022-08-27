@@ -10,4 +10,10 @@ namespace Config {
     // Flow Parameters
     const float pressureSetpoint = 600;
     const unsigned long loxLead = 0; //time in milliseconds
+
+    const float PT_C = 0.96;
+    const float PT_M = 1.1889;
+    // true = (measured - PT_C) / PT_M
+
+
 }
