@@ -59,10 +59,10 @@ int main() {
 
     HAL::initHAL();
     Comms::initComms();
-    Actuators::initActuators();
-    DEBUGLN("got here");
-    // LoadCells::initLoadCells();
     DEBUGLN("ethernet started fr");
+    Actuators::initActuators(); 
+    LoadCells::initLoadCells();
+    // Thermocouples::initThermocouples();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds

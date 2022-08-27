@@ -8,7 +8,11 @@
 
 namespace Config {
 
+    #ifdef EVERY
     #define SERIAL_COMMS Serial1
+    #else
+    #define SERIAL_COMMS Serial
+    #endif
 
     #define MAX_SPD 255
     #define MIN_SPD -255
@@ -28,7 +32,7 @@ namespace Config {
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
     // flow duration
-    const unsigned long flowDuration = 20UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
+    const unsigned long flowDuration = 30UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
 
     // Pressurization Parameters

@@ -38,18 +38,20 @@ namespace StateMachine {
 
         float speed = 0;
 
-        //Use dynamic PID Constants
-        Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
-        outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
+        if (flowTime > Config::loxLead) {
+            //Use dynamic PID Constants
+            Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
+            outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
 
-        //Compute Outer Pressure Control Loop
-        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, HPpsi));
+            //Compute Outer Pressure Control Loop
+            angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, HPpsi));
 
-        //Compute Inner PID Servo loop
-        speed = innerController_->update(motorAngle - angleSetpoint_);
+            //Compute Inner PID Servo loop
+            speed = innerController_->update(motorAngle - angleSetpoint_);
 
-        Util::runMotors(speed);
-        actuateMainValve(MAIN_VALVE_OPEN);
+            Util::runMotors(speed);
+            actuateMainValve(MAIN_VALVE_OPEN);
+        }
 
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
