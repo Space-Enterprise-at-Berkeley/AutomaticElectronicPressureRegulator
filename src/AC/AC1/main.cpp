@@ -34,6 +34,7 @@ Task taskTable[] = {
     {Automation::abortFlow, 0, false},
     {Automation::autoventFuelGemValveTask, 0},
     {Automation::autoventLoxGemValveTask, 0},
+    {Automation::checkIgniter, 0},
 
     // ereg
     {EReg::sampleFuelEregTelemetry, 0},

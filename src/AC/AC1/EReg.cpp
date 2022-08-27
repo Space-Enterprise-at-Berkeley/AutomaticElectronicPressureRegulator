@@ -170,6 +170,7 @@ namespace EReg {
 
         //check for abort
         if (state == 0) {
+            Automation::sendFlowStatus(STATE_EREG_ABORT);
             Automation::beginAbortFlow();
         }
     }

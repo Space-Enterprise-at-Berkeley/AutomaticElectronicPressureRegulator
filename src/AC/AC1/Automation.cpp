@@ -10,9 +10,11 @@ namespace Automation {
     bool tcAbortEnabled = false;
     bool lcAbortEnabled = false;
 
-    // uint32_t loxLead = Util::millisToMicros(165);
-    // uint32_t burnTime = Util::secondsToMicros(25);
-    // uint32_t ventTime = Util::millisToMicros(200);
+    bool igniterEnabled = true;
+    bool breakwireEnabled = true;
+    bool thrustEnabled = true;
+
+    bool igniterTriggered = false;
 
     bool loxGemValveAbovePressure = false;
     bool fuelGemValveAbovePressure = false;
@@ -40,10 +42,13 @@ namespace Automation {
             //reset values
             flowTask->nexttime = micros();
             flowTask->enabled = true;
+
+            autoventFuelTask->enabled = false;
+            autoventLoxTask->enabled = false;
         }
     }
 
-    inline void sendFlowStatus(uint8_t status) {
+    void sendFlowStatus(uint8_t status) {
         // DEBUG("FLOW STATUS: ");
         // DEBUG(status);
         // DEBUG("\n");
@@ -57,31 +62,64 @@ namespace Automation {
         // DEBUG(step);
         // DEBUG("\n");
         switch(step) {
-            case 0:
+            case 0: //close all valves in preperation for flow
                 Actuators::extendAct1(); //fuel tank vent rbv
                 Actuators::extendAct2(); //lox tank vent rbv
                 Actuators::retractAct6(); //fuel gems
                 Actuators::retractAct7(); //lox gems
+                sendFlowStatus(STATE_FLOW_PREPARATION);
+                step++;
 
-                autoventFuelTask->enabled = false;
-                autoventLoxTask->enabled = false;
-                step++;
-                return 4 * 1e6;
-            case 1: // step 0 (open arming valve)
-                Actuators::extendAct4(); //two way
-                Toggles::startIgniter();
-                sendFlowStatus(STATE_ACTIVATE_TWO_WAY);
-                step++;
-                return 300 * 1e3;
-            case 2: // start ereg flow
+                return 4 * 1e6; // delay 4 seconds
+            case 1: // enable and start igniter
+                if(Toggles::breakWireVoltage > breakWireThreshold || !breakwireEnabled) {
+                    Actuators::extendAct3(); //igniter enable
+                    Toggles::startIgniter();
+                    sendFlowStatus(STATE_ACTIVATE_IGNITER);
+                    step++;
+
+                    return 0.5 * 1e6; // delay 0.5s
+                } else {
+                    sendFlowStatus(STATE_BREAKWIRE_FAIL_CONTINUITY_ABORT);
+                    beginAbortFlow();
+                    return 0;
+                }
+            case 2: // turn off igniter
+                Actuators::retractAct3();
                 Toggles::stopIgniter();
-                EReg::startFlow();
-                sendFlowStatus(STATE_EREG_BEGIN);
+                sendFlowStatus(STATE_IGNITER_ACTIVATED);
                 step++;
-                //TODO get from config packet
-                return 20 * 1e6 + 1e6; // delay 20 seconds
-            case 3: // end config
+
+                return 1.5 * 1e6; //delay by 1.5 seconds
+            case 3: //check igniter trigger and breakwire to open arming valve
+                if ((igniterTriggered || !igniterEnabled)
+                        && (Toggles::breakWireVoltage < breakWireThreshold || !breakwireEnabled)) {
+                    Actuators::extendAct4(); //two way
+                    sendFlowStatus(STATE_ARMED_VALVES);
+                    step++;
+
+                    return .5 * 1e6; //delay .5 seconds
+                } else {
+                    sendFlowStatus(STATE_BREAKWIRE_FAIL_DISCONNECT_ABORT);
+                    beginAbortFlow();
+                    return 0;
+                }
+            case 4: // start ereg flow
+                if (Actuators::act4Current > twoWayCurrentThreshold) {
+                    EReg::startFlow();
+                    sendFlowStatus(STATE_START_FLOW);
+                    step++;
+                    //TODO get from config packet
+                    return burnTime + (0.5 * 1e6); //delay over burn time to close main valves
+                } else {
+                    sendFlowStatus(STATE_ARMING_VALVE_FAIL_CURRENT);
+                    beginAbortFlow();
+                    return 0;
+                }
+            case 5: // end config
                 Actuators::retractAct4(); //two way
+                sendFlowStatus(STATE_DISABLE_ARMING_VALVE);
+                return 0;
             default: // end
                 flowTask->enabled = false;
                 autoventFuelTask->enabled = true;
@@ -93,9 +131,9 @@ namespace Automation {
 
 
     void beginManualAbortFlow(Comms::Packet packet, uint8_t ip) {
-        DEBUG("Beginning manual abort");
-        beginAbortFlow();
+        DEBUGLN("Beginning manual abort");
         sendFlowStatus(STATE_MANUAL_ABORT);
+        beginAbortFlow();
     }
 
     void beginAbortFlow() {
@@ -118,7 +156,7 @@ namespace Automation {
         // DEBUG("\n");
         switch(step) {
             case 0: // deactivate igniter and vent pneumatics and tanks
-                Actuators::retractAct1();
+                Actuators::retractAct1(); //open all vents
                 Actuators::retractAct2();
                 Actuators::extendAct6();
                 Actuators::extendAct7();
@@ -130,7 +168,7 @@ namespace Automation {
             default: // end
                 Actuators::retractAct4();
                 abortFlowTask->enabled = false;
-                sendFlowStatus(STATE_EREG_ABORT);
+                sendFlowStatus(STATE_ABORT_END);
                 return 0;
         }
     }
@@ -184,5 +222,10 @@ namespace Automation {
             sendFlowStatus(STATE_TC_ABORT);
             beginAbortFlow();
         }
+    }
+
+    uint32_t checkIgniter() {
+        igniterTriggered = Toggles::igniterCurrent > igniterTriggerThreshold || igniterTriggered;
+        return Toggles::toggleCheckPeriod;
     }
 };
