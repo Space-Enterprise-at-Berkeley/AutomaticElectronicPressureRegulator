@@ -29,14 +29,14 @@ Task taskTable[] = {
     {Actuators::stopAct7, 0, false}, //#13
 
     // thermocouples
-    {Thermocouples::tc0Sample, 0},
-    {Thermocouples::tc1Sample, 0},
-    {Thermocouples::tc2Sample, 0},
-    {Thermocouples::tc3Sample, 0},
-    {Thermocouples::tc4Sample, 0},
+    // {Thermocouples::tc0Sample, 0},
+    // {Thermocouples::tc1Sample, 0},
+    // {Thermocouples::tc2Sample, 0},
+    // {Thermocouples::tc3Sample, 0},
+    // {Thermocouples::tc4Sample, 0},
 
     // load cells
-    {LoadCells::sampleLoadCells, 0},
+    // {LoadCells::sampleLoadCells, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -55,12 +55,14 @@ int main() {
     Actuators::stop6 = &taskTable[12];
     Actuators::stop7 = &taskTable[13];
 
-    DEBUGLN("Starting AC2");
+    DEBUGLN("hullo from AC2");
 
     HAL::initHAL();
     Comms::initComms();
     Actuators::initActuators();
-    LoadCells::initLoadCells();
+    DEBUGLN("got here");
+    // LoadCells::initLoadCells();
+    DEBUGLN("ethernet started fr");
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
