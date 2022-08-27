@@ -16,9 +16,9 @@ namespace HAL {
     const int enc1 = 2;
     const int enc2 = 3;
 
-    const uint8_t hpPT = A1;
+    const uint8_t hpPT = A3;
     const uint8_t lpPT = A2;
-    const uint8_t injectorPT = A3;
+    const uint8_t injectorPT = A1;
 
 
     const uint8_t potPin = A1;
