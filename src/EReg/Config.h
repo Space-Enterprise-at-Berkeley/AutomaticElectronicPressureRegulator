@@ -24,10 +24,10 @@ namespace Config {
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
     #define OUTER_BUFFER_SIZE 5
-    #define INNER_BUFFER_SIZE 2
+    #define INNER_BUFFER_SIZE 5
     #define DIAGNOSTIC_BUFFER_SIZE 5
 
-    const unsigned long telemetryInterval = 5000UL; // time in microseconds between telemetry packets
+    const unsigned long telemetryInterval = 4 * 1000UL; // time in microseconds between telemetry packets
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 

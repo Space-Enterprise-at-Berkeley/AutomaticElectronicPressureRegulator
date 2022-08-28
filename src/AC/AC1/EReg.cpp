@@ -2,7 +2,7 @@
 
 namespace EReg {
 
-    uint32_t samplePeriod = 2 * 1000; // 80 Hz
+    uint32_t samplePeriod = 1.5 * 1000;
     float fuelTankPTValue = 0;
     float loxTankPTValue = 0;
 
