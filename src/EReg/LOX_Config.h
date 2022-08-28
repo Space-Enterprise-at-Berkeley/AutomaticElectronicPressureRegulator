@@ -11,9 +11,12 @@ namespace Config {
     const float pressureSetpoint = 600;
     const unsigned long loxLead = 0; //time in milliseconds
 
-    const float PT_C = 0.96;
-    const float PT_M = 1.1889;
-    // true = (measured - PT_C) / PT_M
+    const float LOW_PT_C = 0.96;
+    const float LOW_PT_M = 1.1889;
+
+    const float HIGH_PT_C = -1.0;
+    const float HIGH_PT_M = 0.7557;
+    // true = (measured - LOW_PT_C) / LOW_PT_M
 
 
 }

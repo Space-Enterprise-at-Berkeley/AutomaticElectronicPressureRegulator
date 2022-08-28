@@ -10,9 +10,8 @@ namespace Automation {
     bool tcAbortEnabled = false;
     bool lcAbortEnabled = false;
 
-    bool igniterEnabled = true;
-    bool breakwireEnabled = true;
-    bool thrustEnabled = true;
+    bool igniterEnabled = false;
+    bool breakwireEnabled = false;
 
     bool igniterTriggered = false;
 
@@ -119,6 +118,7 @@ namespace Automation {
             case 5: // end config
                 Actuators::retractAct4(); //two way
                 sendFlowStatus(STATE_DISABLE_ARMING_VALVE);
+                step++;
                 return 0;
             default: // end
                 flowTask->enabled = false;

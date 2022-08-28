@@ -72,7 +72,10 @@ void setup() {
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
     
-    Packets::sendConfig();
+    for (int i = 0; i < 10; i++) {
+        Packets::sendConfig();
+        delay(100);
+    }
 }
 
 void loop() {
