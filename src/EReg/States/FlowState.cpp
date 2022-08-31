@@ -51,6 +51,9 @@ namespace StateMachine {
 
             Util::runMotors(speed);
             actuateMainValve(MAIN_VALVE_OPEN);
+        } else {
+            innerController_->reset();
+            outerController_->reset();
         }
 
         //send data to AC
