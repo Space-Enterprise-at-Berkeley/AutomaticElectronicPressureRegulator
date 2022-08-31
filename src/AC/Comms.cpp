@@ -23,22 +23,26 @@ namespace Comms {
      */
     void evokeCallbackFunction(Packet *packet, uint8_t ip) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
-        if (checksum == computePacketChecksum(packet)) {
-            DEBUG("Packet with ID ");
-            DEBUG(packet->id);
-            DEBUG(" has correct checksum!\n");
-            //try to access function, checking for out of range exception
-            if(callbackMap.count(packet->id)) {
-                callbackMap.at(packet->id)(*packet, ip);
-            } else {
-                DEBUG("ID ");
+        if (ip == groundStation1IP || ip==groundStation2IP) {
+            if (checksum == computePacketChecksum(packet)) {
+                DEBUG("Packet with ID ");
                 DEBUG(packet->id);
-                DEBUG(" does not have a registered callback function.\n");
+                DEBUG(" has correct checksum!\n");
+                //try to access function, checking for out of range exception
+                if(callbackMap.count(packet->id)) {
+                    callbackMap.at(packet->id)(*packet, ip);
+                } else {
+                    DEBUG("ID ");
+                    DEBUG(packet->id);
+                    DEBUG(" does not have a registered callback function.\n");
+                }
+            } else {
+                DEBUG("Packet with ID ");
+                DEBUG(packet->id);
+                DEBUG(" does not have correct checksum!\n");
             }
         } else {
-            DEBUG("Packet with ID ");
-            DEBUG(packet->id);
-            DEBUG(" does not have correct checksum!\n");
+            DEBUGLN("packet received from non-ground station, so ignoring");
         }
     }
 
@@ -149,7 +153,7 @@ namespace Comms {
         // #endif
 
         //Send over ethernet to both ground stations
-        Udp.beginPacket(groundStation1, port);
+        Udp.beginPacket(broadcastIP, port);
         Udp.write(packet->id);
         Udp.write(packet->len);
         Udp.write(packet->timestamp, 4);
@@ -157,13 +161,7 @@ namespace Comms {
         Udp.write(packet->data, packet->len);
         Udp.endPacket();
 
-        Udp.beginPacket(groundStation2, port);
-        Udp.write(packet->id);
-        Udp.write(packet->len);
-        Udp.write(packet->timestamp, 4);
-        Udp.write(packet->checksum, 2);
-        Udp.write(packet->data, packet->len);
-        Udp.endPacket();
+
     }
 
     void emitPacket(Packet *packet, uint8_t end) {
@@ -189,7 +187,7 @@ namespace Comms {
         Udp.write(packet->data, packet->len);
         Udp.endPacket();
 
-        Udp.beginPacket(groundStation1, port);
+        Udp.beginPacket(broadcastIP, port);
         Udp.write(packet->id);
         Udp.write(packet->len);
         Udp.write(packet->timestamp, 4);
@@ -197,13 +195,23 @@ namespace Comms {
         Udp.write(packet->data, packet->len);
         Udp.endPacket();
 
-        Udp.beginPacket(groundStation2, port);
-        Udp.write(packet->id);
-        Udp.write(packet->len);
-        Udp.write(packet->timestamp, 4);
-        Udp.write(packet->checksum, 2);
-        Udp.write(packet->data, packet->len);
-        Udp.endPacket();
+
+
+        // Udp.beginPacket(groundStation1, port);
+        // Udp.write(packet->id);
+        // Udp.write(packet->len);
+        // Udp.write(packet->timestamp, 4);
+        // Udp.write(packet->checksum, 2);
+        // Udp.write(packet->data, packet->len);
+        // Udp.endPacket();
+
+        // Udp.beginPacket(groundStation2, port);
+        // Udp.write(packet->id);
+        // Udp.write(packet->len);
+        // Udp.write(packet->timestamp, 4);
+        // Udp.write(packet->checksum, 2);
+        // Udp.write(packet->data, packet->len);
+        // Udp.endPacket();
     }
 
     void dumpPacket(Packet *packet) {
