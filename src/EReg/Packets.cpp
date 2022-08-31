@@ -119,7 +119,7 @@ namespace Packets {
 
     /**
      * @brief sends flow state updates to the AC
-     * 
+     * flowStates: 0 = abort
      * @param flowState 
      */
     void sendFlowState(uint8_t flowState) {

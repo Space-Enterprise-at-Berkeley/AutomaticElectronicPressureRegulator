@@ -43,7 +43,7 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
-        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
+        if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryIntervalIdle) {
             Packets::sendTelemetry(
                 HPpsi,
                 LPpsi,
