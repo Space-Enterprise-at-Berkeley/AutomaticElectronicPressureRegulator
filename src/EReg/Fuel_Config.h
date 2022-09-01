@@ -9,7 +9,7 @@ namespace Config {
 
     // Flow Parameters
     const float pressureSetpoint = 490;
-    const unsigned long loxLead = 165UL * 1000UL; //time in milliseconds
+    const unsigned long loxLead = 105UL * 1000UL; //time in milliseconds
 
     const float LOW_PT_C = 13.482;
     const float LOW_PT_M = 1.2407;
