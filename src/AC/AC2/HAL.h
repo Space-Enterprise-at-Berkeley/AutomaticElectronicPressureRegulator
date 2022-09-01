@@ -27,8 +27,8 @@ namespace HAL {
     const float battCurrMax = 8.0;
     const float supplyShuntR = 0.01;
     const float supplyCurrMax = 4.0;
-    extern INA226 supplyBatt;
-    extern INA219 supply12v;
+    // extern INA226 supplyBatt;
+    // extern INA219 supply12v;
 
     const float chanShuntR = 0.033;
     const float chanCurrMax = 4.0;

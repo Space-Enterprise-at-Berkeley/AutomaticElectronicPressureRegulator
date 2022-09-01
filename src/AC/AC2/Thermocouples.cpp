@@ -31,7 +31,9 @@ namespace Thermocouples {
 
     uint32_t tcSample(MAX31855 *amp, uint8_t packetID, float *value, float *thermocoupleValues, float *ROCValue) {
         float reading = amp->readCelsius();
-        
+
+        // DEBUGF("THERMOCOUPLE READING %i: %f \n", packetID, reading);
+
         //calculate ROC TC value
         for (int i = 1; i < 10; i++) {
             thermocoupleValues[i] = thermocoupleValues[i-1];

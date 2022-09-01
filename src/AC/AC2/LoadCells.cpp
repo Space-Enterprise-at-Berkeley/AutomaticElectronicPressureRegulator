@@ -23,6 +23,8 @@ namespace LoadCells {
         loadCell1Value = HAL::lcAmp1.get_units(); // in pounds
         loadCellSum = loadCell0Value + loadCell1Value;
 
+        DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
+
         Comms::Packet tmp = {.id = 120};
         Comms::packetAddFloat(&tmp, loadCell0Value);
         Comms::packetAddFloat(&tmp, loadCell1Value);

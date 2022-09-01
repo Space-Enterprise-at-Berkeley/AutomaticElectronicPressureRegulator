@@ -14,6 +14,7 @@ namespace Automation {
     bool breakwireEnabled = false;
 
     bool igniterTriggered = false;
+    bool breakwireBroken = false;
 
     bool loxGemValveAbovePressure = false;
     bool fuelGemValveAbovePressure = false;
@@ -41,6 +42,9 @@ namespace Automation {
             //reset values
             flowTask->nexttime = micros();
             flowTask->enabled = true;
+
+            igniterTriggered = false;
+            breakwireBroken = false;
 
             autoventFuelTask->enabled = false;
             autoventLoxTask->enabled = false;
@@ -92,7 +96,7 @@ namespace Automation {
                 return 1.5 * 1e6; //delay by 1.5 seconds
             case 3: //check igniter trigger and breakwire to open arming valve
                 if ((igniterTriggered || !igniterEnabled)
-                        && (Toggles::breakWireVoltage < breakWireThreshold || !breakwireEnabled)) {
+                        && (breakwireBroken || !breakwireEnabled)) {
                     Actuators::extendAct4(); //two way
                     sendFlowStatus(STATE_ARMED_VALVES);
                     step++;
@@ -109,7 +113,7 @@ namespace Automation {
                     sendFlowStatus(STATE_START_FLOW);
                     step++;
                     //TODO get from config packet
-                    return burnTime + (0.5 * 1e6); //delay over burn time to close main valves
+                    return burnTime + (3 * 1e6); //delay over burn time to close main valves
                 } else {
                     sendFlowStatus(STATE_ARMING_VALVE_FAIL_CURRENT);
                     beginAbortFlow();
@@ -226,6 +230,7 @@ namespace Automation {
 
     uint32_t checkIgniter() {
         igniterTriggered = Toggles::igniterCurrent > igniterTriggerThreshold || igniterTriggered;
+        breakwireBroken = Toggles::breakWireVoltage < breakWireThreshold || breakwireBroken;
         return Toggles::toggleCheckPeriod;
     }
 };

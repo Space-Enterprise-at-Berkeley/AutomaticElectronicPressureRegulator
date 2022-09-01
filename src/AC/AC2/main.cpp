@@ -12,13 +12,13 @@
 
 Task taskTable[] = {
     // actuators
-    {Actuators::act1Sample, 0},
-    {Actuators::act2Sample, 0},
-    {Actuators::act3Sample, 0},
-    {Actuators::act4Sample, 0},
-    {Actuators::act5Sample, 0},
-    {Actuators::act6Sample, 0},
-    {Actuators::act7Sample, 0}, //#6
+    // {Actuators::act1Sample, 0},
+    // {Actuators::act2Sample, 0},
+    // {Actuators::act3Sample, 0},
+    // {Actuators::act4Sample, 0},
+    // {Actuators::act5Sample, 0},
+    // {Actuators::act6Sample, 0},
+    // {Actuators::act7Sample, 0}, //#6
 
     {Actuators::stopAct1, 0, false}, //#7
     {Actuators::stopAct2, 0, false},
@@ -36,7 +36,7 @@ Task taskTable[] = {
     // {Thermocouples::tc4Sample, 0},
 
     // load cells
-    // {LoadCells::sampleLoadCells, 0},
+    {LoadCells::sampleLoadCells, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -47,13 +47,13 @@ int main() {
     #ifdef DEBUG_MODE
     while(!Serial) {} // wait for user to open serial port (debugging only)
     #endif
-    Actuators::stop1 = &taskTable[7];
-    Actuators::stop2 = &taskTable[8];
-    Actuators::stop3 = &taskTable[9];
-    Actuators::stop4 = &taskTable[10];
-    Actuators::stop5 = &taskTable[11];
-    Actuators::stop6 = &taskTable[12];
-    Actuators::stop7 = &taskTable[13];
+    Actuators::stop1 = &taskTable[0];
+    Actuators::stop2 = &taskTable[1];
+    Actuators::stop3 = &taskTable[2];
+    Actuators::stop4 = &taskTable[3];
+    Actuators::stop5 = &taskTable[4];
+    Actuators::stop6 = &taskTable[5];
+    Actuators::stop7 = &taskTable[6];
 
     DEBUGLN("hullo from AC2");
 
@@ -61,8 +61,9 @@ int main() {
     Comms::initComms();
     DEBUGLN("ethernet started fr");
     Actuators::initActuators(); 
+    DEBUGLN("after init actuators");
     LoadCells::initLoadCells();
-    // Thermocouples::initThermocouples();
+    Thermocouples::initThermocouples();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
