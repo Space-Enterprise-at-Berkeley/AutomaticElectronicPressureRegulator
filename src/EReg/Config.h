@@ -21,7 +21,7 @@ namespace Config {
     #define ANTIWINDUP_RANGE_LOWER 150
     #define ANTIWINDUP_RANGE_UPPER 500
 
-    #define OPEN_LOOP_SPEED 200                                                                                                                                                  
+    #define OPEN_LOOP_SPEED 250                                                                                                                                                  
 
     #define OUTER_BUFFER_SIZE 4
     #define INNER_BUFFER_SIZE 4
