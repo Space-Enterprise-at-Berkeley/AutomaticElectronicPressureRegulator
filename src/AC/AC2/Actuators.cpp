@@ -156,6 +156,7 @@ namespace Actuators {
     }
 
     void sampleActuator(Comms::Packet *packet, INA219 *ina, float *voltage, float *current, uint8_t *actState, uint8_t actuatorID) {
+        DEBUGLN("in sample actuator");
         *voltage = ina->readBusVoltage();
         *current = ina->readShuntCurrent();
 
