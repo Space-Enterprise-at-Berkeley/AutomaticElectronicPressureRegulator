@@ -37,7 +37,7 @@ namespace StateMachine {
         float speed = 0;
 
         if (flowTime > Config::loxLead) {
-            pressureSetpoint_ = FlowProfiles::linearRampup(flowTime - Config::loxLead);
+            pressureSetpoint_ = FlowProfiles::constantPressure(flowTime - Config::loxLead);
 
             //Use dynamic PID Constants
             Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);

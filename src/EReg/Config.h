@@ -19,7 +19,7 @@ namespace Config {
     #define MAX_ANGLE 500                                                    
     #define MIN_ANGLE 0
     #define ANTIWINDUP_RANGE_LOWER 150
-    #define ANTIWINDUP_RANGE_UPPER 400
+    #define ANTIWINDUP_RANGE_UPPER 500
 
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
