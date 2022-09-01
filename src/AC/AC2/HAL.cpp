@@ -37,15 +37,15 @@ namespace HAL {
         SPI1.begin();
 
         // MAX31855 TC amps (cs)
-        // tcAmp0.init(&SPI1, 8);
-        // tcAmp1.init(&SPI1, 9);
-        // tcAmp2.init(&SPI1, 10);
-        // tcAmp3.init(&SPI1, 13);
-        // tcAmp4.init(&SPI1, 20);
+        tcAmp0.init(&SPI1, 8);
+        tcAmp1.init(&SPI1, 9);
+        tcAmp2.init(&SPI1, 10);
+        tcAmp3.init(&SPI1, 13);
+        tcAmp4.init(&SPI1, 20);
 
         // HX711 load cell amps (data out, clk)
-        // lcAmp0.init(40, 39);
-        // lcAmp1.init(35, 34);
+        lcAmp0.init(40, 39);
+        lcAmp1.init(35, 34);
 
         // initChannel(&chan4, &Wire, 0x44);
         // initChannel(&chan5, &Wire, 0x45);

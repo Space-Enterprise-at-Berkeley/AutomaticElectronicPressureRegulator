@@ -36,7 +36,7 @@ Task taskTable[] = {
     // {Thermocouples::tc4Sample, 0},
 
     // load cells
-    // {LoadCells::sampleLoadCells, 0},
+    {LoadCells::sampleLoadCells, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -62,8 +62,8 @@ int main() {
     DEBUGLN("ethernet started fr");
     Actuators::initActuators(); 
     DEBUGLN("after init actuators");
-    // LoadCells::initLoadCells();
-    // Thermocouples::initThermocouples();
+    LoadCells::initLoadCells();
+    Thermocouples::initThermocouples();
 
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
