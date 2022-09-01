@@ -34,11 +34,11 @@ namespace StateMachine {
         float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
         float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
-        pressureSetpoint_ = FlowProfiles::linearRampup(flowTime);
-
         float speed = 0;
 
         if (flowTime > Config::loxLead) {
+            pressureSetpoint_ = FlowProfiles::linearRampup(flowTime - Config::loxLead);
+
             //Use dynamic PID Constants
             Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
             outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);

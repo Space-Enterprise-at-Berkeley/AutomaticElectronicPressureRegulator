@@ -23,11 +23,11 @@ namespace Config {
 
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
-    #define OUTER_BUFFER_SIZE 5
-    #define INNER_BUFFER_SIZE 5
+    #define OUTER_BUFFER_SIZE 4
+    #define INNER_BUFFER_SIZE 4
     #define DIAGNOSTIC_BUFFER_SIZE 5
 
-    const unsigned long telemetryInterval = 4 * 1000UL; // time in microseconds between telemetry packets
+    const unsigned long telemetryInterval = 5 * 1000UL; // time in microseconds between telemetry packets
     const unsigned long telemetryIntervalIdle = 100 * 1000UL; // time in microseconds between telemetry packets
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
@@ -50,6 +50,6 @@ namespace Config {
 
     // Abort Thresholds
     const float abortPressureThresh = 750; // transition to idleClosed if prop tank exceeds this
-    const float stopDiagnosticPressureThresh = 100; // diagnostic terminates if either tank exceeds this
+    const float stopDiagnosticPressureThresh = 200; // diagnostic terminates if either tank exceeds this
 
 }
