@@ -95,8 +95,7 @@ namespace Automation {
 
                 return 1.5 * 1e6; //delay by 1.5 seconds
             case 3: //check igniter trigger and breakwire to open arming valve
-                if ((igniterTriggered || !igniterEnabled)
-                        && (breakwireBroken || !breakwireEnabled)) {
+                if (breakwireBroken || !breakwireEnabled) {
                     Actuators::extendAct4(); //two way
                     sendFlowStatus(STATE_ARMED_VALVES);
                     step++;
