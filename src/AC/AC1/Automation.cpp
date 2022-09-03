@@ -65,16 +65,7 @@ namespace Automation {
         // DEBUG(step);
         // DEBUG("\n");
         switch(step) {
-            case 0: //close all valves in preperation for flow
-                Actuators::extendAct1(); //fuel tank vent rbv
-                Actuators::extendAct2(); //lox tank vent rbv
-                Actuators::retractAct6(); //fuel gems
-                Actuators::retractAct7(); //lox gems
-                sendFlowStatus(STATE_FLOW_PREPARATION);
-                step++;
-
-                return 4 * 1e6; // delay 4 seconds
-            case 1: // enable and start igniter
+            case 0: // enable and start igniter
                 if(Toggles::breakWireVoltage > breakWireThreshold || !breakwireEnabled) {
                     Actuators::extendAct3(); //igniter enable
                     Toggles::startIgniter();
@@ -87,14 +78,14 @@ namespace Automation {
                     beginAbortFlow();
                     return 0;
                 }
-            case 2: // turn off igniter
+            case 1: // turn off igniter
                 Actuators::retractAct3();
                 Toggles::stopIgniter();
                 sendFlowStatus(STATE_IGNITER_ACTIVATED);
                 step++;
 
                 return 1.5 * 1e6; //delay by 1.5 seconds
-            case 3: //check igniter trigger and breakwire to open arming valve
+            case 2: //check igniter trigger and breakwire to open arming valve
                 if (breakwireBroken || !breakwireEnabled) {
                     Actuators::extendAct4(); //two way
                     sendFlowStatus(STATE_ARMED_VALVES);
@@ -106,7 +97,7 @@ namespace Automation {
                     beginAbortFlow();
                     return 0;
                 }
-            case 4: // start ereg flow
+            case 3: // start ereg flow
                 if (Actuators::act4Current > twoWayCurrentThreshold) {
                     EReg::startFlow();
                     sendFlowStatus(STATE_START_FLOW);
@@ -118,7 +109,7 @@ namespace Automation {
                     beginAbortFlow();
                     return 0;
                 }
-            case 5: // end config
+            case 4: // end config
                 Actuators::retractAct4(); //two way
                 sendFlowStatus(STATE_DISABLE_ARMING_VALVE);
                 step++;
