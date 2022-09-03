@@ -8,14 +8,14 @@
 
 namespace Automation {
 
-    const float autoVentUpperThreshold = 700; //TODO actual value 650 - 620
-    const float autoVentLowerThreshold = 650;
+    const float autoVentUpperThreshold = 750; //TODO actual value 650 - 620
+    const float autoVentLowerThreshold = 700;
 
     const float igniterTriggerThreshold = 0.06;
     const float breakWireThreshold = 20;
     const float twoWayCurrentThreshold = 0.2;
 
-    const long burnTime = 35 * 1e6;
+    const long burnTime = 5 * 1e6;
 
     extern bool igniterEnabled;
     extern bool breakwireEnabled;
