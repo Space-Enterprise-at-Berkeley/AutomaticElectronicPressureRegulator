@@ -33,7 +33,7 @@ namespace Config {
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
     // flow duration
-    const unsigned long flowDuration = 35UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
+    const unsigned long flowDuration = 5UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
 
     // Pressurization Parameters

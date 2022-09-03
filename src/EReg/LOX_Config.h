@@ -8,7 +8,7 @@ namespace Config {
     const double p_inner = 11, i_inner = 3.5e-6, d_inner = 0.10;
 
     // Flow Parameters
-    const float pressureSetpoint = 340;
+    const float pressureSetpoint = 600;
     const unsigned long loxLead = 0; //time in milliseconds
 
     const float LOW_PT_C = 0.96;
