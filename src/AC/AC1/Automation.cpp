@@ -150,11 +150,11 @@ namespace Automation {
         // DEBUG("\n");
         switch(step) {
             case 0: // deactivate igniter and vent pneumatics and tanks
+                EReg::abort();
                 Actuators::retractAct1(); //open all vents
                 Actuators::retractAct2();
                 Actuators::extendAct6();
                 Actuators::extendAct7();
-                EReg::abort();
                 step++;
                 return 100 * 1e3; //TODO - just changed this from 100uS to 100mS - is there anywhere else this needs to be modified? 
                                             //changed so we have a bigger buffer of the 2way to close mainvalves, and nothing time critical seems
