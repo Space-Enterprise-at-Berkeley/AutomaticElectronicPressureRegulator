@@ -27,14 +27,16 @@ void ERegBoard::sendSerial(Comms::Packet *packet) {
     packet->checksum[0] = checksum & 0xFF;
     packet->checksum[1] = checksum >> 8;
 
-    serial_->write(packet->id);
-    serial_->write(packet->len);
-    serial_->write(packet->timestamp, 4);
-    serial_->write(packet->checksum, 2);
-    serial_->write(packet->data, packet->len);
-    serial_->write(0x68);
-    serial_->write(0x69);
-    serial_->write(0x70);
+    for (int i = 0; i < 3; i++) {
+        serial_->write(packet->id);
+        serial_->write(packet->len);
+        serial_->write(packet->timestamp, 4);
+        serial_->write(packet->checksum, 2);
+        serial_->write(packet->data, packet->len);
+        serial_->write(0x68);
+        serial_->write(0x69);
+        serial_->write(0x70);
+    }
 }
 
 Comms::Packet *ERegBoard::receiveSerial() {
