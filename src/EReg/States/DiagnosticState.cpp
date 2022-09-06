@@ -228,7 +228,7 @@ namespace StateMachine {
                 lastPrint_ = micros();
             }
 
-        } else if (testTime < mockFlowDuration_){
+        } else if (testTime < Config::closeTime * 1000UL + mockFlowDuration_){
             if(!isMockInitialized_) {
                 getFlowState()->init();
                 isMockInitialized_ = true;
