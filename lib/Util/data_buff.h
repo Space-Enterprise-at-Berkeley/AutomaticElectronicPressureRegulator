@@ -26,6 +26,8 @@ class Buffer{
 
     void clear();
 
-    float get_slope();
+    float getSlope();
+
+    float getAverage();
 
 };

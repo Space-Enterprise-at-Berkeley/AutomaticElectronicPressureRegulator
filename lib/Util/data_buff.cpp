@@ -59,7 +59,14 @@ void Buffer::clear() {
     }
 }
 
-float Buffer::get_slope() {
+float Buffer::getSlope() {
     // returns 0 if buffer hasn't been filled
     return is_full ? slope : 0;
+}
+
+float Buffer::getAverage() {
+    if (!is_full && curr_i == 0) { // buffer is completely empty
+        return 0;
+    }
+    return is_full ? y_avg : (y_avg * n) / curr_i;
 }
