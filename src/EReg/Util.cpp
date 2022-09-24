@@ -1,8 +1,4 @@
 #include "Util.h"
-#include <Arduino.h>
-#include "HAL.h"
-#include "Config.h"
-#include <Encoder.h>
 
 namespace Util {
 
@@ -21,16 +17,11 @@ namespace Util {
         PIDController::standard, 
         INNER_BUFFER_SIZE);
 
-    Encoder encoder(HAL::enc1, HAL::enc2);
-
     PIDController* getInnerController() {
         return &innerController;
     }
     PIDController* getOuterController() {
         return &outerController;
-    }
-    Encoder* getEncoder() {
-        return &encoder;
     }
 
     /**

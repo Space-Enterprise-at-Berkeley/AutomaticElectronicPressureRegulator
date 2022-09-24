@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <data_buff.h>
 #include <PIDController.h>
-#include <Encoder.h>
 #include <TimeUtil.h>
 #include "EReg/StateMachine.h"
 #include "EReg/Packets.h"
@@ -15,7 +14,6 @@ namespace StateMachine {
 
     class DiagnosticState {
         private:
-        Encoder *encoder_ = Util::getEncoder();
         PIDController *innerController_ = Util::getInnerController();
         Buffer *highPressureAbortBuffer_;
         Buffer *lowPressureAbortBuffer_;

@@ -29,10 +29,11 @@ namespace StateMachine {
      * Transmit telemetry
      */
     void IdleClosedState::update() {
-        float motorAngle = encoder_->read();
-        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount()
+;
+        float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
+        float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
+        float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
 
         //Compute Inner PID Servo loop
         float speed = 0;

@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <data_buff.h>
 #include <PIDController.h>
-#include <Encoder.h>
 #include "HAL.h"
 #include "Util.h"
 #include "Packets.h"

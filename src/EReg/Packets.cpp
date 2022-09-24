@@ -61,17 +61,6 @@ namespace Packets {
      * - inner control loop k_d
      */
     void sendConfig() {
-        #ifdef DEBUG_MODE
-        DEBUG(pressureSetpoint); 
-        DEBUG("\tOuter PID: ");
-        DEBUG(p_outer_nominal); DEBUG("\t");
-        DEBUG(i_outer_nominal); DEBUG("\t");
-        DEBUG(d_outer_nominal); 
-        DEBUG("\tInner PID: ");
-        DEBUG(p_inner); DEBUG("\t");
-        DEBUG(i_inner); DEBUG("\t");
-        DEBUGLN(d_inner);
-        #else
         Comms::Packet packet = {.id = CONFIG_ID};
         Comms::packetAddFloat(&packet, Config::pressureSetpoint);
         Comms::packetAddFloat(&packet, Config::p_outer_nominal);
@@ -82,7 +71,6 @@ namespace Packets {
         Comms::packetAddFloat(&packet, Config::d_inner);
         Comms::packetAddFloat(&packet, (float) (Config::flowDuration / 1e6));
         Comms::emitPacket(&packet);
-        #endif
     }
 
     /**

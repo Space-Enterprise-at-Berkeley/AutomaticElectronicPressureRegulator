@@ -54,10 +54,11 @@ namespace StateMachine {
 
         // Packets::sendDiagnostic(true, "starting motor dir test");
 
-        float motorAngle = encoder_->read();
-        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount()
+;
+        float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
+        float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
+        float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
         
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         float speed;
@@ -106,10 +107,11 @@ namespace StateMachine {
 
     void DiagnosticState::servoTestUpdate() {
 
-        float motorAngle = encoder_->read();
-        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount()
+;
+        float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
+        float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
+        float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
 
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         
@@ -167,10 +169,11 @@ namespace StateMachine {
             Util::runMotors(-OPEN_LOOP_SPEED);
 
             if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
-                float motorAngle = encoder_->read();
-                float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-                float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-                float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+                float motorAngle = HAL::encoder.getCount()
+;
+                float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
+                float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
+                float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
                 Packets::sendTelemetry(
                     HPpsi,
                     LPpsi,
@@ -209,10 +212,11 @@ namespace StateMachine {
             Util::runMotors(-OPEN_LOOP_SPEED);
 
             if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
-                float motorAngle = encoder_->read();
-                float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-                float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-                float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+                float motorAngle = HAL::encoder.getCount()
+;
+                float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
+                float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
+                float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
                 Packets::sendTelemetry(
                     HPpsi,
                     LPpsi,

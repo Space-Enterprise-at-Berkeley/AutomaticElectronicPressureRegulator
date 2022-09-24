@@ -1,9 +1,19 @@
 #pragma once
 
 #include <PIDController.h>
-#include <Encoder.h>
+#include <Arduino.h>
+#include "HAL.h"
+#include "Config.h"
 
 namespace Util {
+
+    #ifndef min
+    #define min(a,b) (((a) < (b)) ? (a) : (b))
+    #endif
+
+    #ifndef max
+    #define max(a,b) (((a) > (b)) ? (a) : (b))
+    #endif
 
     struct PidConstants {
         double k_p;
@@ -21,5 +31,4 @@ namespace Util {
     
     PIDController* getInnerController();
     PIDController* getOuterController();
-    Encoder* getEncoder();
 }

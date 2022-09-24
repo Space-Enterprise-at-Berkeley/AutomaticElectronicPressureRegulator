@@ -2,24 +2,32 @@
 
 #include <Common.h>
 #include <Arduino.h>
-#include "Config.h"
+#include <Ethernet.h>
+#include <EthernetUdp.h>
+#include <map>
+#include "stdint.h"
 
 namespace Comms {
-    const int numIDs = 7;
-    const unsigned int payloadSize = 256;
-    const unsigned int buf_size = 2 * payloadSize;
+
+    const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+
+    extern EthernetUDP Udp;
+    const int port = 42069;
+    const IPAddress ip(10, 0, 0, IP_ADDRESS_END);
+    const IPAddress groundStation1(10, 0, 0, 69);
+    const IPAddress groundStation2(10, 0, 0, 70);
 
     struct Packet {
         uint8_t id;
         uint8_t len;
         uint8_t timestamp[4];
         uint8_t checksum[2];
-        uint8_t data[payloadSize];
+        uint8_t data[256];
     };
 
     void initComms();
 
-    typedef void (*commFunction)(Packet);
+    typedef void (*commFunction)(Packet, uint8_t);
 
     /**
      * @brief Registers methods to be called when Comms receives a packet with a specific ID.
@@ -53,6 +61,14 @@ namespace Comms {
      * @param packet The packet in which the data is stored.
      */
     void emitPacket(Packet *packet);
+
+    /**
+     * @brief Sends the packet to arbitrary address
+     * 
+     * @param packet Packet to be sent.
+     * @param custom IP address to send to
+     */
+    void emitPacket(Packet *packet, uint8_t end);
 
     uint16_t computePacketChecksum(Packet *packet);
 };

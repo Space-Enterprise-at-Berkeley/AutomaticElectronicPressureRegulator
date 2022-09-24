@@ -2,21 +2,20 @@
 
 namespace Comms {
 
-    
-    #ifdef DEBUG_MODE
-    String inString_ = "";
-    #endif
-
-    commFunction callbackMap[numIDs] = {};
-    char packetBuffer[buf_size];
-    unsigned int bufferIndex = 0;
+    std::map<uint8_t, commFunction> callbackMap;
+    EthernetUDP Udp;
+    char packetBuffer[sizeof(Packet)];
 
     void initComms() {
-        SERIAL_COMMS.begin(500000);
+        Serial.begin(115200);
+        Ethernet.init(13);
+        Ethernet.begin((uint8_t *)mac, ip);
+        Udp.begin(port);
+        DEBUGLN("Ethernet Initialized");
     }
 
     void registerCallback(uint8_t id, commFunction function) {
-        callbackMap[id] = function;
+        callbackMap.insert(std::pair<int, commFunction>(id, function));
     }
 
     /**
@@ -24,57 +23,49 @@ namespace Comms {
      * 
      * @param packet Packet to be processed.
      */
-    void evokeCallbackFunction(Packet *packet) {
+    void evokeCallbackFunction(Packet *packet, uint8_t ip) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
         if (checksum == computePacketChecksum(packet)) {
-            if(packet->id < numIDs) {
-                callbackMap[packet->id](*packet);
+            DEBUG("Packet with ID ");
+            DEBUG(packet->id);
+            DEBUG(" has correct checksum!\n");
+            //try to access function, checking for out of range exception
+            if(callbackMap.count(packet->id)) {
+                callbackMap.at(packet->id)(*packet, ip);
+            } else {
+                DEBUG("ID ");
+                DEBUG(packet->id);
+                DEBUG(" does not have a registered callback function.\n");
             }
+        } else {
+            DEBUG("Packet with ID ");
+            DEBUG(packet->id);
+            DEBUG(" does not have correct checksum!\n");
         }
     }
 
     void processWaitingPackets() {
-        #ifdef DEBUG_MODE
-        while (SERIAL_COMMS.available()) {
-            int inChar = SERIAL_COMMS.read();
-            if (isDigit(inChar) || inChar=='-') {
-                inString_ += (char)inChar;
+        if(Udp.parsePacket()) {
+            if(Udp.remotePort() != port) return; // make sure this packet is for the right port
+            Udp.read(packetBuffer, sizeof(Packet));
+
+            Packet *packet = (Packet *)&packetBuffer;
+            DEBUG("Got unverified packet with ID ");
+            DEBUG(packet->id);
+            DEBUG('\n');
+            evokeCallbackFunction(packet, Udp.remoteIP()[3]);
+        } else if(Serial.available()) {
+            int cnt = 0;
+            while(Serial.available() && cnt < sizeof(Packet)) {
+                packetBuffer[cnt] = Serial.read();
+                cnt++;
             }
-            if (inChar == '\n') {
-                Packet packet = {.id = inString_.toInt()};
-                uint16_t checksum = computePacketChecksum(&packet);
-                packet.checksum[0] = checksum & 0xFF;
-                packet.checksum[1] = checksum >> 8;
-                inString_ = "";
-                DEBUG("Mocking inbound packet with id ");
-                DEBUGLN(packet.id);
-                evokeCallbackFunction(&packet);
-                return;
-            }
+            Packet *packet = (Packet *)&packetBuffer;
+            DEBUG("Got unverified packet with ID ");
+            DEBUG(packet->id);
+            DEBUG('\n');
+            evokeCallbackFunction(packet, Udp.remoteIP()[3]);
         }
-        #else
-        while(SERIAL_COMMS.available()) {
-            packetBuffer[bufferIndex] = SERIAL_COMMS.read();
-            bufferIndex = (bufferIndex + 1U) % buf_size;
-            unsigned int lastWrittenIndex = bufferIndex - 1U;
-            if (
-                (lastWrittenIndex >= 3U) && 
-                (packetBuffer[lastWrittenIndex] == 0x70) &&
-                (packetBuffer[lastWrittenIndex - 1] == 0x69) &&
-                (packetBuffer[lastWrittenIndex - 2] == 0x68)
-            ) {
-                Packet *packet = (Packet *)&packetBuffer;
-                bufferIndex = 0U;
-                DEBUG("packet id: ");
-                DEBUG(packet->id);
-                DEBUG("\tlen: ");
-                DEBUG(packet->len);
-                DEBUG(" \tcheck: ");
-                DEBUGLN(packet->checksum[0]);
-                evokeCallbackFunction(packet);
-            }
-        }
-        #endif
     }
 
     void packetAddFloat(Packet *packet, float value) {
@@ -149,12 +140,72 @@ namespace Comms {
         packet->checksum[0] = checksum & 0xFF;
         packet->checksum[1] = checksum >> 8;
 
-        SERIAL_COMMS.write(packet->id);
-        SERIAL_COMMS.write(packet->len);
-        SERIAL_COMMS.write(packet->timestamp, 4);
-        SERIAL_COMMS.write(packet->checksum, 2);
-        SERIAL_COMMS.write(packet->data, packet->len);
-        SERIAL_COMMS.write("\n");
+        // // Send over serial, but disable if in debug mode
+        // #ifndef DEBUG_MODE
+        // Serial.write(packet->id);
+        // Serial.write(packet->len);
+        // Serial.write(packet->timestamp, 4);
+        // Serial.write(packet->checksum, 2);
+        // Serial.write(packet->data, packet->len);
+        // Serial.write('\n');
+        // #endif
+
+        //Send over ethernet to both ground stations
+        Udp.beginPacket(groundStation1, port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
+
+        Udp.beginPacket(groundStation2, port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
+    }
+
+    void emitPacket(Packet *packet, uint8_t end) {
+        DEBUG(end);
+        DEBUG('\n');
+        //add timestamp to struct
+        uint32_t timestamp = millis();
+        packet->timestamp[0] = timestamp & 0xFF;
+        packet->timestamp[1] = (timestamp >> 8) & 0xFF;
+        packet->timestamp[2] = (timestamp >> 16) & 0xFF;
+        packet->timestamp[3] = (timestamp >> 24) & 0xFF;
+
+        //calculate and append checksum to struct
+        uint16_t checksum = computePacketChecksum(packet);
+        packet->checksum[0] = checksum & 0xFF;
+        packet->checksum[1] = checksum >> 8;
+
+        Udp.beginPacket(IPAddress(10, 0, 0, end), port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
+
+        Udp.beginPacket(groundStation1, port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
+
+        Udp.beginPacket(groundStation2, port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
     }
 
     /**
