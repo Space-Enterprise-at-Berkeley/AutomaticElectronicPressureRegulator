@@ -52,8 +52,14 @@ void actuateMainValve(Comms::Packet packet, uint8_t ip) {
     StateMachine::enterMainValveState(Comms::packetGetUint8(&packet, 0));
 }
 
-void abort(){
-
+void abort(Comms::Packet packet, uint8_t ip){
+    stopFlow(packet, ip);
+    Comms::Packet abortPacket = {.id = 51};
+    
+    Comms::emitPacket(&abortPacket, 123);
+    Comms::emitPacket(&abortPacket, 234);
+    Comms::emitPacket(&abortPacket, 345);
+    Comms::emitPacket(&abortPacket, 456);
 }
 
 void setup() {
@@ -68,8 +74,8 @@ void setup() {
     Comms::registerCallback(4, runDiagnostics);
     Comms::registerCallback(5, zero);
     Comms::registerCallback(6, actuateMainValve);
-    // abort?
-    Comms::registerCallback(51, stopFlow);
+    // abort
+    Comms::registerCallback(51, abort);
     
     Packets::sendConfig();
 }
