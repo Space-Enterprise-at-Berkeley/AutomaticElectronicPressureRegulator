@@ -12,16 +12,15 @@ class ERegBoard {
 
     private:
     uint8_t id_;
-    HardwareSerial *serial_;
     Comms::Packet failPacket_;
     uint32_t EREG_BOARD_BAUD_RATE = 500000;
 
     public:
     char* packetBuffer_;
     int packetBufferCtr_;
-    ERegBoard(HardwareSerial *serial, uint8_t id);
-    void sendSerial(Comms::Packet *packet);
-    Comms::Packet *receiveSerial();
+    uint8_t ip_address
+    ERegBoard(uint8_t ip_address, uint8_t id);
+    void sendEthernet(Comms::Packet *packet, uint8_t ip_address);
     uint8_t getID();
     uint32_t goodPackets_;
     uint32_t cumPackets_;
