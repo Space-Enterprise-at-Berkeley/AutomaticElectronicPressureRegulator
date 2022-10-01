@@ -34,10 +34,12 @@ namespace EReg {
     Comms::Packet fuelFlowStatePacket = {.id = 16};
     Comms::Packet loxFlowStatePacket = {.id = 17};
 
-    ERegBoard fuelBoard(&Serial5, 0);
-    ERegBoard loxBoard(&Serial8, 1);
+    ERegBoard fuelBoard(8080, 0);
+    ERegBoard loxBoard(5000, 1);
+    ERegBoard Board2(8000, 2);
+    ERegBoard Board3(3000, 3);
 
-    ERegBoard *eregBoards[2] = { &fuelBoard, &loxBoard };
+    ERegBoard *eregBoards[4] = { &fuelBoard, &loxBoard, &Board2, &Board3 };
 
     uint32_t lastTime = millis();
 
@@ -193,8 +195,8 @@ namespace EReg {
     }
 
     void startFlow() {
-        eregBoards[0]->sendSerial(&eregStartFlowPacket);
-        eregBoards[1]->sendSerial(&eregStartFlowPacket);
+        for(ERegBoard board : *eregBoards)
+            Comms::emitPacket(&eregAbortPacket, board->ip_address);
     }
 
     void abort() {

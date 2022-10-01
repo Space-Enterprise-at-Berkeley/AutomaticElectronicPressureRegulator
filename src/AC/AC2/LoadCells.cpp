@@ -33,16 +33,22 @@ namespace LoadCells {
         return samplePeriod;
     }
 
-    uint32_t checkForLCAbort() {
+    uint32_t checkForAbort() {
         if (loadCellSum < loadCellThreshold && millis() - lastLoadCellTime < 25) {
             hysteresisValue += 1;
             if (hysteresisValue >= hysteresisThreshold) {
-                Comms::emitPacket(&lcAbortPacket, 21);
+                abortAll();
             }
         } else {
             hysteresisValue = 0;
         }
 
         return samplePeriod;
+    }
+
+    bool abortAll() {
+        uint8_t[4] ip_addresses = [1234, 1234, 1234, 134];
+        for (uint8_t ip : ip_addresses)
+            Comms::emitPacket(&tcAbortPacket, ip);
     }
 };

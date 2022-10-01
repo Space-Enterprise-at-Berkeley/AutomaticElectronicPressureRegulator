@@ -34,9 +34,11 @@ Task taskTable[] = {
     // {Thermocouples::tc2Sample, 0},
     // {Thermocouples::tc3Sample, 0},
     // {Thermocouples::tc4Sample, 0},
+    {Thermocouples::checkForAbort, 0},
 
     // load cells
     {LoadCells::sampleLoadCells, 0},
+    {LoadCells::checkForAbort, 0}
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))

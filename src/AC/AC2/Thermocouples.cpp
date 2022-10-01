@@ -6,7 +6,7 @@ namespace Thermocouples {
 
     uint8_t hysteresisValues[5] = {0};
 
-    Comms::Packet tcAbortPacket = {.id = 30};
+    Comms::Packet tcAbortPacket = {.id = 51};
 
     float tc0Value;
     float tc1Value;
@@ -70,7 +70,7 @@ namespace Thermocouples {
         if (maxThermocoupleValue > thermocoupleAbsoluteThreshold) {
             hysteresisValues[0] += 1;
             if (hysteresisValues[0] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+                abortAll();
             }
         } else {
             hysteresisValues[0] = 0;
@@ -79,7 +79,7 @@ namespace Thermocouples {
         if (tc0Value > thermocoupleThreshold && tc0ROC > thermocoupleRateThreshold) {
             hysteresisValues[1] += 1;
             if (hysteresisValues[1] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+                abortAll();
 
             }
         } else {
@@ -89,7 +89,7 @@ namespace Thermocouples {
         if (tc1Value > thermocoupleThreshold && tc1ROC > thermocoupleRateThreshold) {
             hysteresisValues[2] += 1;
             if (hysteresisValues[2] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+                abortAll();
             }
         } else {
             hysteresisValues[2] = 0;
@@ -98,7 +98,7 @@ namespace Thermocouples {
         if (tc2Value > thermocoupleThreshold && tc2ROC > thermocoupleRateThreshold) {
             hysteresisValues[3] += 1;
             if (hysteresisValues[3] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+                abortAll();
             }
         } else {
             hysteresisValues[3] = 0;
@@ -107,13 +107,19 @@ namespace Thermocouples {
         if (tc3Value > thermocoupleThreshold && tc3ROC > thermocoupleRateThreshold) {
             hysteresisValues[4] += 1;
             if (hysteresisValues[4] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+                abortAll();
             }
         } else {
             hysteresisValues[4] = 0;
         }
 
         return tcUpdatePeriod;
+    }
+
+    bool abortAll() {
+        uint8_t[4] ip_addresses = [1234, 1234, 1234, 134];
+        for (uint8_t ip : ip_addresses)
+            Comms::emitPacket(&tcAbortPacket, ip);
     }
 
 };
