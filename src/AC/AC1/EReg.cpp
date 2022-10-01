@@ -195,7 +195,7 @@ namespace EReg {
     }
 
     void startFlow() {
-        for(ERegBoard board : *eregBoards)
+        for(ERegBoard &board : *eregBoards)
             Comms::emitPacket(&eregAbortPacket, board->ip_address);
     }
 
