@@ -34,12 +34,12 @@ namespace EReg {
     Comms::Packet fuelFlowStatePacket = {.id = 16};
     Comms::Packet loxFlowStatePacket = {.id = 17};
 
-    ERegBoard fuelBoard(8080, 0);
-    ERegBoard loxBoard(5000, 1);
-    ERegBoard Board2(8000, 2);
-    ERegBoard Board3(3000, 3);
+    ERegBoard fuelInjectorBoard(31, 0);
+    ERegBoard loxInjectorBoard(32, 1);
+    ERegBoard fuelTankBoard(33, 2);
+    ERegBoard loxTankBoard(34, 3);
 
-    ERegBoard *eregBoards[4] = { &fuelBoard, &loxBoard, &Board2, &Board3 };
+    ERegBoard *eregBoards[4] = { &fuelTankBoard, &loxTankBoard, &fuelInjectorBoard, &loxInjectorBoard };
 
     uint32_t lastTime = millis();
 
@@ -60,6 +60,8 @@ namespace EReg {
         registerEregCallback(12, interpretDiagnosticTelemetry);
         registerEregCallback(13, interpretCommandFailTelemetry);
         registerEregCallback(14, interpretFlowStateTelemetry);
+
+        registerEregCallback(51, abort);
 
         Comms::registerCallback(21, resetEreg);
     }
@@ -196,13 +198,12 @@ namespace EReg {
 
     void startFlow() {
         for(ERegBoard &board : *eregBoards)
-            Comms::emitPacket(&eregAbortPacket, board->ip_address);
+            Comms::emitPacket(&eregStartFlowPacket, board->ip_address);
+        Comms::emitPacket(&eregStartFlowPacket, 22);
     }
 
     void abort() {
-        //TODO implement individual aborts?
-        fuelBoard.sendSerial(&eregAbortPacket);
-        loxBoard.sendSerial(&eregAbortPacket);
+        Comms::emitPacket(&eregStartFlowPacket, board->ip_address);
     }
 
     void resetEreg(Comms::Packet tmp, uint8_t ip) {

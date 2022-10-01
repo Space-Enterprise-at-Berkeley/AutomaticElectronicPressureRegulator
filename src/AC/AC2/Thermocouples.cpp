@@ -6,7 +6,7 @@ namespace Thermocouples {
 
     uint8_t hysteresisValues[5] = {0};
 
-    Comms::Packet tcAbortPacket = {.id = 51};
+    Comms::Packet abortPacket = {.id = 1};
 
     float tc0Value;
     float tc1Value;
@@ -117,9 +117,8 @@ namespace Thermocouples {
     }
 
     bool abortAll() {
-        uint8_t[4] ip_addresses = [1234, 1234, 1234, 134];
+        uint8_t[4] ip_addresses = [31, 32, 33, 34];
         for (uint8_t ip : ip_addresses)
-            Comms::emitPacket(&tcAbortPacket, ip);
+            Comms::emitPacket(&abortPacket, ip);
     }
-
 };
