@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <Arduino.h>
-#include <Wire.h>
 #include <ADS1X15.h>
 #include <ESP32Encoder.h>
 

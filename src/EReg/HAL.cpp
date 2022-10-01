@@ -15,6 +15,7 @@ namespace HAL {
         pinMode(enc1, INPUT);
         pinMode(enc2, INPUT);
 
+        Wire.begin(5, 32);
         adc.begin();
         encoder.attachHalfQuad(enc1, enc2);
     }
