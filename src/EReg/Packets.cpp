@@ -121,7 +121,7 @@ namespace Packets {
     /**
      * Sends an abort command to all 4 ESPs
      */
-    void sendAbortCommand() {
+    void broadcastAbort() {
         Comms::Packet packet = {.id = ABORT_ID};
         packet.len = 0;
 

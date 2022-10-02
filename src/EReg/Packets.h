@@ -27,5 +27,5 @@ namespace Packets {
     void sendDiagnostic(uint8_t motorDirPass, uint8_t servoPass);
     void sendStateTransitionError(uint8_t errorCode);
     void sendFlowState(uint8_t flowState);
-    void sendAbortCommand();
+    void broadcastAbort();
 }

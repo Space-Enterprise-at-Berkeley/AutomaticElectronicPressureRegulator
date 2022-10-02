@@ -91,7 +91,7 @@ namespace StateMachine {
     void checkAbortPressure(float currentPressure, float abortPressure) {
         if (currentPressure > abortPressure) {
             Packets::sendFlowState(0);
-            Packets::sendAbortCommand();
+            Packets::broadcastAbort();
             StateMachine::enterIdleClosedState();
         }
     }
