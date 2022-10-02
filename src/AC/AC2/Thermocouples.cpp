@@ -79,12 +79,12 @@ namespace Thermocouples {
             hysteresisValues[0] = 0;
         }
 
-        bool tcOThresholdsPassed = tc0Value > thermocoupleThreshold && tc0ROC > thermocoupleRateThreshold;
+        bool tc0ThresholdsPassed = tc0Value > thermocoupleThreshold && tc0ROC > thermocoupleRateThreshold;
         bool tc1ThresholdsPassed = tc1Value > thermocoupleThreshold && tc1ROC > thermocoupleRateThreshold;
         bool tc2ThresholdsPassed = tc2Value > thermocoupleThreshold && tc2ROC > thermocoupleRateThreshold;
         bool tc3ThresholdsPassed = tc3Value > thermocoupleThreshold && tc3ROC > thermocoupleRateThreshold;
 
-        int thresholdsPassed[] = {tcOThresholdsPassed, tc1ThresholdsPassed, tc2ThresholdsPassed, tc3ThresholdsPassed};
+        int thresholdsPassed[] = {tc0ThresholdsPassed, tc1ThresholdsPassed, tc2ThresholdsPassed, tc3ThresholdsPassed};
 
         for(int i = 0; i < 4; i++){
             if(thresholdsPassed[i]){
@@ -103,10 +103,10 @@ namespace Thermocouples {
 
     void sendTCAbortPackets() {
         Comms::Packet abortMessage = {.id = 1, .len = 0};
-        Comms::emitPacket(&abortMessage, FT_EREG_CHANNEL);
-        Comms::emitPacket(&abortMessage, FI_EREG_CHANNEL);
-        Comms::emitPacket(&abortMessage, AC_EREG_CHANNEL);
-        Comms::emitPacket(&abortMessage, DAQ_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
 };

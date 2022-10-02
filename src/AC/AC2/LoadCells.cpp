@@ -51,10 +51,10 @@ namespace LoadCells {
 
     void sendLCAbortPackets() {
         Comms::Packet abortMessage = {.id = 1, .len = 0};
-        Comms::emitPacket(&abortMessage, FT_EREG_CHANNEL);
-        Comms::emitPacket(&abortMessage, FI_EREG_CHANNEL);
-        Comms::emitPacket(&abortMessage, AC_EREG_CHANNEL);
-        Comms::emitPacket(&abortMessage, DAQ_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
 };
