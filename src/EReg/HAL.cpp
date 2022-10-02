@@ -26,6 +26,6 @@ namespace HAL {
         adc.begin(0x48, &Wire);
 
         adc.setDataRate(RATE_ADS1115_860SPS);
-        encoder.attachHalfQuad(enc1, enc2);
+        encoder.attachFullQuad(enc1, enc2);
     }
 }

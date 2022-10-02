@@ -17,7 +17,7 @@ ERegBoard::ERegBoard(uint8_t ip_address, uint8_t id) {
 }
 
 void ERegBoard::sendEthernet(Comms::Packet *packet, uint8_t ip) {
-    Comms::emitPacket(&packet, ip);
+    Comms::emitPacket(packet, ip);
 }
 
 uint8_t ERegBoard::getID() {

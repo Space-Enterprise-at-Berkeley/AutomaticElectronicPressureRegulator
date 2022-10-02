@@ -5,7 +5,6 @@ namespace StateMachine {
     State currentState = IDLE_CLOSED;
     ValveAction currentMainValveState = MAIN_VALVE_CLOSE;
 
-    Comms::Packet generalAbortPacket = { .id = HAL::generalAbortID };
     Comms::Packet eregAbortPacket = { .id = HAL::eregAbortID };
 
     void enterFlowState() {
@@ -95,13 +94,15 @@ namespace StateMachine {
         if (currentPressure > abortPressure) {
             Packets::sendFlowState(0);
 
-            Comms::emitPacket(&generalAbortPacket, HAL::daqEndIp);
-            Comms::emitPacket(&generalAbortPacket);
+            Comms::emitPacket(&eregAbortPacket, HAL::daqEndIp);
+            Comms::emitPacket(&eregAbortPacket), HAL::acEndIp;
 
             Comms::emitPacket(&eregAbortPacket, HAL::fuelInjectorEndIp);
             Comms::emitPacket(&eregAbortPacket, HAL::fuelTankEndIp);
             Comms::emitPacket(&eregAbortPacket, HAL::loxInjectorEndIp);
             Comms::emitPacket(&eregAbortPacket, HAL::loxFuelEndIp);
+
+            Comms::emitPacket(&eregAbortPacket);
 
             StateMachine::enterIdleClosedState();
         }

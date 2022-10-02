@@ -70,7 +70,6 @@ void setup() {
     Packets::sendConfig();
 }
 
-
 void loop() {
     Comms::processWaitingPackets();
 
