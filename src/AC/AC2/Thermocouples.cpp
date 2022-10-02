@@ -26,6 +26,8 @@ namespace Thermocouples {
     float tc3ROCValues[10] = {0};
     float tc4ROCValues[10] = {0};
 
+    Task *abortTC;
+
     void initThermocouples() {
     }
 
@@ -71,49 +73,40 @@ namespace Thermocouples {
             hysteresisValues[0] += 1;
             if (hysteresisValues[0] >= hysteresisThreshold) {
                 Comms::emitPacket(&tcAbortPacket, 21);
+                sendTCAbortPackets();
             }
         } else {
             hysteresisValues[0] = 0;
         }
 
-        if (tc0Value > thermocoupleThreshold && tc0ROC > thermocoupleRateThreshold) {
-            hysteresisValues[1] += 1;
-            if (hysteresisValues[1] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+        bool tc0ThresholdsPassed = tc0Value > thermocoupleThreshold && tc0ROC > thermocoupleRateThreshold;
+        bool tc1ThresholdsPassed = tc1Value > thermocoupleThreshold && tc1ROC > thermocoupleRateThreshold;
+        bool tc2ThresholdsPassed = tc2Value > thermocoupleThreshold && tc2ROC > thermocoupleRateThreshold;
+        bool tc3ThresholdsPassed = tc3Value > thermocoupleThreshold && tc3ROC > thermocoupleRateThreshold;
 
-            }
-        } else {
-            hysteresisValues[1] = 0;
-        }
+        int thresholdsPassed[] = {tc0ThresholdsPassed, tc1ThresholdsPassed, tc2ThresholdsPassed, tc3ThresholdsPassed};
 
-        if (tc1Value > thermocoupleThreshold && tc1ROC > thermocoupleRateThreshold) {
-            hysteresisValues[2] += 1;
-            if (hysteresisValues[2] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
+        for(int i = 0; i < 4; i++){
+            if(thresholdsPassed[i]){
+                hysteresisValues[i + 1] += 1;
+                if (hysteresisValues[i + 1] >= hysteresisThreshold) {
+                    Comms::emitPacket(&tcAbortPacket, 21);
+                    sendTCAbortPackets();
+                }
+            } else {
+                hysteresisValues[i + 1] = 0;
             }
-        } else {
-            hysteresisValues[2] = 0;
-        }
-
-        if (tc2Value > thermocoupleThreshold && tc2ROC > thermocoupleRateThreshold) {
-            hysteresisValues[3] += 1;
-            if (hysteresisValues[3] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
-            }
-        } else {
-            hysteresisValues[3] = 0;
-        }
-
-        if (tc3Value > thermocoupleThreshold && tc3ROC > thermocoupleRateThreshold) {
-            hysteresisValues[4] += 1;
-            if (hysteresisValues[4] >= hysteresisThreshold) {
-                Comms::emitPacket(&tcAbortPacket, 21);
-            }
-        } else {
-            hysteresisValues[4] = 0;
         }
 
         return tcUpdatePeriod;
+    }
+
+    void sendTCAbortPackets() {
+        Comms::Packet abortMessage = {.id = 1, .len = 0};
+        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
 };

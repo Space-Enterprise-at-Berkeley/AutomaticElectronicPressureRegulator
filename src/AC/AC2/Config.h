@@ -1,0 +1,6 @@
+#define FUEL_TANK_EREG_ADDR 25
+#define FUEL_INJECTOR_EREG_ADDR 27
+#define AC_EREG_ADDR 21
+#define DAQ_EREG_ADDR 22
+
+

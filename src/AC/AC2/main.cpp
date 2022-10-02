@@ -27,6 +27,8 @@ Task taskTable[] = {
     {Actuators::stopAct5, 0, false},
     {Actuators::stopAct6, 0, false},
     {Actuators::stopAct7, 0, false}, //#13
+    {Thermocouples::checkForAbort, 0, true},
+    {LoadCells::checkForLCAbort, 0, true},
 
     // thermocouples
     // {Thermocouples::tc0Sample, 0},
@@ -54,6 +56,8 @@ int main() {
     Actuators::stop5 = &taskTable[4];
     Actuators::stop6 = &taskTable[5];
     Actuators::stop7 = &taskTable[6];
+    Thermocouples::abortTC = &taskTable[7];
+    LoadCells::abortLC = &taskTable[8];
 
     DEBUGLN("hullo from AC2");
 
@@ -68,9 +72,9 @@ int main() {
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
         for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
-        if (taskTable[i].enabled && taskTable[i].nexttime - ticks > UINT32_MAX / 2) {
-            taskTable[i].nexttime = ticks + taskTable[i].taskCall();
-        }
+            if (taskTable[i].enabled && taskTable[i].nexttime - ticks > UINT32_MAX / 2) {
+                taskTable[i].nexttime = ticks + taskTable[i].taskCall();
+            }
         }
         Comms::processWaitingPackets();
     }

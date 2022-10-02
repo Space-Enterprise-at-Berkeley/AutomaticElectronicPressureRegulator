@@ -3,6 +3,7 @@
 #include "../Comms.h"
 
 #include <Arduino.h>
+#include "Config.h"
 
 namespace Thermocouples {
     extern uint32_t tcUpdatePeriod;
@@ -19,6 +20,8 @@ namespace Thermocouples {
     extern float tc3ROC;
     extern float tc4ROC;
 
+    extern Task *abortTC;
+
     const float thermocoupleAbsoluteThreshold = 200;
     const float thermocoupleThreshold = 150;
     const float thermocoupleRateThreshold = 20;
@@ -33,4 +36,5 @@ namespace Thermocouples {
     uint32_t tc3Sample();
     uint32_t tc4Sample();
     uint32_t checkForAbort();
+    void sendTCAbortPackets(); 
 };
