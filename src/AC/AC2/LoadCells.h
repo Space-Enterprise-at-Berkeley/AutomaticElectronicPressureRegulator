@@ -20,5 +20,5 @@ namespace LoadCells {
     void initLoadCells();
 
     uint32_t sampleLoadCells();
-    uint32_t checkForAbort();
+    uint32_t checkForLCAbort();
 };

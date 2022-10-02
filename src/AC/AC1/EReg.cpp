@@ -8,11 +8,11 @@ namespace EReg {
 
     std::map<uint8_t, Comms::commFunction> eregCallbackMap;
 
-    Comms::Packet generalAbortPacket = { .id = 51 };
-    Comms::Packet generalStartFlowPacket = { .id = 52 };
+    Comms::Packet generalAbortPacket = { .id = HAL::generalAbortID };
+    Comms::Packet generalStartFlowPacket = { .id = HAL::generalStartFlowID };
 
-    Comms::Packet eregStartFlowPacket = {.id = 0};
-    Comms::Packet eregAbortPacket = {.id = 1};
+    Comms::Packet eregStartFlowPacket = {.id = HAL::eregStartFlowID};
+    Comms::Packet eregAbortPacket = {.id = HAL::eregAbortID};
     Comms::Packet eregSetEncoderPositionPacket = {.id = 2};
     Comms::Packet eregPressurizeStaticPacket = {.id = 3};
     Comms::Packet eregRunDiagnosticPacket = {.id = 4};
@@ -37,10 +37,10 @@ namespace EReg {
     Comms::Packet fuelFlowStatePacket = {.id = 16};
     Comms::Packet loxFlowStatePacket = {.id = 17};
 
-    ERegBoard fuelInjectorBoard(31, 0);
-    ERegBoard loxInjectorBoard(32, 1);
-    ERegBoard fuelTankBoard(33, 2);
-    ERegBoard loxTankBoard(34, 3);
+    ERegBoard fuelInjectorBoard(HAL::fuelInjectorEndIp, 0);
+    ERegBoard loxInjectorBoard(HAL::loxInjectorEndIp, 1);
+    ERegBoard fuelTankBoard(HAL::fuelTankEndIp, 2);
+    ERegBoard loxTankBoard(HAL::loxTankEndIp, 3);
 
     ERegBoard *eregBoards[4] = { &fuelTankBoard, &loxTankBoard, &fuelInjectorBoard, &loxInjectorBoard };
 
@@ -202,13 +202,13 @@ namespace EReg {
     void startFlow() {
         for(ERegBoard &board : *eregBoards)
             Comms::emitPacket(&eregStartFlowPacket, (uint8_t) board->ip_address);
-        Comms::emitPacket(&generalStartFlowPacket, 22);
+        Comms::emitPacket(&generalStartFlowPacket, HAL::daqEndIp);
     }
 
     void abort() {
         for(ERegBoard &board : *eregBoards)
             Comms::emitPacket(&eregAbortPacket, (uint8_t) board->ip_address);
-        Comms::emitPacket(&generalAbortPacket, 22);
+        Comms::emitPacket(&generalAbortPacket, HAL::daqEndIp);
     }
 
     void resetEreg(Comms::Packet tmp, uint8_t ip) {

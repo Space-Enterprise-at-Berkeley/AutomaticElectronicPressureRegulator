@@ -6,7 +6,7 @@ namespace Thermocouples {
 
     uint8_t hysteresisValues[5] = {0};
 
-    Comms::Packet eregAbortPacket = {.id = 1};
+    Comms::Packet eregAbortPacket = {.id = HAL::eregAbortID};
 
     float tc0Value;
     float tc1Value;
@@ -117,7 +117,7 @@ namespace Thermocouples {
     }
 
     bool abortAll() {
-        uint8_t[4] ip_addresses = [31, 32, 33, 34];
+        uint8_t[4] ip_addresses = [HAL::loxTankEndIp, HAL::loxInjectorEndIp, HAL::fuelTankEndIp, HAL::fuelInjectorEndIp];
         for (uint8_t ip : ip_addresses)
             Comms::emitPacket(&eregAbortPacket, ip);
     }

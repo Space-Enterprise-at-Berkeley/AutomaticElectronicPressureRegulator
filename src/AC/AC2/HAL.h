@@ -65,6 +65,17 @@ namespace HAL {
     const uint8_t ctl24vChan1 = 22;
     const uint8_t ctl24vChan2 = 23;
 
+    const int generalStartFlowID = 52;
+    const int eregStartFlowID = 52;
+    const int generalAbortID = 51;
+    const int eregAbortID = 1;
+    const int daqEndIp = 22;
+    const int acEndIp = 21;
+    const int fuelInjectorEndIp = 31;
+    const int loxInjectorEndIp = 32;
+    const int fuelTankEndIp = 33;
+    const int loxFuelEndIp = 34;
+
     void initHAL();
     
 };

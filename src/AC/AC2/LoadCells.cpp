@@ -6,8 +6,8 @@ namespace LoadCells {
     float loadCellSum;
     float lastLoadCellTime;
 
-    Comms::Packet eregAbortPacket = { .id = 1 };
-    Comms::Packet generalAbortPacket = { .id = 51 };
+    Comms::Packet eregAbortPacket = { .id = HAL::eregAbortID };
+    Comms::Packet generalAbortPacket = { .id = HAL::generalAbortID };
 
     uint8_t hysteresisValue = 0;
 
@@ -34,7 +34,7 @@ namespace LoadCells {
         return samplePeriod;
     }
 
-    uint32_t checkForAbort() {
+    uint32_t checkForLCAbort() {
         if (loadCellSum < loadCellThreshold && millis() - lastLoadCellTime < 25) {
             hysteresisValue += 1;
             if (hysteresisValue >= hysteresisThreshold) {
@@ -48,7 +48,7 @@ namespace LoadCells {
     }
 
     bool abortAll() {
-        uint8_t[4] ip_addresses = [ 31, 32, 33, 34 ];
+        uint8_t[4] ip_addresses = [HAL::loxTankEndIp, HAL::loxInjectorEndIp, HAL::fuelTankEndIp, HAL::fuelInjectorEndIp];
         for (uint8_t ip : ip_addresses)
             Comms::emitPacket(&eregAbortPacket, ip);
     }
