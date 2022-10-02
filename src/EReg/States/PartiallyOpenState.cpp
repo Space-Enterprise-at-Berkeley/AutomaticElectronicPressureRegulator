@@ -26,8 +26,8 @@ namespace StateMachine {
      * Perform single iteration of valve angle servo loop
      */
     void PartiallyOpenState::update() {
-        float motorAngle = HAL::encoder.getCount()
-;
+        float motorAngle = HAL::encoder.getCount();
+
         float HPpsi = Ducers::readHPPT();
         float LPpsi = Ducers::readLPPT();
         float InjectorPT = Ducers::readInjectorPT();

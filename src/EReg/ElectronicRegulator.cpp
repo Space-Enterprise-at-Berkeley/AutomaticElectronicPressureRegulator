@@ -59,24 +59,20 @@ void setup() {
     Ducers::init();
     StateMachine::enterIdleClosedState();
     zero();
-    Comms::registerCallback(0, flow);
-    Comms::registerCallback(1, stopFlow);
-    Comms::registerCallback(2, partialOpen);
-    Comms::registerCallback(3, pressurize);
-    Comms::registerCallback(4, runDiagnostics);
-    Comms::registerCallback(5, zero);
-    Comms::registerCallback(6, actuateMainValve);
+    Comms::registerCallback(200, flow);
+    Comms::registerCallback(201, stopFlow);
+    Comms::registerCallback(202, partialOpen);
+    Comms::registerCallback(203, pressurize);
+    Comms::registerCallback(204, runDiagnostics);
+    Comms::registerCallback(205, zero);
+    Comms::registerCallback(206, actuateMainValve);
     
     Packets::sendConfig();
 }
 
-int count = 0;
 
 void loop() {
     Comms::processWaitingPackets();
-
-    Serial.println(count);
-    count += 1;
 
     switch (StateMachine::getCurrentState()) {
         case StateMachine::IDLE_CLOSED:

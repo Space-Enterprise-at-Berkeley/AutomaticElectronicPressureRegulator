@@ -38,7 +38,6 @@ namespace Packets {
         Comms::Packet packet = {.id = TELEMETRY_ID};
         Comms::packetAddFloat(&packet, highPressure);
         Comms::packetAddFloat(&packet, lowPressure);
-        Comms::packetAddFloat(&packet, injectorPressure);
         Comms::packetAddFloat(&packet, encoderAngle);
         Comms::packetAddFloat(&packet, angleSetpoint);
         Comms::packetAddFloat(&packet, pressureSetpoint);

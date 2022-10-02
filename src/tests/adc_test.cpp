@@ -8,22 +8,28 @@ Adafruit_ADS1115 adc;
 int count;
 
 void setup() {
-    Serial.begin(115200);
-    Wire.begin(5, 32);
-    Wire.setClock(400000);
+    // Serial.begin(115200);
+    // Wire.begin(5, 32);
+    // Wire.setClock(400000);
 
-    adc.begin(0x48, &Wire);
-    adc.setDataRate(RATE_ADS1115_860SPS);
-    adc.startADCReading(0, true);
+    // adc.begin(0x48, &Wire);
+    // adc.setDataRate(RATE_ADS1115_860SPS);
+    // adc.startADCReading(0, true);
+
+    pinMode(2, OUTPUT);
+    pinMode(4, OUTPUT);
 }
 
 void loop() {
-    adc.startADCReading(0, true);
-    Serial.print(count);
-    Serial.print(" : ");
-    Serial.print(adc.getLastConversionResults());
-    adc.startADCReading(1, true);
-    Serial.print(" : ");
-    Serial.println(adc.getLastConversionResults());
-    count ++;
+
+    digitalWrite(2, HIGH);
+    digitalWrite(4, LOW);
+    // adc.startADCReading(0, true);
+    // Serial.print(count);
+    // Serial.print(" : ");
+    // Serial.print(adc.getLastConversionResults());
+    // adc.startADCReading(1, true);
+    // Serial.print(" : ");
+    // Serial.println(adc.getLastConversionResults());
+    // count ++;
 }
