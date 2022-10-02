@@ -6,7 +6,8 @@ namespace LoadCells {
     float loadCellSum;
     float lastLoadCellTime;
 
-    Comms::Packet abortPacket = {.id = 1};
+    Comms::Packet eregAbortPacket = { .id = 1 };
+    Comms::Packet generalAbortPacket = { .id = 51 };
 
     uint8_t hysteresisValue = 0;
 
@@ -49,6 +50,6 @@ namespace LoadCells {
     bool abortAll() {
         uint8_t[4] ip_addresses = [ 31, 32, 33, 34 ];
         for (uint8_t ip : ip_addresses)
-            Comms::emitPacket(&abortPacket, ip);
+            Comms::emitPacket(&eregAbortPacket, ip);
     }
 };

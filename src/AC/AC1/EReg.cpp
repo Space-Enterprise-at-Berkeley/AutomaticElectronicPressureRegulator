@@ -8,6 +8,9 @@ namespace EReg {
 
     std::map<uint8_t, Comms::commFunction> eregCallbackMap;
 
+    Comms::Packet generalAbortPacket = { .id = 51 };
+    Comms::Packet generalStartFlowPacket = { .id = 52 };
+
     Comms::Packet eregStartFlowPacket = {.id = 0};
     Comms::Packet eregAbortPacket = {.id = 1};
     Comms::Packet eregSetEncoderPositionPacket = {.id = 2};
@@ -199,11 +202,13 @@ namespace EReg {
     void startFlow() {
         for(ERegBoard &board : *eregBoards)
             Comms::emitPacket(&eregStartFlowPacket, (uint8_t) board->ip_address);
-        Comms::emitPacket(&eregStartFlowPacket, 22);
+        Comms::emitPacket(&generalStartFlowPacket, 22);
     }
 
     void abort() {
-        Comms::emitPacket(&eregStartFlowPacket, (uint8_t) board->ip_address);
+        for(ERegBoard &board : *eregBoards)
+            Comms::emitPacket(&eregAbortPacket, (uint8_t) board->ip_address);
+        Comms::emitPacket(&generalAbortPacket, 22);
     }
 
     void resetEreg(Comms::Packet tmp, uint8_t ip) {

@@ -94,6 +94,7 @@ namespace StateMachine {
 
             Comms::Packet abortPacket = { .id = 51 };
             Comms::emitPacket(&abortPacket, 21);
+            Comms::emitPacket(&abortPacket);
 
             Comms::Packet eregAbortPacket = { .id = 1 };
             Comms::emitPacket(&eregAbortPacket, 31);
