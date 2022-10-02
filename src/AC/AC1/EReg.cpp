@@ -198,12 +198,12 @@ namespace EReg {
 
     void startFlow() {
         for(ERegBoard &board : *eregBoards)
-            Comms::emitPacket(&eregStartFlowPacket, board->ip_address);
+            Comms::emitPacket(&eregStartFlowPacket, (uint8_t) board->ip_address);
         Comms::emitPacket(&eregStartFlowPacket, 22);
     }
 
     void abort() {
-        Comms::emitPacket(&eregStartFlowPacket, board->ip_address);
+        Comms::emitPacket(&eregStartFlowPacket, (uint8_t) board->ip_address);
     }
 
     void resetEreg(Comms::Packet tmp, uint8_t ip) {

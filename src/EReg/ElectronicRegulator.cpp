@@ -52,11 +52,6 @@ void actuateMainValve(Comms::Packet packet, uint8_t ip) {
     StateMachine::enterMainValveState(Comms::packetGetUint8(&packet, 0));
 }
 
-void abort(Comms::Packet packet, uint8_t ip) {
-    Comms::emitPacket(packet, 1);
-    Comms::emitPacket(packet, 51);
-}
-
 void setup() {
     HAL::init();
     Comms::initComms();
