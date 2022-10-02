@@ -117,4 +117,19 @@ namespace Packets {
         Comms::emitPacket(&packet);
     }
 
+
+    /**
+     * Sends an abort command to all 4 ESPs
+     */
+    void sendAbortCommand() {
+        Comms::Packet packet = {.id = ABORT_ID};
+        packet.len = 0;
+
+        //send to all ESPs including to itself
+        Comms::emitPacket(&packet, ESP_ADDRESS_1);
+        Comms::emitPacket(&packet, ESP_ADDRESS_2);
+        Comms::emitPacket(&packet, ESP_ADDRESS_3);
+        Comms::emitPacket(&packet, ESP_ADDRESS_4);
+    }
+
 }
