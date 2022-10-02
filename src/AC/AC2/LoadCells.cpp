@@ -8,6 +8,9 @@ namespace LoadCells {
 
     Comms::Packet eregAbortPacket = { .id = HAL::eregAbortID };
     Comms::Packet generalAbortPacket = { .id = HAL::generalAbortID };
+    Task *abortLC;
+
+    Comms::Packet lcAbortPacket = {.id = 31};
 
     uint8_t hysteresisValue = 0;
 
@@ -39,6 +42,8 @@ namespace LoadCells {
             hysteresisValue += 1;
             if (hysteresisValue >= hysteresisThreshold) {
                 abortAll();
+                Comms::emitPacket(&lcAbortPacket, 21);
+                sendLCAbortPackets();
             }
         } else {
             hysteresisValue = 0;
@@ -52,4 +57,13 @@ namespace LoadCells {
         for (uint8_t ip : ip_addresses)
             Comms::emitPacket(&eregAbortPacket, ip);
     }
+    
+    void sendLCAbortPackets() {
+        Comms::Packet abortMessage = {.id = 1, .len = 0};
+        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
+    }
+
 };

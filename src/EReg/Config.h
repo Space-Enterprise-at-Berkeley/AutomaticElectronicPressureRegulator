@@ -8,6 +8,11 @@
 
 namespace Config {
 
+    #define ESP_ADDRESS_1 22
+    #define ESP_ADDRESS_2 21
+    #define ESP_ADDRESS_3 32
+    #define ESP_ADDRESS_4 31
+
     #ifdef EVERY
     #define SERIAL_COMMS Serial1
     #else

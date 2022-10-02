@@ -4,11 +4,12 @@
 
 namespace Packets {
 
-    const uint8_t TELEMETRY_ID = 0;
+    const uint8_t ABORT_ID = 0;
+    const uint8_t TELEMETRY_ID = 1;
     const uint8_t CONFIG_ID = 2;
-    const uint8_t DIAGNOSTIC_ID = 12;
-    const uint8_t STATE_TRANSITION_FAIL_ID = 13;
-    const uint8_t FLOW_STATE = 14;
+    const uint8_t DIAGNOSTIC_ID = 3;
+    const uint8_t STATE_TRANSITION_FAIL_ID = 4;
+    const uint8_t FLOW_STATE = 5;
 
     void sendTelemetry(
         float highPressure,
@@ -26,4 +27,5 @@ namespace Packets {
     void sendDiagnostic(uint8_t motorDirPass, uint8_t servoPass);
     void sendStateTransitionError(uint8_t errorCode);
     void sendFlowState(uint8_t flowState);
+    void broadcastAbort();
 }

@@ -2,8 +2,7 @@
 
 #include <stdint.h>
 #include <Arduino.h>
-#include <Wire.h>
-#include <ADS1X15.h>
+#include <Adafruit_ADS1X15.h>
 #include <ESP32Encoder.h>
 
 namespace HAL {
@@ -21,12 +20,11 @@ namespace HAL {
     const int enc1 = 36;
     const int enc2 = 39;
 
-    extern ADS1115 adc;
+    extern Adafruit_ADS1115 adc;
     extern ESP32Encoder encoder;
 
     const uint8_t hpPT = 2;
     const uint8_t lpPT = 1;
-    const uint8_t injectorPT = 0;
 
     const int generalStartFlowID = 52;
     const int eregStartFlowID = 52;
