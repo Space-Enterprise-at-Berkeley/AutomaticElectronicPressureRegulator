@@ -9,7 +9,7 @@
 
 namespace Comms {
 
-    const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+    const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, IP_ADDRESS_END };
 
     extern EthernetUDP Udp;
     const int port = 42069;

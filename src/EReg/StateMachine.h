@@ -7,6 +7,7 @@
 #include "Util.h"
 #include "Packets.h"
 #include "Config.h"
+#include "Ducers.h"
 
 #include "States/DiagnosticState.h"
 #include "States/IdleClosedState.h"

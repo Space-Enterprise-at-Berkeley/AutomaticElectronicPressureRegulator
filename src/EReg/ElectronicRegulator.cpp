@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "StateMachine.h"
 #include "Packets.h"
+#include "Ducers.h"
 
 StateMachine::FlowState *flowState = StateMachine::getFlowState();
 StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedState();
@@ -55,6 +56,7 @@ void actuateMainValve(Comms::Packet packet, uint8_t ip) {
 void setup() {
     HAL::init();
     Comms::initComms();
+    Ducers::init();
     StateMachine::enterIdleClosedState();
     zero();
     Comms::registerCallback(0, flow);
@@ -68,10 +70,13 @@ void setup() {
     Packets::sendConfig();
 }
 
+int count = 0;
+
 void loop() {
-    Serial.println("in loop");
-    delay(100);
     Comms::processWaitingPackets();
+
+    Serial.println(count);
+    count += 1;
 
     switch (StateMachine::getCurrentState()) {
         case StateMachine::IDLE_CLOSED:

@@ -2,7 +2,7 @@
 
 namespace HAL {
 
-    ADS1115 adc(0x48);
+    Adafruit_ADS1115 adc;
     ESP32Encoder encoder;
 
     void init() {
@@ -16,7 +16,10 @@ namespace HAL {
         pinMode(enc2, INPUT);
 
         Wire.begin(5, 32);
-        adc.begin();
+        Wire.setClock(400000);
+        adc.begin(0x48, &Wire);
+
+        adc.setDataRate(RATE_ADS1115_860SPS);
         encoder.attachHalfQuad(enc1, enc2);
     }
 }

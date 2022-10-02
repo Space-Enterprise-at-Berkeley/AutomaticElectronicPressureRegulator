@@ -29,11 +29,11 @@ namespace StateMachine {
      * Transmit telemetry
      */
     void IdleClosedState::update() {
-        float motorAngle = HAL::encoder.getCount()
-;
-        float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount();
+
+        float HPpsi = Ducers::readHPPT();
+        float LPpsi = Ducers::readLPPT();
+        float InjectorPT = Ducers::readInjectorPT(); // TODO remove
 
         //Compute Inner PID Servo loop
         float speed = 0;
@@ -43,7 +43,7 @@ namespace StateMachine {
 
         Util::runMotors(speed);
 
-        //send data to AC
+        // send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryIntervalIdle) {
             Packets::sendTelemetry(
                 HPpsi,

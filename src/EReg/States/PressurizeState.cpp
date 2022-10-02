@@ -24,9 +24,9 @@ namespace StateMachine {
     void PressurizeState::update() {
         float motorAngle = HAL::encoder.getCount()
 ;
-        float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
+        float HPpsi = Ducers::readHPPT();
+        float LPpsi = Ducers::readLPPT();
+        float InjectorPT = Ducers::readInjectorPT();
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
         pressureSetpoint_ = FlowProfiles::pressurizationRamp(flowTime);
 
