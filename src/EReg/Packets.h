@@ -4,6 +4,7 @@
 
 namespace Packets {
 
+    const uint8_t ABORT_ID = 0;
     const uint8_t TELEMETRY_ID = 1;
     const uint8_t CONFIG_ID = 2;
     const uint8_t DIAGNOSTIC_ID = 3;
@@ -26,4 +27,5 @@ namespace Packets {
     void sendDiagnostic(uint8_t motorDirPass, uint8_t servoPass);
     void sendStateTransitionError(uint8_t errorCode);
     void sendFlowState(uint8_t flowState);
+    void broadcastAbort();
 }
