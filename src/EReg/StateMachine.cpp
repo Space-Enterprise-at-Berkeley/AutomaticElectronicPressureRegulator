@@ -92,7 +92,7 @@ namespace StateMachine {
         if (currentPressure > abortPressure) {
             Packets::sendFlowState(0);
 
-            Comms::Packets abortPacket = { .id = 51 };
+            Comms::Packet abortPacket = { .id = 51 };
             Comms::emitPacket(&abortPacket, 21);
 
             Comms::Packet eregAbortPacket = { .id = 1 };
