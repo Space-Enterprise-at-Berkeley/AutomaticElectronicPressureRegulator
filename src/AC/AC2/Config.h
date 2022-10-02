@@ -1,0 +1,6 @@
+#define FT_EREG_CHANNEL 31
+#define FI_EREG_CHANNEL 34
+#define AC_EREG_CHANNEL 21
+#define DAQ_EREG_CHANNEL 22
+
+

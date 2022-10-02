@@ -26,6 +26,8 @@ namespace Thermocouples {
     float tc3ROCValues[10] = {0};
     float tc4ROCValues[10] = {0};
 
+    Task *abortTC;
+
     void initThermocouples() {
     }
 
@@ -71,6 +73,7 @@ namespace Thermocouples {
             hysteresisValues[0] += 1;
             if (hysteresisValues[0] >= hysteresisThreshold) {
                 Comms::emitPacket(&tcAbortPacket, 21);
+                sendTCAbortPackets();
             }
         } else {
             hysteresisValues[0] = 0;
@@ -83,20 +86,27 @@ namespace Thermocouples {
 
         int thresholdsPassed[] = {tcOThresholdsPassed, tc1ThresholdsPassed, tc2ThresholdsPassed, tc3ThresholdsPassed};
 
-        for(i = 0; i < 4; i++){
+        for(int i = 0; i < 4; i++){
             if(thresholdsPassed[i]){
                 hysteresisValues[i + 1] += 1;
                 if (hysteresisValues[i + 1] >= hysteresisThreshold) {
                     Comms::emitPacket(&tcAbortPacket, 21);
+                    sendTCAbortPackets();
                 }
             } else {
                 hysteresisValues[i + 1] = 0;
             }
         }
 
-        //Check for Stuff
-
         return tcUpdatePeriod;
+    }
+
+    void sendTCAbortPackets() {
+        Comms::Packet abortMessage = {.id = 1, .len = 0};
+        Comms::emitPacket(&abortMessage, FT_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, FI_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, AC_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_CHANNEL);
     }
 
 };

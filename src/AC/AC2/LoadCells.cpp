@@ -6,6 +6,8 @@ namespace LoadCells {
     float loadCellSum;
     float lastLoadCellTime;
 
+    Task *abortLC;
+
     Comms::Packet lcAbortPacket = {.id = 31};
 
     uint8_t hysteresisValue = 0;
@@ -38,6 +40,7 @@ namespace LoadCells {
             hysteresisValue += 1;
             if (hysteresisValue >= hysteresisThreshold) {
                 Comms::emitPacket(&lcAbortPacket, 21);
+                sendLCAbortPackets();
             }
         } else {
             hysteresisValue = 0;
@@ -45,4 +48,13 @@ namespace LoadCells {
 
         return samplePeriod;
     }
+
+    void sendLCAbortPackets() {
+        Comms::Packet abortMessage = {.id = 1, .len = 0};
+        Comms::emitPacket(&abortMessage, FT_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, FI_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, AC_EREG_CHANNEL);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_CHANNEL);
+    }
+
 };
