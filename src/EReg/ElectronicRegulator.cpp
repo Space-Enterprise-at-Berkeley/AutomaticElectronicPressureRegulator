@@ -92,7 +92,11 @@ void loop() {
         break;
 
         case StateMachine::FLOW:
+        #ifdef IS_INJECTOR
+        injectorFlowState->update();
+        #else
         flowState->update();
+        #endif
         break;
 
         case StateMachine::DIAGNOSTIC:

@@ -13,6 +13,9 @@ namespace HAL {
     // ereg motor pins
     const int motor1 = 4;
     const int motor2 = 2;
+    // ereg motor 2 pins ONLY USE FOR INJECTOR EREGS
+    const int motor3 = 33;
+    const int motor4 = 17;
 
     // Best encoder Performance: both pins have interrupt capability
     // avoid using pins with LEDs attached

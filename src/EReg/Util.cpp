@@ -63,6 +63,14 @@ namespace Util {
     }
 
     /**
+     * Computes feedforward value for injector eReg valve angle during regulated flow
+     * @return feedforward valve angle in encoder ticks 
+     */
+    double compute_injector_feedforward() {
+        return 250;
+    }
+
+    /**
      * Compute dynamic PID constants. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
      * Note that this function takes calibrated values from Config.h
      * @param highPressure Current upstream pressure in PSI
@@ -88,6 +96,10 @@ namespace Util {
     void runMotors(float speed) {
         analogWrite(HAL::motor1,-min(0,speed));
         analogWrite(HAL::motor2,max(0,speed));
+        #ifdef IS_INJECTOR
+        analogWrite(HAL::motor3,-min(0,speed));
+        analogWrite(HAL::motor4,max(0,speed));
+        #endif
     }
 
     /**
