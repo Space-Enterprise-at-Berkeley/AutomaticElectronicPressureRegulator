@@ -86,8 +86,8 @@ namespace Util {
      * @param speed Desired speed
      */
     void runMotors(float speed) {
-        analogWrite(HAL::motor1,-min(0,speed));
-        analogWrite(HAL::motor2,max(0,speed));
+        ledcWrite(HAL::motor1Channel,-min(0,speed));
+        ledcWrite(HAL::motor2Channel,max(0,speed));
     }
 
     /**
