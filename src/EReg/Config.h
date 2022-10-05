@@ -48,9 +48,9 @@ namespace Config {
 
     // Diagnostic configs
     const float minAngleMovement = 300;
-    const int servoTestPoints = 5;
+    const int servoTestPoints = 7;
     const float servoTravelInterval = 100; // encoder counts
-    const unsigned long servoSettleTime = 200UL * 1000UL; // micros
+    const unsigned long servoSettleTime =  500UL * 1000UL;//200UL * 1000UL; // micros
     const float servoSettleThresh = 10; // encoder counts
 
     // Abort Thresholds

@@ -88,6 +88,10 @@ namespace Util {
     void runMotors(float speed) {
         ledcWrite(HAL::motor1Channel,-min(0,speed));
         ledcWrite(HAL::motor2Channel,max(0,speed));
+        #if defined(IS_INJECTOR)
+        ledcWrite(HAL::motor3Channel,-min(0,speed));
+        ledcWrite(HAL::motor4Channel,max(0,speed));
+        #endif
     }
 
     /**

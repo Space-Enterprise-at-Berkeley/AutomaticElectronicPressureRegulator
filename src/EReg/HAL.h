@@ -13,9 +13,13 @@ namespace HAL {
     // ereg motor pins
     const int motor1 = 4;
     const int motor2 = 2;
+    const int motor3 = 33;
+    const int motor4 = 17;
 
     const int motor1Channel = 0;
     const int motor2Channel = 1;
+    const int motor3Channel = 2;
+    const int motor4Channel = 3;
 
 
     // Best encoder Performance: both pins have interrupt capability
