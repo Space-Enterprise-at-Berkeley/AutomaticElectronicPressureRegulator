@@ -7,17 +7,17 @@ namespace Ducers {
     }
 
     float readHPPT() {
-        // HAL::adc.startADCReading(HAL::hpPT, true);
-        // float reading = HAL::adc.computeVolts(HAL::adc.getLastConversionResults());
-        // return Util::voltageToHighPressure(reading);
-        return 5;
+        int16_t adc0 = HAL::adc.readADC_SingleEnded(HAL::hpPT);
+        double voltage = (adc0 * 0.1875)/1000;
+        return Util::voltageToLowPressure(voltage);
+        // return 4;
     }
 
     float readLPPT() {
-        // HAL::adc.startADCReading(HAL::lpPT, true);
-        // float reading = HAL::adc.computeVolts(HAL::adc.getLastConversionResults());
-        // return Util::voltageToLowPressure(reading);
-        return 3;
+        int16_t adc0 = HAL::adc.readADC_SingleEnded(HAL::lpPT);
+        double voltage = (adc0 * 0.1875)/1000;
+        return Util::voltageToLowPressure(voltage);
+        // return 3;
     }
 
     float readInjectorPT() {

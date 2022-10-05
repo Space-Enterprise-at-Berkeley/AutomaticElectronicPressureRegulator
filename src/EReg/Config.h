@@ -29,7 +29,7 @@ namespace Config {
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
     #define OUTER_BUFFER_SIZE 4
-    #define INNER_BUFFER_SIZE 4
+    #define INNER_BUFFER_SIZE 2
     #define DIAGNOSTIC_BUFFER_SIZE 5
 
     const unsigned long telemetryInterval = 5 * 1000UL; // time in microseconds between telemetry packets
@@ -48,7 +48,7 @@ namespace Config {
 
     // Diagnostic configs
     const float minAngleMovement = 300;
-    const int servoTestPoints = 7;
+    const int servoTestPoints = 9;
     const float servoTravelInterval = 100; // encoder counts
     const unsigned long servoSettleTime =  500UL * 1000UL;//200UL * 1000UL; // micros
     const float servoSettleThresh = 10; // encoder counts

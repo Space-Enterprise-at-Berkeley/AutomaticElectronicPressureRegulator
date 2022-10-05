@@ -40,7 +40,7 @@ namespace Util {
      * @return PSI pressure 
      */
     double voltageToLowPressure(double voltage) {
-        return max(1, (((voltage/1024.0*5-0.5)*1000/4.0) - Config::LOW_PT_C) / Config::LOW_PT_M);
+        return 222.22 * voltage - 61.1;
     }
 
     /**                                        
@@ -49,7 +49,7 @@ namespace Util {
      * @return PSI pressure 
      */
     double voltageToHighPressure(double voltage) {
-        return max(1, (((((5000.0 * (voltage/1024.0))) * 0.814)+15) - Config::HIGH_PT_C) / Config::HIGH_PT_M); //5V corresponds to 5k psi (after voltage divider)
+        return (1111.1 * voltage) + 65; //5V corresponds to 5k psi (after voltage divider)
     }
 
     /**

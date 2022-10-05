@@ -12,21 +12,22 @@ namespace HAL {
         pinMode(motor1, OUTPUT);
         pinMode(motor2, OUTPUT);
 
+        ledcSetup(motor1Channel, 5000, 8);
+        ledcSetup(motor2Channel, 5000, 8);
+
         ledcAttachPin(motor1, motor1Channel);
         ledcAttachPin(motor2, motor2Channel);
 
-        ledcSetup(motor1Channel, 5000, 8);
-        ledcSetup(motor2Channel, 5000, 8);
 
         #if defined(IS_INJECTOR)
         pinMode(motor3, OUTPUT);
         pinMode(motor4, OUTPUT);
 
-        ledcAttachPin(motor3, motor3Channel);
-        ledcAttachPin(motor4, motor4Channel);
-
         ledcSetup(motor3Channel, 5000, 8);
         ledcSetup(motor4Channel, 5000, 8);
+        
+        ledcAttachPin(motor3, motor3Channel);
+        ledcAttachPin(motor4, motor4Channel);
         #endif
         
         pinMode(enc1, INPUT);
