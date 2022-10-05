@@ -6,17 +6,18 @@ namespace HAL {
     ESP32Encoder encoder;
 
     void init() {
+        Serial.print("yuh");
         pinMode(mainValve1, OUTPUT);
         pinMode(mainValve2, OUTPUT);
 
         pinMode(motor1, OUTPUT);
         pinMode(motor2, OUTPUT);
 
-        ledcAttachPin(motor1, motor1Channel);
-        ledcAttachPin(motor2, motor2Channel);
-
         ledcSetup(motor1Channel, 5000, 8);
         ledcSetup(motor2Channel, 5000, 8);
+
+        ledcAttachPin(motor1, motor1Channel);
+        ledcAttachPin(motor2, motor2Channel);
 
         pinMode(enc1, INPUT);
         pinMode(enc2, INPUT);

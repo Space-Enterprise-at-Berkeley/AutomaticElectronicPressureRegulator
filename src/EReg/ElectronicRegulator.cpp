@@ -54,6 +54,7 @@ void actuateMainValve(Comms::Packet packet, uint8_t ip) {
 }
 
 void setup() {
+    
     HAL::init();
     Comms::initComms();
     Ducers::init();
@@ -68,6 +69,8 @@ void setup() {
     Comms::registerCallback(206, actuateMainValve);
     
     Packets::sendConfig();
+    delay(10000);
+    Serial.print("yeet");
 }
 
 void loop() {
@@ -94,5 +97,13 @@ void loop() {
         diagnosticState->update();
         break;
     };
+}
+
+int main(){
+    setup();
+    while(1) {
+        loop();
+    }
+    return 0;
 }
 
