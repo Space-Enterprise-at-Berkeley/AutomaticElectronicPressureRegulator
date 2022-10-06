@@ -15,6 +15,7 @@ namespace LoadCells {
     extern float lastLoadCellTime;
 
     extern Task *abortLC;
+    extern Task *readLC;
         
     const float loadCellThreshold = 100.0;
 

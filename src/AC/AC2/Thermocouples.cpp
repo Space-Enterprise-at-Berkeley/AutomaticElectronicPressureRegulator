@@ -27,13 +27,13 @@ namespace Thermocouples {
     float tc4ROCValues[10] = {0};
 
     Task *abortTC;
+    Task *readTC;
 
     void initThermocouples() {
     }
 
     uint32_t tcSample(MAX31855 *amp, uint8_t packetID, float *value, float *thermocoupleValues, float *ROCValue) {
         float reading = amp->readCelsius();
-
         // DEBUGF("THERMOCOUPLE READING %i: %f \n", packetID, reading);
 
         //calculate ROC TC value
@@ -107,6 +107,18 @@ namespace Thermocouples {
         Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
         Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
         Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
+    }
+
+    void sendTCReadingPacket(){
+
+        MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2, &HAL::tcAmp3, &HAL::tcAmp4};
+        float readings[5];
+        Comms::Packet readingPacket = {.id = 1};
+        for(int i = 0; i < 5; i++){
+            readings[i] = amps[i]->readCelsius();
+            Comms::packetAddFloat(&readingPacket, readings[i]);
+        }
+        Comms::emitPacket(&readingPacket, THERMOCOUPLES_DAQ_TO_DASHBOARD);
     }
 
 };

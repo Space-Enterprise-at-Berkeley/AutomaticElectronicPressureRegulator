@@ -7,6 +7,7 @@ namespace LoadCells {
     float lastLoadCellTime;
 
     Task *abortLC;
+    Task *readLC;
 
     Comms::Packet lcAbortPacket = {.id = 31};
 
@@ -31,7 +32,7 @@ namespace LoadCells {
         Comms::packetAddFloat(&tmp, loadCell0Value);
         Comms::packetAddFloat(&tmp, loadCell1Value);
         Comms::packetAddFloat(&tmp, loadCell0Value + loadCell1Value);
-        Comms::emitPacket(&tmp);
+        Comms::emitPacket(&tmp, LOAD_CELLS_DAQ_TO_DASHBOARD);
         return samplePeriod;
     }
 

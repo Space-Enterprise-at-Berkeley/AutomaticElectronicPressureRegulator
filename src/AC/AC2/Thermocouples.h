@@ -21,6 +21,7 @@ namespace Thermocouples {
     extern float tc4ROC;
 
     extern Task *abortTC;
+    extern Task *readTC;
 
     const float thermocoupleAbsoluteThreshold = 200;
     const float thermocoupleThreshold = 150;
@@ -37,4 +38,5 @@ namespace Thermocouples {
     uint32_t tc4Sample();
     uint32_t checkForAbort();
     void sendTCAbortPackets(); 
+    void sendTCReadingPacket();
 };

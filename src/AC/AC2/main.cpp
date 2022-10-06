@@ -27,9 +27,12 @@ Task taskTable[] = {
     {Actuators::stopAct5, 0, false},
     {Actuators::stopAct6, 0, false},
     {Actuators::stopAct7, 0, false}, //#13
+    //Thermocouples
     {Thermocouples::checkForAbort, 0, true},
+    {Thermocouples::sendTCReadingPacket, 0, true},
+    //Load Cells
     {LoadCells::checkForLCAbort, 0, true},
-
+    {LoadCells::sampleLoadCells, 0, true},
     // thermocouples
     // {Thermocouples::tc0Sample, 0},
     // {Thermocouples::tc1Sample, 0},
@@ -37,8 +40,6 @@ Task taskTable[] = {
     // {Thermocouples::tc3Sample, 0},
     // {Thermocouples::tc4Sample, 0},
 
-    // load cells
-    {LoadCells::sampleLoadCells, 0},
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -57,7 +58,9 @@ int main() {
     Actuators::stop6 = &taskTable[5];
     Actuators::stop7 = &taskTable[6];
     Thermocouples::abortTC = &taskTable[7];
-    LoadCells::abortLC = &taskTable[8];
+    Thermocouples::readTC = &taskTable[8];
+    LoadCells::abortLC = &taskTable[9];
+    LoadCells::readLC = &taskTable[10];
 
     DEBUGLN("hullo from AC2");
 
