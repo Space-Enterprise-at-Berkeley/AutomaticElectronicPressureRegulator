@@ -12,4 +12,12 @@ namespace FlowProfiles {
     float constantPressure(unsigned long flowTime) {
         return Config::pressureSetpoint;
     }
+    float angleCvCharacterization(unsigned long flowTime) {
+        float steps[] = {500, 400, 300, 200, 150};
+        int numSteps = sizeof(steps)/sizeof(steps[0]);
+        unsigned long stepTime = Config::flowDuration/numSteps;
+        unsigned int index = flowTime/stepTime;
+        index = (index >= numSteps)?(numSteps-1):index;
+        return steps[index];
+    }
 }

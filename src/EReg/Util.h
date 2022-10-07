@@ -25,9 +25,11 @@ namespace Util {
     double voltageToLowPressure(double voltage);
     double voltageToHighPressure(double voltage);
     double compute_feedforward(double pressureSetpoint, double hp);
+    double compute_injector_feedforward();
     PidConstants computeDynamicPidConstants(double highPressure, double lowPressure);
     double clip(double value, double minOutput, double maxOutput);
     void runMotors(float speed);
+    void runInjectorMotors(float speed);
     
     PIDController* getInnerController();
     PIDController* getOuterController();

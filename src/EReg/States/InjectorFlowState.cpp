@@ -1,21 +1,21 @@
-#include "FlowState.h"
+#include "InjectorFlowState.h"
 
 namespace StateMachine {
 
-    FlowState flowState = FlowState();
+    InjectorFlowState injectorFlowState = InjectorFlowState();
 
-    FlowState* getFlowState(){
-        return &flowState;
+    InjectorFlowState* getInjectorFlowState(){
+        return &injectorFlowState;
     }
 
-    FlowState::FlowState() {
+    InjectorFlowState::InjectorFlowState() {
         this->init();
     }
 
     /**
      * Prepare for start of flow
      */
-    void FlowState::init() {
+    void InjectorFlowState::init() {
         Util::runMotors(0);
         lastPrint_ = 0;
         timeStarted_ = micros();
@@ -28,29 +28,23 @@ namespace StateMachine {
     /**
      * Perform single iteration of flow control loop 
      */
-    void FlowState::update() {
+    void InjectorFlowState::update() {
         float motorAngle = HAL::encoder.getCount();
-        float HPpsi = Ducers::readHPPT();
         float LPpsi = Ducers::readLPPT();
         float InjectorPT = Ducers::readInjectorPT();
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
         float speed = 0;
 
         if (flowTime > Config::loxLead) {
-            pressureSetpoint_ = FlowProfiles::linearRampup(flowTime - Config::loxLead);
-
-            //Use dynamic PID Constants
-            Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
-            outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
+            pressureSetpoint_ = FlowProfiles::constantPressure(flowTime - Config::loxLead);
 
             //Compute Outer Pressure Control Loop
-            angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, HPpsi));
+            angleSetpoint_ = outerController_->update(InjectorPT - pressureSetpoint_, Util::compute_injector_feedforward());
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);
 
             Util::runMotors(speed);
-            actuateMainValve(MAIN_VALVE_OPEN);
         } else {
             innerController_->reset();
             outerController_->reset();
@@ -59,7 +53,7 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
+                0,
                 LPpsi,
                 InjectorPT,
                 motorAngle,

@@ -10,7 +10,11 @@ namespace StateMachine {
     void enterFlowState() {
         if (currentState == IDLE_CLOSED) {
             currentState = FLOW;
+            #ifdef IS_INJECTOR
+            getInjectorFlowState()->init();
+            #else
             getFlowState()->init();
+            #endif
         } else {
             // Illegal state transition
             Packets::sendStateTransitionError(0);
@@ -48,6 +52,9 @@ namespace StateMachine {
     }
 
     void enterPressurizeState() {
+        #ifdef IS_INJECTOR
+        Packets::sendStateTransitionError(4);
+        #else
         if (currentState == IDLE_CLOSED) {
             currentState = PRESSURIZE;
             getPressurizeState()->init();
@@ -55,9 +62,13 @@ namespace StateMachine {
             // Illegal state transition
             Packets::sendStateTransitionError(4);
         }
+        #endif
     }
 
     void enterMainValveState(uint8_t actionByte) {
+        #ifdef IS_INJECTOR
+        Packets::sendStateTransitionError(5);
+        #else
         ValveAction action = actionByte ? MAIN_VALVE_OPEN : MAIN_VALVE_CLOSE;
         if (currentState == IDLE_CLOSED || currentState == PARTIAL_OPEN) {
             actuateMainValve(action);
@@ -65,6 +76,7 @@ namespace StateMachine {
             // Illegal state transition
             Packets::sendStateTransitionError(5);
         }
+        #endif
     }
 
     State getCurrentState() {
