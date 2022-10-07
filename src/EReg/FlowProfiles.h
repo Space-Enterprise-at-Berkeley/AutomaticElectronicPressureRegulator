@@ -1,3 +1,5 @@
+#pragma once
+
 namespace FlowProfiles {
     float linearRampup(unsigned long flowTime);
     float pressurizationRamp(unsigned long flowTime);
