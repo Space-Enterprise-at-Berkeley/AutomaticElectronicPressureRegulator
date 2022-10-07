@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <Arduino.h>
-#include <Adafruit_ADS1X15.h>
+#include <ADS1X15.h>
 #include <ESP32Encoder.h>
 
 namespace HAL {
@@ -27,7 +27,7 @@ namespace HAL {
     const int enc1 = 36;
     const int enc2 = 39;
 
-    extern Adafruit_ADS1115 adc;
+    extern ADS1115 adc;
     extern ESP32Encoder encoder;
 
     const uint8_t hpPT = 2;

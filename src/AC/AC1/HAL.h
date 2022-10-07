@@ -54,8 +54,6 @@ namespace HAL {
     const uint8_t ctl24vChan1 = 22;
     const uint8_t ctl24vChan2 = 23;
 
-    const int eregStartFlowID = 200;
-    const int eregAbortID = 201;
     const int daqEndIp = 29;
     const int acEndIp = 21;
 
