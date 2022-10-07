@@ -1,5 +1,6 @@
 //Fuel EReg Config 
 #pragma once
+#include "../FlowProfiles.h"
 
 namespace Config {
 
@@ -15,6 +16,7 @@ namespace Config {
     // Flow Parameters
     const float pressureSetpoint = 495;
     const unsigned long loxLead = 105UL * 1000UL; //time in milliseconds
+    float (*flowProfile)(unsigned long) = FlowProfiles::constantPressure;
 
     // Diagnostic configs
     const int servoTestPoints = 5;
@@ -22,6 +24,8 @@ namespace Config {
     const unsigned long servoSettleTime =  200UL * 1000UL; // micros
     const float stopDiagnosticPressureThresh = 200; // diagnostic terminates if either tank exceeds this
     const float diagnosticSpeed = 200;
+    
+
 
     // const float LOW_PT_C = 13.482;
     // const float LOW_PT_M = 1.2407;

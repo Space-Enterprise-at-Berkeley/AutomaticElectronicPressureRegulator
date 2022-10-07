@@ -1,5 +1,6 @@
 //Fuel Injector EReg Config 
 #pragma once
+#include "../FlowProfiles.h"
 
 namespace Config {
 
@@ -15,6 +16,7 @@ namespace Config {
     // Flow Parameters
     const float pressureSetpoint = 460;
     const unsigned long loxLead = 0; //time in milliseconds
+    float (*flowProfile)(unsigned long) = FlowProfiles::throttledFlowFuel;
 
     // Diagnostic configs
     const int servoTestPoints = 9;
