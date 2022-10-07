@@ -12,6 +12,7 @@ StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedStat
 StateMachine::PartiallyOpenState *partiallyOpenState = StateMachine::getPartiallyOpenState();
 StateMachine::DiagnosticState *diagnosticState = StateMachine::getDiagnosticState();
 StateMachine::PressurizeState *pressurizeState = StateMachine::getPressurizeState();
+StateMachine::InjectorFlowState *injectorFlowState = StateMachine::getInjectorFlowState();
 
 void zero() {
     DEBUGLN("starting zero command");

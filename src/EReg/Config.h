@@ -1,17 +1,25 @@
-#if defined(LOX)
-    #include "LOX_Config.h"
-#elif defined(FUEL)
-    #include "Fuel_Config.h"
+#if defined(FUEL)
+    #if defined(IS_INJECTOR)
+        #include "Config/FuelInjectorConfig.h"
+    #else
+        #include "Config/FuelTankConfig.h"
+    #endif
+#elif defined(LOX)
+    #if defined(IS_INJECTOR)
+        #include "Config/LoxInjectorConfig.h"
+    #else
+        #include "Config/LoxTankConfig.h"
+    #endif
 #endif
 
 #pragma once
 
 namespace Config {
 
-    #define ESP_ADDRESS_1 22
-    #define ESP_ADDRESS_2 21
-    #define ESP_ADDRESS_3 32
-    #define ESP_ADDRESS_4 31
+    #define ESP_ADDRESS_1 25
+    #define ESP_ADDRESS_2 26
+    #define ESP_ADDRESS_3 27
+    #define ESP_ADDRESS_4 28
 
     #ifdef EVERY
     #define SERIAL_COMMS Serial1
