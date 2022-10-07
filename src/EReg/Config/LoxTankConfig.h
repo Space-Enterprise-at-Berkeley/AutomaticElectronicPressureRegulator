@@ -16,7 +16,6 @@ namespace Config {
     // Flow Parameters
     const float pressureSetpoint = 600;
     const unsigned long loxLead = 0; //time in milliseconds
-    float (*flowProfile)(unsigned long) = FlowProfiles::constantPressure;
 
     // Diagnostic configs
     const int servoTestPoints = 5;

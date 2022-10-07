@@ -51,4 +51,20 @@ namespace FlowProfiles {
     float throttledFlowFuel(unsigned long flowTime) {
         return 0.9034 * throttledFlowLox(flowTime) + 12.32;
     }
+
+    float flowProfile(unsigned long flowTime) {
+        #if defined(FUEL)
+            #if defined(IS_INJECTOR)
+                return throttledFlowFuel(flowTime);
+            #else
+                return constantPressure(flowTime);
+            #endif
+        #elif defined(LOX)
+            #if defined(IS_INJECTOR)
+                return throttledFlowLox(flowTime);
+            #else
+                return constantPressure(flowTime);
+            #endif
+        #endif
+    }
 }
