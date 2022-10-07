@@ -36,7 +36,7 @@ namespace HAL {
         Wire.begin(5, 32);
         Wire.setClock(400000);
         adc.begin();
-
+        adc.setMode(1); // single shot
         adc.setDataRate(7);
         encoder.attachFullQuad(enc1, enc2);
     }
