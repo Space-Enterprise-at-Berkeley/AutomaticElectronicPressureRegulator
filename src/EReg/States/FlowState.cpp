@@ -30,9 +30,8 @@ namespace StateMachine {
      */
     void FlowState::update() {
         float motorAngle = HAL::encoder.getCount();
-        float HPpsi = Ducers::readHPPT();
-        float LPpsi = Ducers::readLPPT();
-        float InjectorPT = Ducers::readInjectorPT();
+        float UpstreamPsi = HAL::readUpstreamPT();
+        float DownstreamPsi = HAL::readDownstreamPT();
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
         float speed = 0;
 
@@ -40,11 +39,11 @@ namespace StateMachine {
             pressureSetpoint_ = FlowProfiles::linearRampup(flowTime - Config::loxLead);
 
             //Use dynamic PID Constants
-            Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
+            Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(UpstreamPsi, DownstreamPsi);
             outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
 
             //Compute Outer Pressure Control Loop
-            angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, HPpsi));
+            angleSetpoint_ = outerController_->update(DownstreamPsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, UpstreamPsi));
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);
@@ -59,9 +58,8 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                UpstreamPsi,
+                DownstreamPsi,
                 motorAngle,
                 angleSetpoint_,
                 pressureSetpoint_,
@@ -77,7 +75,7 @@ namespace StateMachine {
             enterIdleClosedState();
         }
 
-        checkAbortPressure(LPpsi, Config::abortPressureThresh);
+        checkAbortPressure(DownstreamPsi, Config::abortPressureThresh);
     }
 
 }

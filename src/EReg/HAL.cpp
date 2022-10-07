@@ -40,4 +40,21 @@ namespace HAL {
         adc.setDataRate(7);
         encoder.attachFullQuad(enc1, enc2);
     }
+
+    
+    float readUpstreamPT() {
+        #ifndef IS_INJECTOR
+        return Ducers::readPressurantPT();
+        #else
+        return Ducers::readTankPT();
+        #endif
+    }
+
+    float readDownstreamPT() {
+        #ifndef IS_INJECTOR
+        return Ducers::readTankPT();
+        #else
+        return Ducers::readInjectorPT();
+        #endif
+    }
 }

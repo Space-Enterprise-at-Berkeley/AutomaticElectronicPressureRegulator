@@ -18,7 +18,7 @@ namespace StateMachine {
         Buffer *highPressureAbortBuffer_;
         Buffer *lowPressureAbortBuffer_;
 
-        const float testSpeed_ = 0;
+        const float testSpeed_ = Config::diagnosticSpeed;
         const unsigned long servoInterval_ = Config::servoSettleTime * 4;
         const unsigned long totalTime_ = (unsigned long)Config::servoTestPoints * servoInterval_;
 

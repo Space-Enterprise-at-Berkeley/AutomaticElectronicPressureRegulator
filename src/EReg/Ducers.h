@@ -4,7 +4,7 @@
 
 namespace Ducers {
     void init();
-    float readHPPT();
-    float readLPPT();
     float readInjectorPT();
+    float readPressurantPT();
+    float readTankPT();
 }

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <ADS1X15.h>
 #include <ESP32Encoder.h>
+#include "Ducers.h"
 
 namespace HAL {
     // main valve pins
@@ -30,17 +31,25 @@ namespace HAL {
     extern ADS1115 adc;
     extern ESP32Encoder encoder;
 
-    const uint8_t hpPT = 2;
-    const uint8_t lpPT = 1;
+    #ifndef IS_INJECTOR
+    const uint8_t upstreamPT = 2; // pressurant
+    const uint8_t downstreamPT = 1; // tank
+    #else
+    const uint8_t upstreamPT = 1; // tank
+    const uint8_t downstreamPT = 0; // injector
+    #endif
+    
 
     const int daqEndIp = 29;
     const int acEndIp = 21;
-    const int fuelTankEndIp = 25;
-    const int loxFuelEndIp = 26;
-    const int fuelInjectorEndIp = 27;
-    const int loxInjectorEndIp = 28;
+    // const int fuelTankEndIp = 25;
+    // const int loxFuelEndIp = 26;
+    // const int fuelInjectorEndIp = 27;
+    // const int loxInjectorEndIp = 28;
 
     const int eregAbortID = 201;
 
     void init();
+    float readUpstreamPT();
+    float readDownstreamPT();
 }

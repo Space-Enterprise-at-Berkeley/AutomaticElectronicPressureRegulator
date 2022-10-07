@@ -4,7 +4,7 @@
 
 namespace Packets {
 
-    const uint8_t ABORT_ID = 0;
+    const uint8_t ABORT_ID = 201;
     const uint8_t TELEMETRY_ID = 1;
     const uint8_t CONFIG_ID = 2;
     const uint8_t DIAGNOSTIC_ID = 3;
@@ -12,9 +12,8 @@ namespace Packets {
     const uint8_t FLOW_STATE = 5;
 
     void sendTelemetry(
-        float highPressure,
-        float lowPressure,
-        float injectorPressure,
+        float upstreamPressure,
+        float downstreamPressure,
         float encoderAngle,
         float angleSetpoint,
         float pressureSetpoint,

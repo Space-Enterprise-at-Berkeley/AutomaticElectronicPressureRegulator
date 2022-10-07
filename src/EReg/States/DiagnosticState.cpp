@@ -56,9 +56,8 @@ namespace StateMachine {
 
         float motorAngle = HAL::encoder.getCount()
 ;
-        float HPpsi = Ducers::readHPPT();
-        float LPpsi = Ducers::readLPPT();
-        float InjectorPT = Ducers::readInjectorPT();
+        float upstreamPsi = HAL::readUpstreamPT();
+        float downstreamPsi = HAL::readDownstreamPT();
         
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         float speed;
@@ -86,9 +85,8 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                upstreamPsi,
+                downstreamPsi,
                 motorAngle,
                 0,
                 0,
@@ -99,8 +97,8 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
-        highPressureAbortBuffer_->insert(testTime/1.0e6, HPpsi);
-        lowPressureAbortBuffer_->insert(testTime/1.0e6, LPpsi);
+        highPressureAbortBuffer_->insert(testTime/1.0e6, upstreamPsi);
+        lowPressureAbortBuffer_->insert(testTime/1.0e6, downstreamPsi);
         checkAbortPressure(highPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
         checkAbortPressure(lowPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
     }
@@ -109,9 +107,8 @@ namespace StateMachine {
 
         float motorAngle = HAL::encoder.getCount()
 ;
-        float HPpsi = Ducers::readHPPT();
-        float LPpsi = Ducers::readLPPT();
-        float InjectorPT = Ducers::readInjectorPT();
+        float upstreamPsi = HAL::readUpstreamPT();
+        float downstreamPsi = HAL::readDownstreamPT();
 
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         
@@ -139,9 +136,8 @@ namespace StateMachine {
         // send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                upstreamPsi,
+                downstreamPsi,
                 motorAngle,
                 servoSetpoint_,
                 0,
@@ -152,8 +148,8 @@ namespace StateMachine {
             );
             lastPrint_ = micros();
         }
-        highPressureAbortBuffer_->insert(testTime/1.0e6, HPpsi);
-        lowPressureAbortBuffer_->insert(testTime/1.0e6, LPpsi);
+        highPressureAbortBuffer_->insert(testTime/1.0e6, upstreamPsi);
+        lowPressureAbortBuffer_->insert(testTime/1.0e6, downstreamPsi);
         checkAbortPressure(highPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
         checkAbortPressure(lowPressureAbortBuffer_->getAverage(), Config::stopDiagnosticPressureThresh);
     }
@@ -171,13 +167,11 @@ namespace StateMachine {
             if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
                 float motorAngle = HAL::encoder.getCount()
 ;
-                float HPpsi = Ducers::readHPPT();
-                float LPpsi = Ducers::readLPPT();
-                float InjectorPT = Ducers::readInjectorPT();
+                float upstreamPsi = HAL::readUpstreamPT();
+                float downstreamPsi = HAL::readDownstreamPT();
                 Packets::sendTelemetry(
-                    HPpsi,
-                    LPpsi,
-                    InjectorPT,
+                    upstreamPsi,
+                    downstreamPsi,
                     motorAngle,
                     0,
                     0,
@@ -214,13 +208,11 @@ namespace StateMachine {
             if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
                 float motorAngle = HAL::encoder.getCount()
 ;
-                float HPpsi = Ducers::readHPPT();
-                float LPpsi = Ducers::readLPPT();
-                float InjectorPT = Ducers::readInjectorPT();
+                float upstreamPsi = HAL::readUpstreamPT();
+                float downstreamPsi = HAL::readDownstreamPT();
                 Packets::sendTelemetry(
-                    HPpsi,
-                    LPpsi,
-                    InjectorPT,
+                    upstreamPsi,
+                    downstreamPsi,
                     motorAngle,
                     0,
                     0,

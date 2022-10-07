@@ -28,9 +28,8 @@ namespace StateMachine {
     void PartiallyOpenState::update() {
         float motorAngle = HAL::encoder.getCount();
 
-        float HPpsi = Ducers::readHPPT();
-        float LPpsi = Ducers::readLPPT();
-        float InjectorPT = Ducers::readInjectorPT();
+        float upstreamPsi = HAL::readUpstreamPT();
+        float downstreamPsi = HAL::readDownstreamPT();
 
         float speed = 0;
 
@@ -42,9 +41,8 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                upstreamPsi,
+                downstreamPsi,
                 motorAngle,
                 angleSetpoint_,
                 0,
@@ -56,7 +54,7 @@ namespace StateMachine {
             lastPrint_ = micros();
         }
 
-        checkAbortPressure(LPpsi, Config::abortPressureThresh);
+        checkAbortPressure(downstreamPsi, Config::abortPressureThresh);
     }
 
 }

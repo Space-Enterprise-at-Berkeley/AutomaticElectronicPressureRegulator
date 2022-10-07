@@ -18,7 +18,7 @@
 
 namespace StateMachine {
 
-    enum State { IDLE_CLOSED, PARTIAL_OPEN, PRESSURIZE, FLOW, DIAGNOSTIC }; // TODO implement vent
+    enum State { IDLE_CLOSED, PARTIAL_OPEN, PRESSURIZE, FLOW, DIAGNOSTIC };
     enum ValveAction { MAIN_VALVE_OPEN, MAIN_VALVE_CLOSE };
     
     void enterFlowState();

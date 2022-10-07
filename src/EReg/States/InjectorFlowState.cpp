@@ -30,8 +30,8 @@ namespace StateMachine {
      */
     void InjectorFlowState::update() {
         float motorAngle = HAL::encoder.getCount();
-        float LPpsi = Ducers::readLPPT();
-        float InjectorPT = Ducers::readInjectorPT();
+        float upstreamPsi = HAL::readUpstreamPT();
+        float downstreamPsi = HAL::readDownstreamPT();
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
         float speed = 0;
 
@@ -39,7 +39,7 @@ namespace StateMachine {
             pressureSetpoint_ = FlowProfiles::constantPressure(flowTime - Config::loxLead);
 
             //Compute Outer Pressure Control Loop
-            angleSetpoint_ = outerController_->update(InjectorPT - pressureSetpoint_, Util::compute_injector_feedforward());
+            angleSetpoint_ = outerController_->update(downstreamPsi - pressureSetpoint_, Util::compute_injector_feedforward());
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);
@@ -53,9 +53,8 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                0,
-                LPpsi,
-                InjectorPT,
+                upstreamPsi,
+                downstreamPsi,
                 motorAngle,
                 angleSetpoint_,
                 pressureSetpoint_,
@@ -71,7 +70,7 @@ namespace StateMachine {
             enterIdleClosedState();
         }
 
-        checkAbortPressure(LPpsi, Config::abortPressureThresh);
+        checkAbortPressure(upstreamPsi, Config::abortPressureThresh);
     }
 
 }

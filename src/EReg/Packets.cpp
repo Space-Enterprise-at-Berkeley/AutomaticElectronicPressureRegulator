@@ -6,9 +6,8 @@
 namespace Packets {
     /**
      * Send telemetry packet:
-     * - high pressure
-     * - low pressure 
-     * - injector pressure 
+     * - upstream pressure
+     * - downstream pressure 
      * - encoder reading 
      * - angle setpoint 
      * - pressure setpoint
@@ -18,9 +17,8 @@ namespace Packets {
      * - pressure control loop D term
      */
     void sendTelemetry(
-        float highPressure,
-        float lowPressure,
-        float injectorPressure,
+        float upstreamPressure,
+        float downstreamPressure,
         float encoderAngle,
         float angleSetpoint,
         float pressureSetpoint,
@@ -36,8 +34,8 @@ namespace Packets {
         DEBUG(motorPower); DEBUGLN("\t");
         #else
         Comms::Packet packet = {.id = TELEMETRY_ID};
-        Comms::packetAddFloat(&packet, highPressure);
-        Comms::packetAddFloat(&packet, lowPressure);
+        Comms::packetAddFloat(&packet, upstreamPressure);
+        Comms::packetAddFloat(&packet, downstreamPressure);
         Comms::packetAddFloat(&packet, encoderAngle);
         Comms::packetAddFloat(&packet, angleSetpoint);
         Comms::packetAddFloat(&packet, pressureSetpoint);

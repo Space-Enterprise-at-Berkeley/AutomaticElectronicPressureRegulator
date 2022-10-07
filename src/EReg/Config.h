@@ -21,18 +21,8 @@ namespace Config {
     #define ESP_ADDRESS_3 27
     #define ESP_ADDRESS_4 28
 
-    #ifdef EVERY
-    #define SERIAL_COMMS Serial1
-    #else
-    #define SERIAL_COMMS Serial
-    #endif
-
     #define MAX_SPD 255
     #define MIN_SPD -255
-    #define MAX_ANGLE 500                                                    
-    #define MIN_ANGLE 0
-    #define ANTIWINDUP_RANGE_LOWER 150
-    #define ANTIWINDUP_RANGE_UPPER 500
 
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
@@ -56,13 +46,9 @@ namespace Config {
 
     // Diagnostic configs
     const float minAngleMovement = 300;
-    const int servoTestPoints = 9;
-    const float servoTravelInterval = 100; // encoder counts
-    const unsigned long servoSettleTime =  500UL * 1000UL;//200UL * 1000UL; // micros
     const float servoSettleThresh = 10; // encoder counts
 
     // Abort Thresholds
     const float abortPressureThresh = 750; // transition to idleClosed if prop tank exceeds this
-    const float stopDiagnosticPressureThresh = 200; // diagnostic terminates if either tank exceeds this
 
 }
