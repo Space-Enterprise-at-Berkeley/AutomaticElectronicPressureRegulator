@@ -27,25 +27,21 @@ namespace Ducers {
     }
 
     float interpolate1000(double rawValue) {
-        float tmp = (rawValue - 0.5);
-        return tmp * (1000/4.5);
+        return rawValue * 269.38 - 123.87;
     }
 
     float interpolate5000(double rawValue) {
-        float tmp = (rawValue - 0.5);
-        return tmp * (5000/4.5);
+        return rawValue * 1368.15 + 26.65;
     }
 
     float readPressurantPT() {
         double voltage = (upstreamPT * 0.1875)/1000;
-        // return interpolate5000(voltage);
-        return voltage;
+        return interpolate5000(voltage);
     }
 
     float readTankPT() {
         double voltage = (downstreamPT * 0.1875)/1000;
-        // return interpolate1000(voltage);
-        return voltage;
+        return interpolate1000(voltage);
     }
 
     float readInjectorPT() {
