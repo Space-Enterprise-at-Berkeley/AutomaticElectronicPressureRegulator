@@ -25,7 +25,7 @@ namespace Automation {
         Automation::autoventFuelTask = autoventFuelTask;
         Automation::autoventLoxTask = autoventLoxTask;
 
-        Comms::registerCallback(2, beginFlow);
+        Comms::registerCallback(9, beginFlow);
         Comms::registerCallback(201, beginManualAbortFlow);
         
         Comms::registerCallback(30, checkForTCAbort);
