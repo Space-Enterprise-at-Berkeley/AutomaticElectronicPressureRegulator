@@ -52,16 +52,53 @@ namespace FlowProfiles {
         return 0.9034 * throttledFlowLox(flowTime) + 12.32;
     }
 
+    /*
+    DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    */
+    float nominalTestFlowLox(unsigned long flowTime) {
+        const int numKeypoints = 6;
+        const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
+            0UL,
+            3*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
+            Config::flowDuration
+        };
+        const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
+            120.0,
+            120.0,
+            240.0,
+            240.0,
+            120.0,
+            120.0
+        };
+
+        for (int i = 1; i<numKeypoints; i++) {
+            if (flowTime <= keyPointTimes[i]) {
+                float p = float(flowTime - keyPointTimes[i-1])/float(keyPointTimes[i] - keyPointTimes[i-1]);
+                return p * keyPointPressures[i] + (1-p) * keyPointPressures[i-1];
+            }
+        }
+        // flow ended
+        return 0;
+    }
+    float nominalTestFlowFuel(unsigned long flowTime) {
+        return 0.9034 * throttledFlowLox(flowTime) + 12.32;
+    }
+
     float flowProfile(unsigned long flowTime) {
         #if defined(FUEL)
             #if defined(IS_INJECTOR)
-                return throttledFlowFuel(flowTime);
+                return nominalTestFlowFuel(flowTime);
+                // return throttledFlowFuel(flowTime);
             #else
                 return constantPressure(flowTime);
             #endif
         #elif defined(LOX)
             #if defined(IS_INJECTOR)
-                return throttledFlowLox(flowTime);
+                return nominalTestFlowLox(flowTime);
+                // return throttledFlowLox(flowTime);
             #else
                 return constantPressure(flowTime);
             #endif

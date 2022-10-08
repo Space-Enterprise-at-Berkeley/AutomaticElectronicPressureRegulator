@@ -67,7 +67,8 @@ namespace Util {
      * @return feedforward valve angle in encoder ticks 
      */
     double compute_injector_feedforward() {
-        return 250;
+        return 500;
+        // feedforward_cv = q * sqrt(Config::specificGravity/(hp-pressureSetpoint))
     }
 
     /**
