@@ -62,6 +62,10 @@ namespace StateMachine {
         unsigned long testTime = TimeUtil::timeInterval(timeTestStarted_, micros());
         float speed;
 
+        #if defined(IS_INJECTOR)
+        this->startNextTest();
+        return;
+        #endif
 
         if (testTime < 500UL*1000UL) { // do nothing for 0.5s
             speed = 0;
@@ -117,7 +121,7 @@ namespace StateMachine {
         // Compute Inner PID Servo loop
         if (testTime < totalTime_) {
             unsigned long intervalNumber = (testTime / servoInterval_);
-            servoSetpoint_ = Config::servoTravelInterval * intervalNumber;
+            servoSetpoint_ = Config::servoTravelInterval * intervalNumber + Config::initialServoAngle;
             speed = innerController_->update(motorAngle - servoSetpoint_);
             Util::runMotors(speed);
             

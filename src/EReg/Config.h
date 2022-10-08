@@ -47,6 +47,7 @@ namespace Config {
     // Diagnostic configs
     const float minAngleMovement = 300;
     const float servoSettleThresh = 10; // encoder counts
+    const float initialServoAngle = 100; // encoder counts
 
     // Abort Thresholds
     const float abortPressureThresh = 750; // transition to idleClosed if prop tank exceeds this

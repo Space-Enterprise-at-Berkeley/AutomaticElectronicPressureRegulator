@@ -56,7 +56,6 @@ void actuateMainValve(Comms::Packet packet, uint8_t ip) {
 
 void setup() {
     delay(100);
-    Serial.println("in setup");
     HAL::init();
     Comms::initComms();
     Ducers::init();
