@@ -36,14 +36,16 @@ namespace Ducers {
 
     float readPressurantPT() {
         double voltage = (upstreamPT * 0.1875)/1000;
-        Serial.print("High PT: ");
-        Serial.print(voltage*1000);
         return max(1, interpolate5000(voltage));
     }
 
     float readTankPT() {
         double voltage = (downstreamPT * 0.1875)/1000;
-        Serial.printf("\t Low PT: %f \n", voltage*1000);
+        return max(1, interpolate1000(voltage));
+    }
+
+    float readTankFromInjectorPT() {
+        double voltage = (upstreamPT * 0.1875)/1000;
         return max(1, interpolate1000(voltage));
     }
 

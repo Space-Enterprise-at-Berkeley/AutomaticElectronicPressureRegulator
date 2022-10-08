@@ -7,4 +7,5 @@ namespace Ducers {
     float readInjectorPT();
     float readPressurantPT();
     float readTankPT();
+    float readTankFromInjectorPT();
 }
