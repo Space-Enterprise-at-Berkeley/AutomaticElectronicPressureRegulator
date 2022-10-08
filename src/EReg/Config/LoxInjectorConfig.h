@@ -20,7 +20,7 @@ namespace Config {
     // Diagnostic configs
     const int servoTestPoints = 9;
     const float servoTravelInterval = 100; // encoder counts
-    const unsigned long servoSettleTime =  500UL * 1000UL; // micros
+    const unsigned long servoSettleTime =  1000UL * 1000UL; // micros
     const float stopDiagnosticPressureThresh = 700; // diagnostic terminates if either tank exceeds this
     const float diagnosticSpeed = 0;
 
