@@ -11,7 +11,7 @@ namespace Config {
 
     // Controller Constants
     const double p_outer_nominal = 1.0, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
-    const double p_inner = 6, i_inner = 3.5e-6, d_inner = 0.15;
+    const double p_inner = 9, i_inner = 3.5e-6, d_inner = 0.15;
 
     // Flow Parameters
     const float pressureSetpoint = 480;
