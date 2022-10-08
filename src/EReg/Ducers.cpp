@@ -27,25 +27,28 @@ namespace Ducers {
     }
 
     float interpolate1000(double rawValue) {
-        return rawValue * 269.38 - 123.87;
+        return rawValue * 250.38 - 123.87;
     }
 
     float interpolate5000(double rawValue) {
-        return rawValue * 1368.15 + 26.65;
+        return rawValue * 1310.15 + 26.65;
     }
 
     float readPressurantPT() {
         double voltage = (upstreamPT * 0.1875)/1000;
-        return interpolate5000(voltage);
+        Serial.print("High PT: ");
+        Serial.print(voltage*1000);
+        return max(1, interpolate5000(voltage));
     }
 
     float readTankPT() {
         double voltage = (downstreamPT * 0.1875)/1000;
-        return interpolate1000(voltage);
+        Serial.printf("\t Low PT: %f \n", voltage*1000);
+        return max(1, interpolate1000(voltage));
     }
 
     float readInjectorPT() {
         double voltage = (downstreamPT * 0.1875)/1000;
-        return interpolate1000(voltage);
+        return max(1, interpolate1000(voltage));
     }
 }
