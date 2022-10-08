@@ -46,7 +46,7 @@ namespace HAL {
         #ifndef IS_INJECTOR
         return Ducers::readPressurantPT();
         #else
-        return Ducers::readTankPT();
+        return Ducers::readTankFromInjectorPT();
         #endif
     }
 
