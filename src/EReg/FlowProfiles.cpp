@@ -93,14 +93,14 @@ namespace FlowProfiles {
                 return nominalTestFlowFuel(flowTime);
                 // return throttledFlowFuel(flowTime);
             #else
-                return constantPressure(flowTime);
+                return linearRampup(flowTime);
             #endif
         #elif defined(LOX)
             #if defined(IS_INJECTOR)
                 return nominalTestFlowLox(flowTime);
                 // return throttledFlowLox(flowTime);
             #else
-                return constantPressure(flowTime);
+                return linearRampup(flowTime);
             #endif
         #endif
     }

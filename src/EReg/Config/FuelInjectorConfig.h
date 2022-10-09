@@ -10,7 +10,7 @@ namespace Config {
     #define ANTIWINDUP_RANGE_UPPER 950
 
     // Controller Constants
-    const double p_outer_nominal = 35.0, i_outer_nominal = 20.0e-6, d_outer_nominal = 0.0; 
+    const double p_outer_nominal = 1.0, i_outer_nominal = 5.0e-6, d_outer_nominal = 0.0; 
     const double p_inner = 9, i_inner = 3.5e-6, d_inner = 0.15;
 
     // Flow Parameters
