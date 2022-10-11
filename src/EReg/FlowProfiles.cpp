@@ -21,9 +21,10 @@ namespace FlowProfiles {
         return steps[index];
     }
     float throttledFlowLox(unsigned long flowTime) {
-        const int numKeypoints = 6;
+        const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
+            500*1000UL,
             3*1000*1000UL,
             6*1000*1000UL,
             10*1000*1000UL,
@@ -31,6 +32,7 @@ namespace FlowProfiles {
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
+            0.0,
             250.0,
             250.0,
             480.0,
@@ -54,11 +56,13 @@ namespace FlowProfiles {
 
     /*
     DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    This gives pressure setpoint profile for a nominal rate test, for Lox side
     */
     float nominalTestFlowLox(unsigned long flowTime) {
-        const int numKeypoints = 6;
+        const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
+            500*1000UL,
             3*1000*1000UL,
             6*1000*1000UL,
             10*1000*1000UL,
@@ -66,6 +70,7 @@ namespace FlowProfiles {
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
+            0.0,
             120.0,
             120.0,
             240.0,
@@ -83,11 +88,59 @@ namespace FlowProfiles {
         // flow ended
         return 0;
     }
+
+    /*
+    DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    This gives pressure setpoint profile for a nominal rate test, for fuel side
+    */
     float nominalTestFlowFuel(unsigned long flowTime) {
-        return 0.9034 * throttledFlowLox(flowTime) + 12.32;
+        return 0.9034 * nominalTestFlowLox(flowTime) + 12.32;
     }
 
-    float flowProfile(unsigned long flowTime) {
+    /*
+    DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    This gives flowrate profile (gallons/min) for a nominal rate test, for Lox side
+    */
+    float nominalTestFlowRateLox(unsigned long flowTime) {
+        const int numKeypoints = 7;
+        const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
+            0UL,
+            500*1000UL,
+            3*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
+            Config::flowDuration
+        };
+        const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
+            0.0,
+            10.0,
+            10.0,
+            12.0,
+            12.0,
+            10.0,
+            10.0
+        };
+
+        for (int i = 1; i<numKeypoints; i++) {
+            if (flowTime <= keyPointTimes[i]) {
+                float p = float(flowTime - keyPointTimes[i-1])/float(keyPointTimes[i] - keyPointTimes[i-1]);
+                return p * keyPointPressures[i] + (1-p) * keyPointPressures[i-1];
+            }
+        }
+        // flow ended
+        return 0;
+    }
+
+    /*
+    DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    This gives flowrate profile (gallons/min) for a nominal rate test, for fuel side
+    */
+    float nominalTestFlowRateFuel(unsigned long flowTime) {
+        return nominalTestFlowRateLox(flowTime);
+    }
+
+    float flowPressureProfile(unsigned long flowTime) {
         #if defined(FUEL)
             #if defined(IS_INJECTOR)
                 return nominalTestFlowFuel(flowTime);
@@ -103,5 +156,18 @@ namespace FlowProfiles {
                 return linearRampup(flowTime);
             #endif
         #endif
+    }
+
+    float flowRateProfile(unsigned long flowTime) {
+        #if defined(IS_INJECTOR)
+            #if defined(FUEL)
+                return nominalTestFlowRateFuel(flowTime);
+                // return throttledFlowRateFuel(flowTime);
+            #elif defined(LOX)
+                return nominalTestFlowRateLox(flowTime);
+                // return throttledFlowRateLox(flowTime);
+            #endif
+        #endif
+        return 0;
     }
 }

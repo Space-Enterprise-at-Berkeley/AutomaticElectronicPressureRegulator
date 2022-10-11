@@ -1,10 +1,14 @@
 #if defined(FUEL)
+    // 0.804 for ln2, 0.493 for propane
+    #define PROPELLANT_GRAVITY 0.804
     #if defined(IS_INJECTOR)
         #include "Config/FuelInjectorConfig.h"
     #else
         #include "Config/FuelTankConfig.h"
     #endif
 #elif defined(LOX)
+    // 0.804 for ln2, 1.14 for lox
+    #define PROPELLANT_GRAVITY 0.804
     #if defined(IS_INJECTOR)
         #include "Config/LoxInjectorConfig.h"
     #else
@@ -26,7 +30,6 @@ namespace Config {
 
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
-    #define OUTER_BUFFER_SIZE 4
     #define INNER_BUFFER_SIZE 2
     #define DIAGNOSTIC_BUFFER_SIZE 5
 
@@ -52,4 +55,7 @@ namespace Config {
     // Abort Thresholds
     const float abortPressureThresh = 750; // transition to idleClosed if prop tank exceeds this
 
+    // Injector Feedforward Thresholds
+    const float minInjectorFeedforwardAngle = 200;
+    const float maxInjectorFeedforwardAngle = 900;
 }

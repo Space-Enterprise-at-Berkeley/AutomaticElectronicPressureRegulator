@@ -9,13 +9,15 @@ namespace Config {
     #define ANTIWINDUP_RANGE_LOWER 150
     #define ANTIWINDUP_RANGE_UPPER 500
 
+    #define OUTER_BUFFER_SIZE 4
+
     // Controller Constants
     const double p_outer_nominal = 1.0, i_outer_nominal = 0.7e-6, d_outer_nominal = 0.06; // nominal is 4000 -> 500 psi flow
     const double p_inner = 11, i_inner = 3.5e-6, d_inner = 0.10;
 
     // Flow Parameters
     const float pressureSetpoint = 600;
-    const unsigned long loxLead = 0; //time in milliseconds
+    const unsigned long loxLead = 0; //time in microseconds
 
     // Diagnostic configs
     const int servoTestPoints = 5;

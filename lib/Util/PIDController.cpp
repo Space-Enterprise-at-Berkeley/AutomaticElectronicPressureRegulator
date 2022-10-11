@@ -98,12 +98,19 @@ double PIDController::antiwindupStd(double integral, double rawOutput, double er
  * @return next value of errorIntegral
  */
 double PIDController::antiwindupTransientCtrl(double integral, double rawOutput, double error, unsigned long dt) {
-    
-    if (rawOutput < antiwindupUpperThresh_ && rawOutput > antiwindupLowerThresh_) {
-        return integral + error * dt;
+    double nextOutput = rawOutput + integral;
+    if (nextOutput > antiwindupUpperThresh_) { // output already too high, stop integral from decreasing
+        return max(integral, integral + error * dt);
+    } else if (nextOutput < antiwindupLowerThresh_) { // output already too low, stop integral from increasing
+        return min(integral, integral + error * dt);
     } else {
-        return integral;
+        return integral + error * dt;
     }
+    // if (nextOutput < antiwindupUpperThresh_ && nextOutput > antiwindupLowerThresh_) {
+    //     return integral + error * dt;
+    // } else {
+    //     return integral;
+    // }
 }
 
 // TODO: Implement test-stand antiwindup that accounts for inner loop

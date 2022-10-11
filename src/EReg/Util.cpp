@@ -64,11 +64,24 @@ namespace Util {
 
     /**
      * Computes feedforward value for injector eReg valve angle during regulated flow
+     * Based on characterized Cv data for injector eReg valves
+     * @param pressureSetpoint injector pressure setpoint in psi
+     * @param tankPressure measured pressure in tank in psi
+     * @param flowRate expected flow rate in gallons/min
      * @return feedforward valve angle in encoder ticks 
      */
-    double compute_injector_feedforward() {
-        return 500;
-        // feedforward_cv = q * sqrt(Config::specificGravity/(hp-pressureSetpoint))
+    double compute_injector_feedforward(double pressureSetpoint, double tankPressure, double flowRate) {
+        const float minFeedforwardAngle = Config::minInjectorFeedforwardAngle;
+        const float maxFeedforwardAngle = Config::maxInjectorFeedforwardAngle;
+        const double cvGradient = 0.004167;
+        const double cvInterceptX = 300.0;
+        double deltaP = tankPressure - pressureSetpoint;
+        if (deltaP < 0.01) { // tank pressure is too low, just open valve all the way
+            return maxFeedforwardAngle;
+        }
+        double feedforwardCv = flowRate * sqrt(PROPELLANT_GRAVITY / abs(deltaP));
+        double feedforwardAngle = (feedforwardCv/cvGradient) + cvInterceptX;
+        return clip(feedforwardAngle, minFeedforwardAngle, maxFeedforwardAngle);
     }
 
     /**

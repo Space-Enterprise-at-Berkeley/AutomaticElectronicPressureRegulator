@@ -36,10 +36,12 @@ namespace StateMachine {
         float speed = 0;
 
         if (flowTime > Config::loxLead) {
-            pressureSetpoint_ = FlowProfiles::flowProfile(flowTime - Config::loxLead);
+            pressureSetpoint_ = FlowProfiles::flowPressureProfile(flowTime - Config::loxLead);
 
             //Compute Outer Pressure Control Loop
-            angleSetpoint_ = outerController_->update(downstreamPsi - pressureSetpoint_, Util::compute_injector_feedforward());
+            double flowRate = FlowProfiles::flowRateProfile(flowTime - Config::loxLead);
+            double feedforward = Util::compute_injector_feedforward(pressureSetpoint_, upstreamPsi, flowRate);
+            angleSetpoint_ = outerController_->update(downstreamPsi - pressureSetpoint_, feedforward);
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);
