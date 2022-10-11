@@ -12,8 +12,8 @@ namespace HAL {
         pinMode(motor1, OUTPUT);
         pinMode(motor2, OUTPUT);
 
-        ledcSetup(motor1Channel, 20000, 8);
-        ledcSetup(motor2Channel, 20000, 8);
+        ledcSetup(motor1Channel, 5000, 8);
+        ledcSetup(motor2Channel, 5000, 8);
 
         ledcAttachPin(motor1, motor1Channel);
         ledcAttachPin(motor2, motor2Channel);
@@ -23,8 +23,8 @@ namespace HAL {
         pinMode(motor3, OUTPUT);
         pinMode(motor4, OUTPUT);
 
-        ledcSetup(motor3Channel, 20000, 8);
-        ledcSetup(motor4Channel, 20000, 8);
+        ledcSetup(motor3Channel, 5000, 8);
+        ledcSetup(motor4Channel, 5000, 8);
         
         ledcAttachPin(motor3, motor3Channel);
         ledcAttachPin(motor4, motor4Channel);
