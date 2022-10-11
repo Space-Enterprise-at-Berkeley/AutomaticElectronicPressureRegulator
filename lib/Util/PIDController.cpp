@@ -98,7 +98,7 @@ double PIDController::antiwindupStd(double integral, double rawOutput, double er
  * @return next value of errorIntegral
  */
 double PIDController::antiwindupTransientCtrl(double integral, double rawOutput, double error, unsigned long dt) {
-    double nextOutput = rawOutput + integral;
+    double nextOutput = rawOutput - (k_i * integral);
     if (nextOutput > antiwindupUpperThresh_) { // output already too high, stop integral from decreasing
         return max(integral, integral + error * dt);
     } else if (nextOutput < antiwindupLowerThresh_) { // output already too low, stop integral from increasing
