@@ -16,5 +16,6 @@
         "variant": "cpp",
         "functional": "cpp",
         "memory": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }
