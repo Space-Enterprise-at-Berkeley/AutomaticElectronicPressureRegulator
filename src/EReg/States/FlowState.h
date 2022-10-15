@@ -23,10 +23,14 @@ namespace StateMachine {
         float pressureSetpoint_;
         float angleSetpoint_;
 
+        float previousDownsteamPsiReadings[Config::numReadingsStored];
+        float previousUpsteamPsiReadings[Config::numReadingsStored];
+
         public:
         FlowState();
         void init();
         void update();
+        void updatePreviousReadingsArrays(float DownsteamPsi, float UpstreamPsi);
     };
 
     FlowState* getFlowState();

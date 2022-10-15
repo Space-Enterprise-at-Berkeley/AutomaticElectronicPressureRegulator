@@ -23,6 +23,11 @@ namespace StateMachine {
         angleSetpoint_ = 0;
         innerController_->reset();
         outerController_->reset();
+        for(int i = 0; i < Config::numReadingsStored; i++){
+            previousDownsteamPsiReadings[i] = 1;
+            previousUpsteamPsiReadings[i] = 1;
+        }
+
     }
 
     /**
@@ -47,6 +52,9 @@ namespace StateMachine {
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);
+
+            //Add downstreamPSI and upstreamPSI readings to previous-Readings arrays
+            updatePreviousReadingsArrays(DownstreamPsi, UpstreamPsi);
 
             Util::runMotors(speed);
             actuateMainValve(MAIN_VALVE_OPEN);
@@ -75,7 +83,37 @@ namespace StateMachine {
             enterIdleClosedState();
         }
 
+        bool downsteamIsAllZeros = true;
+        bool upsteamIsAllZeros = true;
+        for(int i = 0; i < Config::numReadingsStored; i++){
+            if(previousDownsteamPsiReadings[i] != 0){
+                downsteamIsAllZeros = false;
+                break;
+            }
+            if(previousUpsteamPsiReadings[i] != 0){
+                upsteamIsAllZeros = false;
+                break;
+            }
+        }
+        if(downsteamIsAllZeros || upsteamIsAllZeros){
+            checkAbortPressure(DownstreamPsi, -1);
+            checkAbortPressure(UpstreamPsi, -1);
+        }
+
         checkAbortPressure(DownstreamPsi, Config::abortPressureThresh);
+    }
+
+    void FlowState::updatePreviousReadingsArrays(float DownsteamPsi, float UpstreamPsi){
+        // Add to previousDownsteamPSIReadings
+        for(int i = 0; i < Config::numReadingsStored - 1; i++){
+            previousDownsteamPsiReadings[i] = previousDownsteamPsiReadings[i + 1];
+        }
+        previousDownsteamPsiReadings[Config::numReadingsStored - 1] =  DownsteamPsi;
+        // Add to previousUpsteamPSIReadings
+        for(int i = 0; i < Config::numReadingsStored - 1; i++){
+            previousUpsteamPsiReadings[i] = previousUpsteamPsiReadings[i + 1];
+        }
+        previousUpsteamPsiReadings[Config::numReadingsStored - 1] =  UpstreamPsi;
     }
 
 }
