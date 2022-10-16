@@ -18,6 +18,9 @@ void Buffer::insert(double t, float y) {
     // t_t += (t*t - t_buf[curr_i]*t_buf[curr_i]);
     // t_y += (t*y - t_buf[curr_i]*buf[curr_i]);
     
+    // update buffers
+    buf[curr_i] = y;
+    t_buf[curr_i] = t;
 
     // t_avg = 0; y_avg = 0; t_t = 0; t_y = 0;
     float num = 0;
@@ -33,10 +36,6 @@ void Buffer::insert(double t, float y) {
     }
     // slope = (t_y - n*t_avg*y_avg)/(t_t - n*t_avg*t_avg);
     slope = num/denom;
-
-    // update buffers
-    buf[curr_i] = y;
-    t_buf[curr_i] = t;
 
     // increment indices
     curr_i++;

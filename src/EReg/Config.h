@@ -41,6 +41,7 @@ namespace Config {
     // flow duration
     const unsigned long flowDuration = 18UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
+    const unsigned long rampStart = 400; // psi
 
     // Pressurization Parameters
     const unsigned long pressurizationRampDuration = 30 * 1000UL * 1000UL;

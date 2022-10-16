@@ -85,6 +85,21 @@ namespace Util {
     }
 
     /**
+     * Computes feedforward value for injector eReg valve angle during characterization
+     * Steps open and closed
+     * @param flowTime
+     * @return feedforward valve angle in encoder ticks 
+     */
+    double injector_characterization(unsigned long flowTime) {
+        const float steps[] = {950, 650, 400, 900};
+        const int numSteps = sizeof(steps)/sizeof(steps[0]);
+        unsigned long stepTime = Config::flowDuration/numSteps;
+        unsigned int index = flowTime/stepTime;
+        index = (index >= numSteps)?(numSteps-1):index;
+        return steps[index];
+    }
+
+    /**
      * Compute dynamic PID constants. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
      * Note that this function takes calibrated values from Config.h
      * @param highPressure Current upstream pressure in PSI
@@ -100,6 +115,14 @@ namespace Util {
             .k_d = dynamicFactor * Config::d_outer_nominal
             };
         return dynamicConstants;
+    }
+
+    /**
+     * Sine function for debugging
+     * @param time timestamp in micros
+     */
+    double heartBeat(unsigned long time) {
+        return sin(1.5*(time/1.0e6));
     }
 
     /**

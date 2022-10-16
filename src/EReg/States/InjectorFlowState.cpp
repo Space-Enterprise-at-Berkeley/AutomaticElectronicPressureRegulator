@@ -41,8 +41,8 @@ namespace StateMachine {
             //Compute Outer Pressure Control Loop
             double flowRate = FlowProfiles::flowRateProfile(flowTime - Config::loxLead);
             double feedforward = Util::compute_injector_feedforward(pressureSetpoint_, upstreamPsi, flowRate);
-            angleSetpoint_ = feedforward;
-            // angleSetpoint_ = outerController_->update(downstreamPsi - pressureSetpoint_, feedforward);
+            angleSetpoint_ = outerController_->update(downstreamPsi - pressureSetpoint_, feedforward);
+            // angleSetpoint_ = Util::injector_characterization(flowTime);
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);

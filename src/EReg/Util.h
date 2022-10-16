@@ -26,7 +26,9 @@ namespace Util {
     double voltageToHighPressure(double voltage);
     double compute_feedforward(double pressureSetpoint, double hp);
     double compute_injector_feedforward(double pressureSetpoint, double tankPressure, double flowRate);
+    double injector_characterization(unsigned long flowTime);
     PidConstants computeDynamicPidConstants(double highPressure, double lowPressure);
+    double heartBeat(unsigned long time);
     double clip(double value, double minOutput, double maxOutput);
     void runMotors(float speed);
     void runInjectorMotors(float speed);
