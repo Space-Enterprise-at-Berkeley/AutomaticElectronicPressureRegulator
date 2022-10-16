@@ -20,19 +20,13 @@ Task taskTable[] = {
     // {Actuators::act6Sample, 0},
     // {Actuators::act7Sample, 0}, //#6
 
-    {Actuators::stopAct1, 0, false}, //#7
-    {Actuators::stopAct2, 0, false},
-    {Actuators::stopAct3, 0, false},
-    {Actuators::stopAct4, 0, false},
-    {Actuators::stopAct5, 0, false},
-    {Actuators::stopAct6, 0, false},
-    {Actuators::stopAct7, 0, false}, //#13
+
     //Thermocouples
-    {Thermocouples::checkForAbort, 0, true},
-    {Thermocouples::sendTCReadingPacket, 0, true},
+    {&Thermocouples::checkForAbort, (uint32_t) 0, true},
+    {&Thermocouples::sendTCReadingPacket, (uint32_t) 0, true},
     //Load Cells
-    {LoadCells::checkForLCAbort, 0, true},
-    {LoadCells::sampleLoadCells, 0, true},
+    {&LoadCells::checkForLCAbort, (uint32_t) 0, true},
+    {&LoadCells::sampleLoadCells, (uint32_t) 0, true},
     // thermocouples
     // {Thermocouples::tc0Sample, 0},
     // {Thermocouples::tc1Sample, 0},
@@ -45,22 +39,22 @@ Task taskTable[] = {
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
 
 int main() {
+    setup();
+    loop();
+    return 0;
+}
+
+void setup(){
     // hardware setup
     Serial.begin(115200);
     #ifdef DEBUG_MODE
     while(!Serial) {} // wait for user to open serial port (debugging only)
     #endif
-    Actuators::stop1 = &taskTable[0];
-    Actuators::stop2 = &taskTable[1];
-    Actuators::stop3 = &taskTable[2];
-    Actuators::stop4 = &taskTable[3];
-    Actuators::stop5 = &taskTable[4];
-    Actuators::stop6 = &taskTable[5];
-    Actuators::stop7 = &taskTable[6];
-    Thermocouples::abortTC = &taskTable[7];
-    Thermocouples::readTC = &taskTable[8];
-    LoadCells::abortLC = &taskTable[9];
-    LoadCells::readLC = &taskTable[10];
+
+    Thermocouples::abortTC = &taskTable[0];
+    Thermocouples::readTC = &taskTable[1];
+    LoadCells::abortLC = &taskTable[2];
+    LoadCells::readLC = &taskTable[3];
 
     DEBUGLN("hullo from AC2");
 
@@ -71,7 +65,9 @@ int main() {
     DEBUGLN("after init actuators");
     LoadCells::initLoadCells();
     Thermocouples::initThermocouples();
+}
 
+void loop(){
     while(1) {
         uint32_t ticks = micros(); // current time in microseconds
         for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
@@ -81,5 +77,4 @@ int main() {
         }
         Comms::processWaitingPackets();
     }
-    return 0;
 }

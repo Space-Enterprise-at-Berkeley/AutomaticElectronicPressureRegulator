@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
+#include <digitalWriteFast.h>
 
 class ADS8167 {
     public:

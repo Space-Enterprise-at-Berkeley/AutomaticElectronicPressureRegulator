@@ -109,7 +109,7 @@ namespace Thermocouples {
         Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
-    void sendTCReadingPacket(){
+    uint32_t sendTCReadingPacket(){
 
         MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2, &HAL::tcAmp3, &HAL::tcAmp4};
         float readings[5];

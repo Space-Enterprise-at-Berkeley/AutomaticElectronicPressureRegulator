@@ -3,8 +3,7 @@
 #include <Common.h>
 
 #include <ADS8167.h>
-#include <INA219.h>
-#include <INA226.h>
+#include <ADS1X15.h>
 #include <MAX31855.h>
 #include <HX711.h>
 
@@ -14,6 +13,8 @@
 
 namespace HAL {
 
+    extern ADS1115 adc;
+    
     extern HX711 lcAmp0;
     extern HX711 lcAmp1;
 
@@ -32,17 +33,7 @@ namespace HAL {
 
     const float chanShuntR = 0.033;
     const float chanCurrMax = 4.0;
-    extern INA219 chan0;
-    extern INA219 chan1;
-    extern INA219 chan2;
-    extern INA219 chan3;
-    extern INA219 chan4;
-    extern INA219 chan5;
-    extern INA219 chan6;
-    extern INA219 chan7;
-    extern INA219 chan8;
-    extern INA219 chan9;
-    extern INA219 chan10;
+
 
     const uint8_t hBrg1Pin1 = 2;
     const uint8_t hBrg1Pin2 = 3;

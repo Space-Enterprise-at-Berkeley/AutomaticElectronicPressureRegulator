@@ -2,22 +2,23 @@
 
 #include <Common.h>
 #include <Arduino.h>
-#include <NativeEthernet.h>
-#include <NativeEthernetUdp.h>
+#include <Ethernet.h>
+#include <EthernetUdp.h>
 #include <map>
 #include "stdint.h"
 
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 namespace Comms {
     //https://github.com/sstaub/TeensyID/issues/3
-    const uint32_t __m1 = HW_OCOTP_MAC1;
-    const uint32_t __m2 = HW_OCOTP_MAC0;
     const byte mac[] = {
-        (uint8_t)(__m1 >> 8),
-        (uint8_t)(__m1 >> 0),
-        (uint8_t)(__m2 >> 24),
-        (uint8_t)(__m2 >> 16),
-        (uint8_t)(__m2 >> 8),
-        (uint8_t)(__m2 >> 0),
+        0xDE, 0xAD, 0xBE, 0xEF, 0xFE, IP_ADDRESS_END
     };
     extern EthernetUDP Udp;
     const int port = 42069;

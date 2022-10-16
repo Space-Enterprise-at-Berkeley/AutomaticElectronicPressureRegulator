@@ -1,4 +1,4 @@
-#include "Hal.h"
+#include "HAL.h"
 
 namespace HAL {
 
@@ -23,9 +23,8 @@ namespace HAL {
     MAX31855 tcAmp3; 
     MAX31855 tcAmp4;
 
-    void initChannel(INA219 *channel, TwoWire *wire, uint8_t address) {
-        channel->init(wire, address, chanShuntR, chanCurrMax, INA219_RANGE_32V, INA219_GAIN_160MV, INA219_BUS_RES_12BIT, INA219_SHUNT_RES_12BIT_1S, INA219_MODE_SHUNT_BUS_CONT);
-    }
+    ADS1115 adc(0x48);
+
 
     void initHAL() {
         // Initialize I2C buses
@@ -34,18 +33,18 @@ namespace HAL {
         Wire1.begin();
         Wire1.setClock(1000000);
 
-        SPI1.begin();
+        SPI.begin();
 
         // MAX31855 TC amps (cs)
-        tcAmp0.init(&SPI1, 8);
-        tcAmp1.init(&SPI1, 9);
-        tcAmp2.init(&SPI1, 10);
-        tcAmp3.init(&SPI1, 13);
-        tcAmp4.init(&SPI1, 20);
+        tcAmp0.init(&SPI, 8);
+        tcAmp1.init(&SPI, 9);
+        tcAmp2.init(&SPI, 10);
+        tcAmp3.init(&SPI, 13);
+        tcAmp4.init(&SPI, 20);
 
         // HX711 load cell amps (data out, clk)
-        lcAmp0.init(40, 39);
-        lcAmp1.init(35, 34);
+        lcAmp0.begin(40, 39);
+        lcAmp1.begin(35, 34);
 
         // initChannel(&chan4, &Wire, 0x44);
         // initChannel(&chan5, &Wire, 0x45);

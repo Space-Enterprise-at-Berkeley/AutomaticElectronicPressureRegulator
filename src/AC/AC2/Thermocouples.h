@@ -38,5 +38,5 @@ namespace Thermocouples {
     uint32_t tc4Sample();
     uint32_t checkForAbort();
     void sendTCAbortPackets(); 
-    void sendTCReadingPacket();
+    uint32_t sendTCReadingPacket();
 };

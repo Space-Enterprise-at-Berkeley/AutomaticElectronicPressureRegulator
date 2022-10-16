@@ -6,7 +6,6 @@
 #include "../Comms.h" 
 
 #include <Arduino.h>
-#include <INA219.h>
 
 namespace Actuators {
     
@@ -114,11 +113,9 @@ namespace Actuators {
 
     void actPacketHandler(Comms::Packet tmp, void (*extend)(), void (*retract)(), Task *stopTask);
 
-    void sampleActuator(Comms::Packet *packet, INA219 *ina, float *voltage, float *current, uint8_t *actState, uint8_t actuatorID);
-
     void initActuators();
 
-    void sampleActuator(Comms::Packet *packet, INA219 *ina, float *voltage, float *current);
+    
     uint32_t act1Sample();
     uint32_t act2Sample();
     uint32_t act3Sample();
