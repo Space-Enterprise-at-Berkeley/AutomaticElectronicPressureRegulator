@@ -119,6 +119,8 @@ namespace Thermocouples {
             Comms::packetAddFloat(&readingPacket, readings[i]);
         }
         Comms::emitPacket(&readingPacket, THERMOCOUPLES_DAQ_TO_DASHBOARD);
+        return tcUpdatePeriod;
     }
+    
 
 };

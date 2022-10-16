@@ -30,8 +30,8 @@ namespace HAL {
         // Initialize I2C buses
         Wire.begin();
         Wire.setClock(1000000);
-        Wire1.begin();
-        Wire1.setClock(1000000);
+        // Wire1.begin();
+        // Wire1.setClock(1000000);
 
         SPI.begin();
 
