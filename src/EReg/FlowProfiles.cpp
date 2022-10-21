@@ -60,14 +60,15 @@ namespace FlowProfiles {
     This gives pressure setpoint profile for a nominal rate test, for Lox side
     */
     float nominalTestFlowLox(unsigned long flowTime) {
-        const int numKeypoints = 7;
+        // const int numKeypoints = 7;
+        const int numKeypoints = 5;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
             500*1000UL,
             3*1000*1000UL,
             6*1000*1000UL,
-            10*1000*1000UL,
-            12*1000*1000UL,
+            // 10*1000*1000UL,
+            // 12*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
@@ -76,8 +77,8 @@ namespace FlowProfiles {
             120.0,
             240.0,
             240.0,
-            120.0,
-            120.0
+            // 120.0,
+            // 120.0
         };
 
         for (int i = 1; i<numKeypoints; i++) {
@@ -103,14 +104,15 @@ namespace FlowProfiles {
     This gives flowrate profile (gallons/min) for a nominal rate test, for Lox side
     */
     float nominalTestFlowRateLox(unsigned long flowTime) {
-        const int numKeypoints = 7;
+        // const int numKeypoints = 7;
+        const int numKeypoints = 5;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
             500*1000UL,
             3*1000*1000UL,
             6*1000*1000UL,
-            10*1000*1000UL,
-            12*1000*1000UL,
+            // 10*1000*1000UL,
+            // 12*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
@@ -119,8 +121,8 @@ namespace FlowProfiles {
             10.0,
             12.0,
             12.0,
-            10.0,
-            10.0
+            // 10.0,
+            // 10.0
         };
 
         for (int i = 1; i<numKeypoints; i++) {

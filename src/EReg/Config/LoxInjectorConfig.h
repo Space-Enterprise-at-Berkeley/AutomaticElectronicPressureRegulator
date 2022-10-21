@@ -4,10 +4,10 @@
 
 namespace Config {
 
-    #define MAX_ANGLE 950                                                    
+    #define MAX_ANGLE 1100                                                    
     #define MIN_ANGLE 0
     #define ANTIWINDUP_RANGE_LOWER 250
-    #define ANTIWINDUP_RANGE_UPPER 950
+    #define ANTIWINDUP_RANGE_UPPER 1100
 
     #define OUTER_BUFFER_SIZE 2
 
