@@ -11,20 +11,20 @@ namespace Thermocouples {
     float tc0Value;
     float tc1Value;
     float tc2Value;
-    float tc3Value;
-    float tc4Value;
+    // float tc3Value;
+    // float tc4Value;
 
     float tc0ROC;
     float tc1ROC;
     float tc2ROC;
-    float tc3ROC;
-    float tc4ROC;
+    // float tc3ROC;
+    // float tc4ROC;
 
     float tc0ROCValues[10] = {0};
     float tc1ROCValues[10] = {0};
     float tc2ROCValues[10] = {0};
-    float tc3ROCValues[10] = {0};
-    float tc4ROCValues[10] = {0};
+    // float tc3ROCValues[10] = {0};
+    // float tc4ROCValues[10] = {0};
 
     Task *abortTC;
     Task *readTC;
@@ -61,13 +61,13 @@ namespace Thermocouples {
     uint32_t tc0Sample() { return tcSample(&HAL::tcAmp0, 110, &tc0Value, tc0ROCValues, &tc0ROC); }
     uint32_t tc1Sample() { return tcSample(&HAL::tcAmp1, 111, &tc1Value, tc1ROCValues, &tc1ROC); }
     uint32_t tc2Sample() { return tcSample(&HAL::tcAmp2, 112, &tc2Value, tc2ROCValues, &tc2ROC); }
-    uint32_t tc3Sample() { return tcSample(&HAL::tcAmp3, 113, &tc3Value, tc3ROCValues, &tc3ROC); }
-    uint32_t tc4Sample() { return tcSample(&HAL::tcAmp4, 114, &tc4Value, tc4ROCValues, &tc4ROC); }
+    // uint32_t tc3Sample() { return tcSample(&HAL::tcAmp3, 113, &tc3Value, tc3ROCValues, &tc3ROC); }
+    // uint32_t tc4Sample() { return tcSample(&HAL::tcAmp4, 114, &tc4Value, tc4ROCValues, &tc4ROC); }
 
     uint32_t checkForAbort() {
         //check thermocouple temperatures to be below a threshold
         float maxThermocoupleValue = max(max(Thermocouples::tc0Value, Thermocouples::tc1Value), 
-                                        max(Thermocouples::tc2Value, Thermocouples::tc3Value));
+                                        Thermocouples::tc2Value);
 
         if (maxThermocoupleValue > thermocoupleAbsoluteThreshold) {
             hysteresisValues[0] += 1;
@@ -82,11 +82,11 @@ namespace Thermocouples {
         bool tc0ThresholdsPassed = tc0Value > thermocoupleThreshold && tc0ROC > thermocoupleRateThreshold;
         bool tc1ThresholdsPassed = tc1Value > thermocoupleThreshold && tc1ROC > thermocoupleRateThreshold;
         bool tc2ThresholdsPassed = tc2Value > thermocoupleThreshold && tc2ROC > thermocoupleRateThreshold;
-        bool tc3ThresholdsPassed = tc3Value > thermocoupleThreshold && tc3ROC > thermocoupleRateThreshold;
+        // bool tc3ThresholdsPassed = tc3Value > thermocoupleThreshold && tc3ROC > thermocoupleRateThreshold;
 
-        int thresholdsPassed[] = {tc0ThresholdsPassed, tc1ThresholdsPassed, tc2ThresholdsPassed, tc3ThresholdsPassed};
+        int thresholdsPassed[] = {tc0ThresholdsPassed, tc1ThresholdsPassed, tc2ThresholdsPassed}; //, tc3ThresholdsPassed};
 
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < 3; i++){
             if(thresholdsPassed[i]){
                 hysteresisValues[i + 1] += 1;
                 if (hysteresisValues[i + 1] >= hysteresisThreshold) {
@@ -111,10 +111,10 @@ namespace Thermocouples {
 
     uint32_t sendTCReadingPacket(){
 
-        MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2, &HAL::tcAmp3, &HAL::tcAmp4};
-        float readings[5];
+        MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2};//, &HAL::tcAmp3, &HAL::tcAmp4};
+        float readings[3];
         Comms::Packet readingPacket = {.id = 1};
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < 3; i++){
             readings[i] = amps[i]->readCelsius();
             Comms::packetAddFloat(&readingPacket, readings[i]);
         }

@@ -20,10 +20,8 @@ namespace HAL {
     MAX31855 tcAmp0;
     MAX31855 tcAmp1; 
     MAX31855 tcAmp2;
-    MAX31855 tcAmp3; 
-    MAX31855 tcAmp4;
 
-    ADS1115 adc(0x48);
+    // ADS1115 adc(0x48);
 
 
     void initHAL() {
@@ -32,19 +30,28 @@ namespace HAL {
         Wire.setClock(1000000);
         // Wire1.begin();
         // Wire1.setClock(1000000);
+        // DEBUGLN("began wire");
 
         SPI.begin();
 
+        // DEBUGLN("began SPI");
+
         // MAX31855 TC amps (cs)
-        tcAmp0.init(&SPI, 8);
-        tcAmp1.init(&SPI, 9);
-        tcAmp2.init(&SPI, 10);
-        tcAmp3.init(&SPI, 13);
-        tcAmp4.init(&SPI, 20);
+        tcAmp0.init(&SPI, 2);
+        // DEBUGLN("did init 1");
+        tcAmp1.init(&SPI, 5);
+        // DEBUGLN("did init 2");
+        tcAmp2.init(&SPI, 13);
+        // DEBUGLN("did init 3");
+        
+        
+        // DEBUGLN("init SPI");
 
         // HX711 load cell amps (data out, clk)
-        lcAmp0.begin(40, 39);
-        lcAmp1.begin(35, 34);
+        lcAmp0.begin(32, 33);
+        lcAmp1.begin(26, 27);
+
+        // DEBUGLN("lcAmp begin");
 
         // initChannel(&chan4, &Wire, 0x44);
         // initChannel(&chan5, &Wire, 0x45);
@@ -55,25 +62,25 @@ namespace HAL {
         // initChannel(&chan10, &Wire, 0x4A);
 
         // Actuator control
-        pinMode(hBrg1Pin1, OUTPUT);
-        pinMode(hBrg1Pin2, OUTPUT);
-        pinMode(hBrg2Pin1, OUTPUT);
-        pinMode(hBrg2Pin2, OUTPUT);
-        pinMode(hBrg3Pin1, OUTPUT);
-        pinMode(hBrg3Pin2, OUTPUT);
-        pinMode(hBrg4Pin1, OUTPUT);
-        pinMode(hBrg4Pin2, OUTPUT);
-        pinMode(hBrg5Pin1, OUTPUT);
-        pinMode(hBrg5Pin2, OUTPUT);
-        pinMode(hBrg6Pin1, OUTPUT);
-        pinMode(hBrg6Pin2, OUTPUT);
-        pinMode(hBrg7Pin1, OUTPUT);
-        pinMode(hBrg7Pin2, OUTPUT);
+        // pinMode(hBrg1Pin1, OUTPUT);
+        // pinMode(hBrg1Pin2, OUTPUT);
+        // pinMode(hBrg2Pin1, OUTPUT);
+        // pinMode(hBrg2Pin2, OUTPUT);
+        // pinMode(hBrg3Pin1, OUTPUT);
+        // pinMode(hBrg3Pin2, OUTPUT);
+        // pinMode(hBrg4Pin1, OUTPUT);
+        // pinMode(hBrg4Pin2, OUTPUT);
+        // pinMode(hBrg5Pin1, OUTPUT);
+        // pinMode(hBrg5Pin2, OUTPUT);
+        // pinMode(hBrg6Pin1, OUTPUT);
+        // pinMode(hBrg6Pin2, OUTPUT);
+        // pinMode(hBrg7Pin1, OUTPUT);
+        // pinMode(hBrg7Pin2, OUTPUT);
 
         // Heater control
-        pinMode(ctl12vChan1, OUTPUT);
-        pinMode(ctl12vChan2, OUTPUT);
-        pinMode(ctl24vChan1, OUTPUT);
-        pinMode(ctl24vChan2, OUTPUT);
+        // pinMode(ctl12vChan1, OUTPUT);
+        // pinMode(ctl12vChan2, OUTPUT);
+        // pinMode(ctl24vChan1, OUTPUT);
+        // pinMode(ctl24vChan2, OUTPUT);
     }
 };

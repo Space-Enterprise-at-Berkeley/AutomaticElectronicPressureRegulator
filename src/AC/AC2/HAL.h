@@ -13,7 +13,7 @@
 
 namespace HAL {
 
-    extern ADS1115 adc;
+    // extern ADS1115 adc;
     
     extern HX711 lcAmp0;
     extern HX711 lcAmp1;
@@ -21,8 +21,8 @@ namespace HAL {
     extern MAX31855 tcAmp0;
     extern MAX31855 tcAmp1; 
     extern MAX31855 tcAmp2;
-    extern MAX31855 tcAmp3; 
-    extern MAX31855 tcAmp4;
+    // extern MAX31855 tcAmp3; 
+    // extern MAX31855 tcAmp4;
 
     const float battShuntR = 0.002;
     const float battCurrMax = 8.0;

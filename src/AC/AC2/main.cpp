@@ -59,12 +59,14 @@ void setup(){
     DEBUGLN("hullo from AC2");
 
     HAL::initHAL();
+    DEBUGLN("iniitiated Hal");
     Comms::initComms();
     DEBUGLN("ethernet started fr");
     Actuators::initActuators(); 
     DEBUGLN("after init actuators");
     LoadCells::initLoadCells();
     Thermocouples::initThermocouples();
+    DEBUGLN("done with initialization");
 }
 
 void loop(){
