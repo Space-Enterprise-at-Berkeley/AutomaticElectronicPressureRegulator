@@ -59,4 +59,7 @@ namespace Config {
     // Injector Feedforward Thresholds
     const float minInjectorFeedforwardAngle = 200;
     const float maxInjectorFeedforwardAngle = 900;
+
+    // Number of last readings that should be recorded
+    const int numReadingsStored = 3;
 }
