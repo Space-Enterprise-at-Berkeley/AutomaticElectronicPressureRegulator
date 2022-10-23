@@ -4,15 +4,15 @@
 
 namespace Config {
 
-    #define MAX_ANGLE 950                                                    
+    #define MAX_ANGLE 1100                                                    
     #define MIN_ANGLE 0
     #define ANTIWINDUP_RANGE_LOWER 250
-    #define ANTIWINDUP_RANGE_UPPER 950
+    #define ANTIWINDUP_RANGE_UPPER 1100
 
     #define OUTER_BUFFER_SIZE 2
 
     // Controller Constants
-    const double p_outer_nominal = 0.12, i_outer_nominal = 3.5e-6, d_outer_nominal = 0.0;
+    const double p_outer_nominal = 0.12, i_outer_nominal = 1.8e-6, d_outer_nominal = 0.0;
     const double p_inner = 6, i_inner = 4.5e-6, d_inner = 0.15;
 
     // Flow Parameters

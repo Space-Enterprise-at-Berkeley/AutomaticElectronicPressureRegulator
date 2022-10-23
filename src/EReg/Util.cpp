@@ -58,8 +58,9 @@ namespace Util {
      * @param hp high pressure reading. this is necessary because it determines flow rate
      * @return feedforward valve angle in encoder ticks 
      */
-    double compute_feedforward(double pressureSetpoint, double hp) {
-        return 250 + min(1, pressureSetpoint/hp) * 79;
+    double compute_feedforward(double pressureSetpoint, double hp, unsigned long flowTime) {
+        double p = min(1, double(flowTime)/double(Config::rampDuration));
+        return p*(250 + min(1, pressureSetpoint/hp) * 79) + (1-p)*200;
     }
 
     /**
@@ -91,7 +92,8 @@ namespace Util {
      * @return feedforward valve angle in encoder ticks 
      */
     double injector_characterization(unsigned long flowTime) {
-        const float steps[] = {950, 650, 400, 900};
+        // const float steps[] = {600, 500, 550, 450, 500, 400, 450, 350, 400};
+        const float steps[] = {350, 450, 400, 500, 450, 550, 500, 600, 550, 700};
         const int numSteps = sizeof(steps)/sizeof(steps[0]);
         unsigned long stepTime = Config::flowDuration/numSteps;
         unsigned int index = flowTime/stepTime;

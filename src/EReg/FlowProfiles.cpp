@@ -101,6 +101,49 @@ namespace FlowProfiles {
 
     /*
     DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    This gives pressure setpoint profile for a MEOP test, for Lox side
+    */
+    float meopTestFlowLox(unsigned long flowTime) {
+        const int numKeypoints = 7;
+        const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
+            0UL,
+            500*1000UL,
+            3*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
+            Config::flowDuration
+        };
+        const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
+            0.0,
+            350.0,
+            350.0,
+            480.0,
+            480.0,
+            250.0,
+            250.0
+        };
+
+        for (int i = 1; i<numKeypoints; i++) {
+            if (flowTime <= keyPointTimes[i]) {
+                float p = float(flowTime - keyPointTimes[i-1])/float(keyPointTimes[i] - keyPointTimes[i-1]);
+                return p * keyPointPressures[i] + (1-p) * keyPointPressures[i-1];
+            }
+        }
+        // flow ended
+        return 0;
+    }
+
+    /*
+    DONT USE FOR ACTUAL BURNS AND HOTFIRE!
+    This gives pressure setpoint profile for a MEOP test, for fuel side
+    */
+    float meopTestFlowFuel(unsigned long flowTime) {
+        return 0.9034 * meopTestFlowLox(flowTime) + 12.32;
+    }
+
+    /*
+    DONT USE FOR ACTUAL BURNS AND HOTFIRE!
     This gives flowrate profile (gallons/min) for a nominal rate test, for Lox side
     */
     float nominalTestFlowRateLox(unsigned long flowTime) {
@@ -146,14 +189,14 @@ namespace FlowProfiles {
     float flowPressureProfile(unsigned long flowTime) {
         #if defined(FUEL)
             #if defined(IS_INJECTOR)
-                return nominalTestFlowFuel(flowTime);
+                return meopTestFlowFuel(flowTime);
                 // return throttledFlowFuel(flowTime);
             #else
                 return linearRampup(flowTime);
             #endif
         #elif defined(LOX)
             #if defined(IS_INJECTOR)
-                return nominalTestFlowLox(flowTime);
+                return meopTestFlowLox(flowTime);
                 // return throttledFlowLox(flowTime);
             #else
                 return linearRampup(flowTime);

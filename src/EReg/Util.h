@@ -24,7 +24,7 @@ namespace Util {
     double encoderToAngle(double encoderValue);
     double voltageToLowPressure(double voltage);
     double voltageToHighPressure(double voltage);
-    double compute_feedforward(double pressureSetpoint, double hp);
+    double compute_feedforward(double pressureSetpoint, double hp, unsigned long flowTime);
     double compute_injector_feedforward(double pressureSetpoint, double tankPressure, double flowRate);
     double injector_characterization(unsigned long flowTime);
     PidConstants computeDynamicPidConstants(double highPressure, double lowPressure);

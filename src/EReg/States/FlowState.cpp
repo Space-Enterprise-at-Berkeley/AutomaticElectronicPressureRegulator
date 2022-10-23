@@ -39,14 +39,12 @@ namespace StateMachine {
             pressureSetpoint_ = FlowProfiles::flowPressureProfile(flowTime - Config::loxLead);
 
             //Use dynamic PID Constants
-            Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(UpstreamPsi, DownstreamPsi);
-            outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
+            // Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(UpstreamPsi, DownstreamPsi);
+            // outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
+            double feedforward = Util::compute_feedforward(pressureSetpoint_, UpstreamPsi, flowTime);
 
             //Compute Outer Pressure Control Loop
-            angleSetpoint_ = outerController_->update(DownstreamPsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, UpstreamPsi));
-
-            // angleSetpoint_ = outerController_->update(Util::heartBeat(flowTime), 300);
-            // angleSetpoint_ = 300;
+            angleSetpoint_ = outerController_->update(DownstreamPsi - pressureSetpoint_, feedforward);
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);

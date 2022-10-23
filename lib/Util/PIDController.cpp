@@ -48,7 +48,7 @@ PIDController::PIDController(
 double PIDController::update(double error, double feedforward) {
     unsigned long curr_time = micros();
     unsigned long dt = TimeUtil::timeInterval(lastUpdate_, curr_time);
-    errorBuffer_->insert(TimeUtil::timeInterval(timeStarted_, curr_time)/1.0e6, error);
+    errorBuffer_->insert(double(TimeUtil::timeInterval(timeStarted_, curr_time))/1.0e6, error);
 
     latestP_ = -k_p * error;
     latestD_ = -k_d * errorBuffer_->getSlope();
