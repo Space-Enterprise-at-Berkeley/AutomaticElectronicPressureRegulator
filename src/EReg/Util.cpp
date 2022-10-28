@@ -60,7 +60,7 @@ namespace Util {
      */
     double compute_feedforward(double pressureSetpoint, double hp, unsigned long flowTime) {
         double p = min(1, double(flowTime)/double(Config::rampDuration));
-        return p*(250 + min(1, pressureSetpoint/hp) * 79) + (1-p)*200;
+        return p*(250 + min(1, pressureSetpoint/hp) * 79) + (1-p)*150;
     }
 
     /**
@@ -75,7 +75,7 @@ namespace Util {
         const float minFeedforwardAngle = Config::minInjectorFeedforwardAngle;
         const float maxFeedforwardAngle = Config::maxInjectorFeedforwardAngle;
         const double cvGradient = 0.004167;
-        const double cvInterceptX = 300.0;
+        const double cvInterceptX = 250.0;
         double deltaP = tankPressure - pressureSetpoint;
         if (deltaP < 0.01) { // tank pressure is too low, just open valve all the way
             return maxFeedforwardAngle;
@@ -111,6 +111,26 @@ namespace Util {
     PidConstants computeDynamicPidConstants(double highPressure, double lowPressure) {
         double dynamicFactor = 1.0;
         // double dynamicFactor = clip(((14.7 + lowPressure)/max(1.0, highPressure)), 0, 1) * (7.8); // nominal is 4000 -> 500 psi flow
+        PidConstants dynamicConstants = {
+            .k_p = dynamicFactor * Config::p_outer_nominal,
+            .k_i = dynamicFactor * Config::i_outer_nominal,
+            .k_d = dynamicFactor * Config::d_outer_nominal
+            };
+        return dynamicConstants;
+    }
+
+    /**
+     * Compute dynamic PID constants for injector. Ramps up PID constants over 0.5 seconds
+     * @param flowTime time in microseconds since flow started
+     * @return Pid constants
+     */
+    PidConstants computeInjectorDynamicPidConstants(unsigned long flowTime) {
+        double dynamicFactor = 0;
+        if (flowTime > Config::injectorPidStart) {
+            dynamicFactor = min(1, double(flowTime - Config::injectorPidStart)/double(Config::injectorPidFull - Config::injectorPidStart));
+        } else {
+            dynamicFactor = 0;
+        }
         PidConstants dynamicConstants = {
             .k_p = dynamicFactor * Config::p_outer_nominal,
             .k_i = dynamicFactor * Config::i_outer_nominal,

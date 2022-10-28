@@ -59,4 +59,6 @@ namespace Config {
     // Injector Feedforward Thresholds
     const float minInjectorFeedforwardAngle = 200;
     const float maxInjectorFeedforwardAngle = 900;
+    const unsigned long injectorPidStart = 400UL * 1000UL; // time in microseconds
+    const unsigned long injectorPidFull = 3 * 1000UL * 1000UL; // time in microseconds
 }

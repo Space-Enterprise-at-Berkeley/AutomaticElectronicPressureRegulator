@@ -28,6 +28,7 @@ namespace Util {
     double compute_injector_feedforward(double pressureSetpoint, double tankPressure, double flowRate);
     double injector_characterization(unsigned long flowTime);
     PidConstants computeDynamicPidConstants(double highPressure, double lowPressure);
+    PidConstants computeInjectorDynamicPidConstants(unsigned long flowTime);
     double heartBeat(unsigned long time);
     double clip(double value, double minOutput, double maxOutput);
     void runMotors(float speed);

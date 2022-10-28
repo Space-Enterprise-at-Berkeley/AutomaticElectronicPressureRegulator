@@ -56,7 +56,7 @@ double PIDController::update(double error, double feedforward) {
     output += feedforward;
 
     intError_ = (this->*antiwindup_)(intError_, output, error, dt);
-    latestI_ = -k_i * intError_;
+    latestI_ = -intError_;
     output += latestI_;
 
     output = min(max(output, minOutput_), maxOutput_);
@@ -74,7 +74,7 @@ double PIDController::update(double error) {
 /**
  * Antiwindup function for inner loop:
  * When PD control output is saturated, I term is set to 0
- * @param integral current I value (before multiplication by constant)
+ * @param integral current I value (after multiplication by constant)
  * @param rawOutput PD value for current iteration
  * @param error error value for this iteration
  * @param dt time interval in micros
@@ -82,7 +82,7 @@ double PIDController::update(double error) {
  */
 double PIDController::antiwindupStd(double integral, double rawOutput, double error, unsigned long dt) {
     if (rawOutput < maxOutput_ && rawOutput > minOutput_) {
-        return integral + error * dt;
+        return integral + k_i * error * dt;
     } else {
         return 0;
     }
@@ -91,26 +91,21 @@ double PIDController::antiwindupStd(double integral, double rawOutput, double er
 /**
  * Antiwindup function for outer loop:
  * When PD control output reaches non-linear regime of valve, stop incrementing errorIntegral
- * @param integral current I value (before multiplication by constant)
+ * @param integral current I value (after multiplication by constant)
  * @param rawOutput PD value for current iteration
  * @param error error value for this iteration
  * @param dt time interval in micros
  * @return next value of errorIntegral
  */
 double PIDController::antiwindupTransientCtrl(double integral, double rawOutput, double error, unsigned long dt) {
-    double nextOutput = rawOutput - (k_i * integral);
+    double nextOutput = rawOutput - (integral);
     if (nextOutput > antiwindupUpperThresh_) { // output already too high, stop integral from decreasing
-        return max(integral, integral + error * dt);
+        return max(integral, integral + k_i * error * dt);
     } else if (nextOutput < antiwindupLowerThresh_) { // output already too low, stop integral from increasing
-        return min(integral, integral + error * dt);
+        return min(integral, integral + k_i * error * dt);
     } else {
-        return integral + error * dt;
+        return integral + k_i * error * dt;
     }
-    // if (nextOutput < antiwindupUpperThresh_ && nextOutput > antiwindupLowerThresh_) {
-    //     return integral + error * dt;
-    // } else {
-    //     return integral;
-    // }
 }
 
 // TODO: Implement test-stand antiwindup that accounts for inner loop

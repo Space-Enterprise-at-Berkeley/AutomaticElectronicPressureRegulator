@@ -38,6 +38,10 @@ namespace StateMachine {
         if (flowTime > Config::loxLead) {
             pressureSetpoint_ = FlowProfiles::flowPressureProfile(flowTime - Config::loxLead);
 
+            // update PID constants
+            Util::PidConstants dynamicPidConstants = Util::computeInjectorDynamicPidConstants(flowTime - Config::loxLead);
+            outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
+
             //Compute Outer Pressure Control Loop
             double flowRate = FlowProfiles::flowRateProfile(flowTime - Config::loxLead);
             double feedforward = Util::compute_injector_feedforward(pressureSetpoint_, upstreamPsi, flowRate);
