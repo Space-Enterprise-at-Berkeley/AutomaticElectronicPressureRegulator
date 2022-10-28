@@ -25,11 +25,4 @@ namespace Config {
     const unsigned long servoSettleTime =  200UL * 1000UL; // micros
     const float stopDiagnosticPressureThresh = 200; // diagnostic terminates if either tank exceeds this
     const float diagnosticSpeed = 200;
-    
-    // const float LOW_PT_C = 13.482;
-    // const float LOW_PT_M = 1.2407;
-
-    // const float HIGH_PT_C = 5.0;
-    // const float HIGH_PT_M = 0.7973;
-    // true = (measured - LOW_PT_C) / LOW_PT_M
 }

@@ -144,6 +144,7 @@ namespace Util {
      * @param time timestamp in micros
      */
     double heartBeat(unsigned long time) {
+        // return (time/1.0e6) - int((time/1.0e6));
         return sin(1.5*(time/1.0e6));
     }
 
