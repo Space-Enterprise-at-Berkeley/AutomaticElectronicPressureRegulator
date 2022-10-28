@@ -107,7 +107,7 @@ namespace FlowProfiles {
         const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
-            400*1000UL,
+            1500*1000UL,
             3*1000*1000UL,
             6*1000*1000UL,
             10*1000*1000UL,

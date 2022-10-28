@@ -27,7 +27,7 @@ namespace Util {
     double compute_feedforward(double pressureSetpoint, double hp, unsigned long flowTime);
     double compute_injector_feedforward(double pressureSetpoint, double tankPressure, double flowRate);
     double injector_characterization(unsigned long flowTime);
-    PidConstants computeDynamicPidConstants(double highPressure, double lowPressure);
+    PidConstants computeTankDynamicPidConstants(double highPressure, double lowPressure, unsigned long flowTime);
     PidConstants computeInjectorDynamicPidConstants(unsigned long flowTime);
     double heartBeat(unsigned long time);
     double clip(double value, double minOutput, double maxOutput);

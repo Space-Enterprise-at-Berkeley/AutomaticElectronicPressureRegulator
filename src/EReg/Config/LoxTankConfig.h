@@ -12,7 +12,7 @@ namespace Config {
     #define OUTER_BUFFER_SIZE 3
 
     // Controller Constants
-    const double p_outer_nominal = 1.8, i_outer_nominal = 0.25e-6, d_outer_nominal = 0.24; // nominal is 4000 -> 500 psi flow
+    const double p_outer_nominal = 1.8, i_outer_nominal = 0.40e-6, d_outer_nominal = 0.24; // nominal is 4000 -> 500 psi flow
     const double p_inner = 6, i_inner = 3.5e-6, d_inner = 0.10;
 
     // Flow Parameters
@@ -25,13 +25,4 @@ namespace Config {
     const unsigned long servoSettleTime =  200UL * 1000UL; // micros
     const float stopDiagnosticPressureThresh = 200; // diagnostic terminates if either tank exceeds this
     const float diagnosticSpeed = 200; // speed at which to run open loop motors
-
-    // const float LOW_PT_C = 0.96;
-    // const float LOW_PT_M = 1.1889;
-
-    // const float HIGH_PT_C = -1.0;
-    // const float HIGH_PT_M = 0.7557;
-    // true = (measured - LOW_PT_C) / LOW_PT_M
-
-
 }

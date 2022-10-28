@@ -102,15 +102,21 @@ namespace Util {
     }
 
     /**
-     * Compute dynamic PID constants. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
+     * Compute dynamic PID constants for tank eReg. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
      * Note that this function takes calibrated values from Config.h
      * @param highPressure Current upstream pressure in PSI
      * @param lowPressure Current downstream pressure in PSI
      * @return Pid constants
      */
-    PidConstants computeDynamicPidConstants(double highPressure, double lowPressure) {
-        double dynamicFactor = 1.0;
+    PidConstants computeTankDynamicPidConstants(double highPressure, double lowPressure, unsigned long flowTime) {
+        // double dynamicFactor = 1.0;
         // double dynamicFactor = clip(((14.7 + lowPressure)/max(1.0, highPressure)), 0, 1) * (7.8); // nominal is 4000 -> 500 psi flow
+        double dynamicFactor = 0;
+        if (flowTime > Config::tankPidStart) {
+            dynamicFactor = min(1, double(flowTime - Config::tankPidStart)/double(Config::tankPidFull - Config::tankPidStart));
+        } else {
+            dynamicFactor = 0;
+        }
         PidConstants dynamicConstants = {
             .k_p = dynamicFactor * Config::p_outer_nominal,
             .k_i = dynamicFactor * Config::i_outer_nominal,
