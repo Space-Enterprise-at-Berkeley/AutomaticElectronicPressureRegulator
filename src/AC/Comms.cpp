@@ -8,6 +8,7 @@ namespace Comms {
 
     void initComms() {
         Ethernet.begin((uint8_t *)mac, ip);
+        Ethernet.init(25);
         Udp.begin(port);
         DEBUGLN("Ethernet Initialized");
     }
@@ -149,6 +150,7 @@ namespace Comms {
         // #endif
 
         //Send over ethernet to both ground stations
+
         Udp.beginPacket(groundStation1, port);
         Udp.write(packet->id);
         Udp.write(packet->len);
@@ -167,8 +169,8 @@ namespace Comms {
     }
 
     void emitPacket(Packet *packet, uint8_t end) {
-        DEBUG(end);
-        DEBUG('\n');
+        // DEBUG(end);
+        // DEBUG('\n');
         //add timestamp to struct
         uint32_t timestamp = millis();
         packet->timestamp[0] = timestamp & 0xFF;
@@ -180,7 +182,6 @@ namespace Comms {
         uint16_t checksum = computePacketChecksum(packet);
         packet->checksum[0] = checksum & 0xFF;
         packet->checksum[1] = checksum >> 8;
-        DEBUG("a1");
         Udp.beginPacket(IPAddress(10, 0, 0, end), port);
         Udp.write(packet->id);
         Udp.write(packet->len);
@@ -188,23 +189,25 @@ namespace Comms {
         Udp.write(packet->checksum, 2);
         Udp.write(packet->data, packet->len);
         Udp.endPacket();
-        DEBUG("a2");
-        // Udp.beginPacket(groundStation1, port);
-        // Udp.write(packet->id);
-        // Udp.write(packet->len);
-        // Udp.write(packet->timestamp, 4);
-        // Udp.write(packet->checksum, 2);
-        // Udp.write(packet->data, packet->len);
-        // Udp.endPacket();
-        DEBUG("a3");
-        // Udp.beginPacket(groundStation2, port);
-        // Udp.write(packet->id);
-        // Udp.write(packet->len);
-        // Udp.write(packet->timestamp, 4);
-        // Udp.write(packet->checksum, 2);
-        // Udp.write(packet->data, packet->len);
-        // Udp.endPacket();
-        DEBUG("a4");
+
+        Udp.beginPacket(groundStation1, port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
+        
+        Udp.beginPacket(groundStation2, port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        Udp.endPacket();
+
+        DEBUG("Sending packet with ID " + String(packet->id));
+        DEBUGLN('\n');
     }
 
     void dumpPacket(Packet *packet) {

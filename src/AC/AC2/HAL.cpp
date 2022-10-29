@@ -26,32 +26,32 @@ namespace HAL {
 
     void initHAL() {
         // Initialize I2C buses
-        Wire.begin();
-        Wire.setClock(1000000);
+        // Wire.begin();
+        // Wire.setClock(1000000);
         // Wire1.begin();
         // Wire1.setClock(1000000);
-        // DEBUGLN("began wire");
+        DEBUGLN("began wire");
 
         SPI.begin();
 
-        // DEBUGLN("began SPI");
+        DEBUGLN("began SPI");
 
         // MAX31855 TC amps (cs)
         tcAmp0.init(&SPI, 2);
-        // DEBUGLN("did init 1");
+        DEBUGLN("did init 1");
         tcAmp1.init(&SPI, 5);
-        // DEBUGLN("did init 2");
+        DEBUGLN("did init 2");
         tcAmp2.init(&SPI, 13);
-        // DEBUGLN("did init 3");
+        DEBUGLN("did init 3");
         
         
-        // DEBUGLN("init SPI");
+        DEBUGLN("init SPI");
 
         // HX711 load cell amps (data out, clk)
         lcAmp0.begin(32, 33);
         lcAmp1.begin(26, 27);
 
-        // DEBUGLN("lcAmp begin");
+        DEBUGLN("lcAmp begin");
 
         // initChannel(&chan4, &Wire, 0x44);
         // initChannel(&chan5, &Wire, 0x45);

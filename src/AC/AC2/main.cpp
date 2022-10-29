@@ -47,6 +47,7 @@ int main() {
 void setup(){
     // hardware setup
     Serial.begin(115200);
+    Ethernet.init(25);
     #ifdef DEBUG_MODE
     while(!Serial) {} // wait for user to open serial port (debugging only)
     #endif
@@ -82,6 +83,6 @@ void loop(){
             }
         }
         DEBUGLN("finished looping over all tasks");
-        // Comms::processWaitingPackets();
+        Comms::processWaitingPackets();
     }
 }

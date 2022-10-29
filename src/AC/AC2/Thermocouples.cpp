@@ -113,14 +113,17 @@ namespace Thermocouples {
 
         MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2};//, &HAL::tcAmp3, &HAL::tcAmp4};
         float readings[3];
-        Comms::Packet readingPacket = {.id = 1};
+        Comms::Packet readingPacket = {.id = 110};
+        DEBUGLN("TC readings ");
         for(int i = 0; i < 3; i++){
             readings[i] = amps[i]->readCelsius();
             Comms::packetAddFloat(&readingPacket, readings[i]);
+            DEBUG(" " + String(readings[i]));
         }
-        Serial.println("emitting  packet");
+        DEBUGLN("");
+        Serial.println("emitting packet");
         Comms::emitPacket(&readingPacket, THERMOCOUPLES_DAQ_TO_DASHBOARD);
-        Serial.println("eitted packet");
+        Serial.println("emitted packet");
         return tcUpdatePeriod;
     }
     

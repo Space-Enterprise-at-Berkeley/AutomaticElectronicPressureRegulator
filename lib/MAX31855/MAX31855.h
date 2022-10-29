@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include <digitalWriteFast.h>
+#define digitalWriteFast digitalWrite
 
 class MAX31855 {
     public:

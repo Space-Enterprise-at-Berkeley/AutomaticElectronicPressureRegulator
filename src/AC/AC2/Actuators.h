@@ -4,6 +4,7 @@
 
 #include "HAL.h"
 #include "../Comms.h" 
+#include "../lib/digitalWriteFast/digitalWriteFast.h"
 
 #include <Arduino.h>
 

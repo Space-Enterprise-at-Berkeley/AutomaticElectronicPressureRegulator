@@ -5,18 +5,12 @@ int MAX31855::init(SPIClass *spi, uint8_t chipSelect)
     _chipSelect = chipSelect;
     _spi = spi;
 
-    // Serial.println("numba 1");
-
     _spi->begin();
-    // Serial.println("began SPI");
     _spi->beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
     _spi->endTransaction();
-    // Serial.println("numba 2");
 
     pinMode(_chipSelect, OUTPUT);
     digitalWriteFast(_chipSelect, HIGH);
-
-    // Serial.println("numba 3");
 
     return 0;
 }
