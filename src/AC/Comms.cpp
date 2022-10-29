@@ -5,12 +5,14 @@ namespace Comms {
     std::map<uint8_t, commFunction> callbackMap;
     EthernetUDP Udp;
     char packetBuffer[sizeof(Packet)];
+    int PacketCounterForDebugging = 0;
 
     void initComms() {
         Ethernet.begin((uint8_t *)mac, ip);
         Ethernet.init(25);
         Udp.begin(port);
         DEBUGLN("Ethernet Initialized");
+
     }
 
     void registerCallback(uint8_t id, commFunction function) {
@@ -127,6 +129,7 @@ namespace Comms {
      * @param packet Packet to be sent.
      */
     void emitPacket(Packet *packet) {
+        PacketCounterForDebugging++;
         //add timestamp to struct
         uint32_t timestamp = millis();
         packet->timestamp[0] = timestamp & 0xFF;
@@ -165,10 +168,13 @@ namespace Comms {
         Udp.write(packet->timestamp, 4);
         Udp.write(packet->checksum, 2);
         Udp.write(packet->data, packet->len);
-        Udp.endPacket();
+        int result = Udp.endPacket();
+        DEBUG("id:" + String(packet->id) + " rslt: " + String(result) + " . Number of sent packets so fr: " + String(PacketCounterForDebugging));
+        DEBUGLN('\n');
     }
 
     void emitPacket(Packet *packet, uint8_t end) {
+        PacketCounterForDebugging++;
         // DEBUG(end);
         // DEBUG('\n');
         //add timestamp to struct
@@ -188,7 +194,7 @@ namespace Comms {
         Udp.write(packet->timestamp, 4);
         Udp.write(packet->checksum, 2);
         Udp.write(packet->data, packet->len);
-        Udp.endPacket();
+        int result = Udp.endPacket();
 
         Udp.beginPacket(groundStation1, port);
         Udp.write(packet->id);
@@ -206,7 +212,7 @@ namespace Comms {
         Udp.write(packet->data, packet->len);
         Udp.endPacket();
 
-        DEBUG("Sending packet with ID " + String(packet->id));
+        DEBUG("ID " + String(packet->id) + " to ip ending in " + String(end) + " result: " + String(result) + " . Number of sent packets: " + String(PacketCounterForDebugging));
         DEBUGLN('\n');
     }
 
