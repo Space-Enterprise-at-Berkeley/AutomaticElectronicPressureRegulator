@@ -25,17 +25,17 @@ namespace FlowProfiles {
         const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
-            500*1000UL,
-            3*1000*1000UL,
-            6*1000*1000UL,
-            10*1000*1000UL,
-            12*1000*1000UL,
+            1500*1000UL,
+            4*1000*1000UL,
+            7*1000*1000UL,
+            11*1000*1000UL,
+            13*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
             0.0,
-            250.0,
-            250.0,
+            350.0,
+            350.0,
             480.0,
             480.0,
             250.0,
@@ -108,10 +108,10 @@ namespace FlowProfiles {
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
             1500*1000UL,
-            3*1000*1000UL,
-            6*1000*1000UL,
-            10*1000*1000UL,
-            12*1000*1000UL,
+            4*1000*1000UL,
+            7*1000*1000UL,
+            11*1000*1000UL,
+            13*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
@@ -150,11 +150,11 @@ namespace FlowProfiles {
         const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
-            400*1000UL,
-            3*1000*1000UL,
-            6*1000*1000UL,
-            10*1000*1000UL,
-            12*1000*1000UL,
+            1500*1000UL,
+            4*1000*1000UL,
+            7*1000*1000UL,
+            11*1000*1000UL,
+            13*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
