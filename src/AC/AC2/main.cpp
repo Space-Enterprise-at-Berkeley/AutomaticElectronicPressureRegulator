@@ -74,9 +74,14 @@ void loop(){
         uint32_t ticks = micros(); // current time in microseconds
         for(uint32_t i = 0; i < TASK_COUNT; i++) { // for each task, execute if next time >= current time
             if (taskTable[i].enabled && taskTable[i].nexttime - ticks > UINT32_MAX / 2) {
+                DEBUGLN("running task " + String(i));
                 taskTable[i].nexttime = ticks + taskTable[i].taskCall();
             }
+            else {
+                DEBUGLN("skipped task " + String(i));
+            }
         }
-        Comms::processWaitingPackets();
+        DEBUGLN("finished looping over all tasks");
+        // Comms::processWaitingPackets();
     }
 }

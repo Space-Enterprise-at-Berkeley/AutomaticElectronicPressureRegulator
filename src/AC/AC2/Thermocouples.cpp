@@ -118,7 +118,9 @@ namespace Thermocouples {
             readings[i] = amps[i]->readCelsius();
             Comms::packetAddFloat(&readingPacket, readings[i]);
         }
+        Serial.println("emitting  packet");
         Comms::emitPacket(&readingPacket, THERMOCOUPLES_DAQ_TO_DASHBOARD);
+        Serial.println("eitted packet");
         return tcUpdatePeriod;
     }
     

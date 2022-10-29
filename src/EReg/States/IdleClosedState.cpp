@@ -44,9 +44,10 @@ namespace StateMachine {
         Util::runMotors(speed);
 
         //send data to AC
+        Serial.println("senidng data");
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryIntervalIdle) {
             Packets::sendTelemetry(
-                HPpsi,
+                sin(millis()/1000.0),
                 LPpsi,
                 InjectorPT,
                 motorAngle,
