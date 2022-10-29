@@ -4,10 +4,10 @@
 
 namespace Config {
 
-    #define MAX_ANGLE 1100                                                    
+    #define MAX_ANGLE 900                                                    
     #define MIN_ANGLE 0
     #define ANTIWINDUP_RANGE_LOWER 250
-    #define ANTIWINDUP_RANGE_UPPER 1100
+    #define ANTIWINDUP_RANGE_UPPER 900
 
     #define OUTER_BUFFER_SIZE 2
 
@@ -22,7 +22,7 @@ namespace Config {
     // Diagnostic configs
     const int servoTestPoints = 9;
     const float servoTravelInterval = 100; // encoder counts
-    const unsigned long servoSettleTime =  1000UL * 1000UL; // micros
+    const unsigned long servoSettleTime =  500UL * 1000UL; // micros
     const float stopDiagnosticPressureThresh = 700; // diagnostic terminates if either tank exceeds this
     const float diagnosticSpeed = 0;
 }
