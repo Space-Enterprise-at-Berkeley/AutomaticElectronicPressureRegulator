@@ -6,6 +6,7 @@
 #define DAQ_EREG_ADDR 22
 #define THERMOCOUPLES_DAQ_TO_DASHBOARD 70
 #define LOAD_CELLS_DAQ_TO_DASHBOARD 70
+#define FLOW_ABORT_ID 201
 #pragma once
 
 namespace Config {

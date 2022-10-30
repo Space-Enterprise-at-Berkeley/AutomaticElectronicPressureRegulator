@@ -169,8 +169,8 @@ namespace Comms {
         Udp.write(packet->checksum, 2);
         Udp.write(packet->data, packet->len);
         int result = Udp.endPacket();
-        DEBUG("id:" + String(packet->id) + " rslt: " + String(result) + " . Number of sent packets so fr: " + String(PacketCounterForDebugging));
-        DEBUGLN('\n');
+        // DEBUG("id:" + String(packet->id) + " rslt: " + String(result) + " . Number of sent packets so fr: " + String(PacketCounterForDebugging));
+        // DEBUGLN('\n');
     }
 
     void emitPacket(Packet *packet, uint8_t end) {
@@ -212,8 +212,8 @@ namespace Comms {
         Udp.write(packet->data, packet->len);
         Udp.endPacket();
 
-        DEBUG("ID " + String(packet->id) + " to ip ending in " + String(end) + " result: " + String(result) + " . Number of sent packets: " + String(PacketCounterForDebugging));
-        DEBUGLN('\n');
+        // DEBUG("ID " + String(packet->id) + " to ip ending in " + String(end) + " result: " + String(result) + " . Number of sent packets: " + String(PacketCounterForDebugging));
+        // DEBUGLN('\n');
     }
 
     void dumpPacket(Packet *packet) {
