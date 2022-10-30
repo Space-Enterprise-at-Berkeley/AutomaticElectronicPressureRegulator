@@ -3,8 +3,7 @@
 #include <Common.h>
 
 #include "HAL.h"
-#include "../Comms.h" 
-#include "../lib/digitalWriteFast/digitalWriteFast.h"
+#include "../Comms.h"
 
 #include <Arduino.h>
 
