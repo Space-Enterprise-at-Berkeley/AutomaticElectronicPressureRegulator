@@ -18,29 +18,33 @@ namespace Thermocouples {
             int aboveThresholdCount = 0;
 
             for(int i = 0; i < Config::tempBufferSize; i++){
+                DEBUGF("%f ", tempBuffer[tcNumber][i]);
                 if (tempBuffer[tcNumber][i] >= Config::temperatureThreshold) {
                     aboveThresholdCount++;
                 }
             }
+            DEBUG(" | ");
 
             if (aboveThresholdCount >= Config::tempNumberThreshold) {
                 DEBUGF("Temperature abort triggered by TC %d!\n", tcNumber);
-                // Comms::emitPacket(&tcAbortPacket, 21);
+                Comms::emitPacket(&tcAbortPacket, 21);
+                tcAbortPacket.len = 0;
                 sendTCAbortPackets();
             }
         }
         
+        DEBUGLN("");
         return tcUpdatePeriod;
     }
 
     void sendTCAbortPackets() {
-        // Comms::Packet abortMessage = {.id = 1, .len = 0};
-        // Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
-        // Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
-        // Comms::emitPacket(&abortMessage, LOX_TANK_EREG_ADDR);
-        // Comms::emitPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
-        // Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
-        // Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
+        Comms::Packet abortMessage = {.id = FLOW_ABORT_ID, .len = 0};
+        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, LOX_TANK_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
+        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
     uint32_t sendTCReadingPacket(){
@@ -50,12 +54,13 @@ namespace Thermocouples {
         for(int i = 0; i < Config::numberOfTC; i++){
             tempBuffer[i][buffer_i] = amps[i]->readCelsius();
             Comms::packetAddFloat(&readingPacket, tempBuffer[i][buffer_i]);            
-            DEBUG(" " + String(tempBuffer[i][buffer_i]));
+            // DEBUG(" " + String(tempBuffer[i][buffer_i]));
         }
-        DEBUGLN("");
+        // DEBUGLN("");
         buffer_i = (buffer_i + 1) % Config::tempBufferSize;
         // Serial.println("emitting packet");
         Comms::emitPacket(&readingPacket);
+        readingPacket.len = 0;
         // Serial.println("emitted packet " + String(millis()));
         return tcUpdatePeriod;
 
