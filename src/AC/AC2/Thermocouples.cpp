@@ -111,7 +111,7 @@ namespace Thermocouples {
 
     uint32_t sendTCReadingPacket(){
 
-        MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2};//, &HAL::tcAmp3, &HAL::tcAmp4};
+        MAX31855* amps[] = {&HAL::tcAmp0, &HAL::tcAmp1, &HAL::tcAmp2};
         float readings[3];
         Comms::Packet readingPacket = {.id = 110};
         DEBUGLN("TC readings ");

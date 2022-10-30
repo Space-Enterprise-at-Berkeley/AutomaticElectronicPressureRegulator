@@ -22,7 +22,6 @@ namespace LoadCells {
     }
 
     uint32_t sampleLoadCells() {
-        Serial.println("calling this task!");
         loadCell0Value = HAL::lcAmp0.get_units(); // in pounds
         loadCell1Value = HAL::lcAmp1.get_units(); // in pounds
         loadCellSum = loadCell0Value + loadCell1Value;
