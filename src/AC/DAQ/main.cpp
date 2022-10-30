@@ -22,10 +22,10 @@ Task taskTable[] = {
 
 
     //Thermocouples
-    {&Thermocouples::checkForAbort, (uint32_t) 0, true},
+    {&Thermocouples::checkForAbort, (uint32_t) 0, false},
     {&Thermocouples::sendTCReadingPacket, (uint32_t) 0, true},
     //Load Cells
-    {&LoadCells::checkForLCAbort, (uint32_t) 0, true},
+    {&LoadCells::checkForLCAbort, (uint32_t) 0, false},
     {&LoadCells::sampleLoadCells, (uint32_t) 0, true},
     // thermocouples
     // {Thermocouples::tc0Sample, 0},
@@ -52,8 +52,8 @@ void setup(){
     while(!Serial) {} // wait for user to open serial port (debugging only)
     #endif
 
-    Thermocouples::abortTC = &taskTable[0];
-    Thermocouples::readTC = &taskTable[1];
+    // Thermocouples::abortTC = &taskTable[0];
+    // Thermocouples::readTC = &taskTable[1];
     LoadCells::abortLC = &taskTable[2];
     LoadCells::readLC = &taskTable[3];
 
