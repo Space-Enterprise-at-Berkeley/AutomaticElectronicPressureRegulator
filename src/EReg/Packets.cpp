@@ -6,9 +6,8 @@
 namespace Packets {
     /**
      * Send telemetry packet:
-     * - high pressure
-     * - low pressure 
-     * - injector pressure 
+     * - upstream pressure
+     * - downstream pressure 
      * - encoder reading 
      * - angle setpoint 
      * - pressure setpoint
@@ -18,9 +17,8 @@ namespace Packets {
      * - pressure control loop D term
      */
     void sendTelemetry(
-        float highPressure,
-        float lowPressure,
-        float injectorPressure,
+        float upstreamPressure,
+        float downstreamPressure,
         float encoderAngle,
         float angleSetpoint,
         float pressureSetpoint,
@@ -36,9 +34,8 @@ namespace Packets {
         DEBUG(motorPower); DEBUGLN("\t");
         #else
         Comms::Packet packet = {.id = TELEMETRY_ID};
-        Comms::packetAddFloat(&packet, highPressure);
-        Comms::packetAddFloat(&packet, lowPressure);
-        Comms::packetAddFloat(&packet, injectorPressure);
+        Comms::packetAddFloat(&packet, upstreamPressure);
+        Comms::packetAddFloat(&packet, downstreamPressure);
         Comms::packetAddFloat(&packet, encoderAngle);
         Comms::packetAddFloat(&packet, angleSetpoint);
         Comms::packetAddFloat(&packet, pressureSetpoint);
@@ -47,6 +44,7 @@ namespace Packets {
         Comms::packetAddFloat(&packet, pressureControlI);
         Comms::packetAddFloat(&packet, pressureControlD);
         Comms::emitPacket(&packet);
+        Comms::emitPacket(&packet, HAL::acEndIp); //TODO not working right now, need for forwarding pressures for aborts
         #endif
     }
 
@@ -115,6 +113,23 @@ namespace Packets {
         packet.len = 0;
         Comms::packetAddUint8(&packet, flowState);
         Comms::emitPacket(&packet);
+    }
+
+
+    /**
+     * Sends an abort command to all 4 ESPs
+     */
+    void broadcastAbort() {
+        Comms::Packet packet = {.id = ABORT_ID};
+        packet.len = 0;
+
+        //send to all ESPs including to itself
+        Comms::emitPacket(&packet, ESP_ADDRESS_1);
+        Comms::emitPacket(&packet, ESP_ADDRESS_2);
+        Comms::emitPacket(&packet, ESP_ADDRESS_3);
+        Comms::emitPacket(&packet, ESP_ADDRESS_4);
+        Comms::emitPacket(&packet, HAL::acEndIp);
+        Comms::emitPacket(&packet, HAL::daqEndIp);
     }
 
 }

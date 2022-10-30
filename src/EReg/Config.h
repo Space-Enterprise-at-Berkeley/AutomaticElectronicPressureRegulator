@@ -1,55 +1,66 @@
-#if defined(LOX)
-    #include "LOX_Config.h"
-#elif defined(FUEL)
-    #include "Fuel_Config.h"
+#if defined(FUEL)
+    // 0.804 for ln2, 0.493 for propane
+    #define PROPELLANT_GRAVITY 0.804
+    #if defined(IS_INJECTOR)
+        #include "Config/FuelInjectorConfig.h"
+    #else
+        #include "Config/FuelTankConfig.h"
+    #endif
+#elif defined(LOX)
+    // 0.804 for ln2, 1.14 for lox
+    #define PROPELLANT_GRAVITY 0.804
+    #if defined(IS_INJECTOR)
+        #include "Config/LoxInjectorConfig.h"
+    #else
+        #include "Config/LoxTankConfig.h"
+    #endif
 #endif
 
 #pragma once
 
 namespace Config {
 
-    #ifdef EVERY
-    #define SERIAL_COMMS Serial1
-    #else
-    #define SERIAL_COMMS Serial
-    #endif
+    #define ESP_ADDRESS_1 25
+    #define ESP_ADDRESS_2 26
+    #define ESP_ADDRESS_3 27
+    #define ESP_ADDRESS_4 28
 
     #define MAX_SPD 255
     #define MIN_SPD -255
-    #define MAX_ANGLE 500                                                    
-    #define MIN_ANGLE 0
-    #define ANTIWINDUP_RANGE_LOWER 150
-    #define ANTIWINDUP_RANGE_UPPER 500
 
     #define OPEN_LOOP_SPEED 200                                                                                                                                                  
 
-    #define OUTER_BUFFER_SIZE 4
-    #define INNER_BUFFER_SIZE 4
+    #define INNER_BUFFER_SIZE 2
     #define DIAGNOSTIC_BUFFER_SIZE 5
 
-    const unsigned long telemetryInterval = 5 * 1000UL; // time in microseconds between telemetry packets
+    const unsigned long telemetryInterval = 50 * 1000UL; // time in microseconds between telemetry packets
     const unsigned long telemetryIntervalIdle = 100 * 1000UL; // time in microseconds between telemetry packets
 
     const unsigned long closeTime = 3UL * 1000UL; // time in milliseconds
 
     // flow duration
-    const unsigned long flowDuration = 5UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
+    const unsigned long flowDuration = 18UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
+    const unsigned long rampStart = 400; // psi
 
     // Pressurization Parameters
     const unsigned long pressurizationRampDuration = 30 * 1000UL * 1000UL;
     const float pressurizationCutoff = pressureSetpoint * 0.99;
     const float pressurizationStartPressure = 100;
+    const unsigned long tankPidStart = 0; // time in microseconds
+    const unsigned long tankPidFull = 1 * 1000UL * 1000UL; // time in microseconds
 
     // Diagnostic configs
     const float minAngleMovement = 300;
-    const int servoTestPoints = 5;
-    const float servoTravelInterval = 100; // encoder counts
-    const unsigned long servoSettleTime = 200UL * 1000UL; // micros
     const float servoSettleThresh = 10; // encoder counts
+    const float initialServoAngle = 100; // encoder counts
 
     // Abort Thresholds
     const float abortPressureThresh = 750; // transition to idleClosed if prop tank exceeds this
-    const float stopDiagnosticPressureThresh = 200; // diagnostic terminates if either tank exceeds this
 
+    // Injector Feedforward Thresholds
+    const float minInjectorFeedforwardAngle = 200;
+    const float maxInjectorFeedforwardAngle = 900;
+    const unsigned long injectorPidStart = 400UL * 1000UL; // time in microseconds
+    const unsigned long injectorPidFull = 3 * 1000UL * 1000UL; // time in microseconds
 }

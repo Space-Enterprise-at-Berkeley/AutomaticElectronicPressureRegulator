@@ -10,8 +10,8 @@ namespace Automation {
     bool tcAbortEnabled = false;
     bool lcAbortEnabled = false;
 
-    bool igniterEnabled = true;
-    bool breakwireEnabled = true;
+    bool igniterEnabled = false;
+    bool breakwireEnabled = false;
 
     bool igniterTriggered = false;
     bool breakwireBroken = false;
@@ -25,8 +25,8 @@ namespace Automation {
         Automation::autoventFuelTask = autoventFuelTask;
         Automation::autoventLoxTask = autoventLoxTask;
 
-        Comms::registerCallback(2, beginFlow);
-        Comms::registerCallback(3, beginManualAbortFlow);
+        Comms::registerCallback(9, beginFlow);
+        Comms::registerCallback(201, beginManualAbortFlow);
         
         Comms::registerCallback(30, checkForTCAbort);
         Comms::registerCallback(31, checkForLCAbort);

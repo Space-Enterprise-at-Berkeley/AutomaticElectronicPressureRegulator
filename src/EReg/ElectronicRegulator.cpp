@@ -5,12 +5,14 @@
 #include "Config.h"
 #include "StateMachine.h"
 #include "Packets.h"
+#include "Ducers.h"
 
 StateMachine::FlowState *flowState = StateMachine::getFlowState();
 StateMachine::IdleClosedState *idleClosedState = StateMachine::getIdleClosedState();
 StateMachine::PartiallyOpenState *partiallyOpenState = StateMachine::getPartiallyOpenState();
 StateMachine::DiagnosticState *diagnosticState = StateMachine::getDiagnosticState();
 StateMachine::PressurizeState *pressurizeState = StateMachine::getPressurizeState();
+StateMachine::InjectorFlowState *injectorFlowState = StateMachine::getInjectorFlowState();
 
 void zero() {
     DEBUGLN("starting zero command");
@@ -53,26 +55,25 @@ void actuateMainValve(Comms::Packet packet, uint8_t ip) {
 }
 
 void setup() {
+    delay(100);
     HAL::init();
     Comms::initComms();
+    Ducers::init();
     StateMachine::enterIdleClosedState();
     zero();
-    Comms::registerCallback(0, flow);
-    Comms::registerCallback(1, stopFlow);
-    Comms::registerCallback(2, partialOpen);
-    Comms::registerCallback(3, pressurize);
-    Comms::registerCallback(4, runDiagnostics);
-    Comms::registerCallback(5, zero);
-    Comms::registerCallback(6, actuateMainValve);
+    Comms::registerCallback(200, flow);
+    Comms::registerCallback(201, stopFlow);
+    Comms::registerCallback(202, partialOpen);
+    Comms::registerCallback(203, pressurize);
+    Comms::registerCallback(204, runDiagnostics);
+    Comms::registerCallback(205, zero);
+    Comms::registerCallback(206, actuateMainValve);
     
     Packets::sendConfig();
 }
 
 void loop() {
-    Serial.println("in loop");
-    delay(100);
     Comms::processWaitingPackets();
-
     switch (StateMachine::getCurrentState()) {
         case StateMachine::IDLE_CLOSED:
         idleClosedState->update();
@@ -87,7 +88,11 @@ void loop() {
         break;
 
         case StateMachine::FLOW:
+        #ifdef IS_INJECTOR
+        injectorFlowState->update();
+        #else
         flowState->update();
+        #endif
         break;
 
         case StateMachine::DIAGNOSTIC:

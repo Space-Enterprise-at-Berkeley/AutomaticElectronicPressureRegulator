@@ -26,11 +26,10 @@ namespace StateMachine {
      * Perform single iteration of valve angle servo loop
      */
     void PartiallyOpenState::update() {
-        float motorAngle = HAL::encoder.getCount()
-;
-        float HPpsi = Util::voltageToHighPressure(HAL::adc.readADC(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(HAL::adc.readADC(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(HAL::adc.readADC(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount();
+
+        float upstreamPsi = HAL::readUpstreamPT();
+        float downstreamPsi = HAL::readDownstreamPT();
 
         float speed = 0;
 
@@ -42,9 +41,8 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                upstreamPsi,
+                downstreamPsi,
                 motorAngle,
                 angleSetpoint_,
                 0,
@@ -56,7 +54,7 @@ namespace StateMachine {
             lastPrint_ = micros();
         }
 
-        checkAbortPressure(LPpsi, Config::abortPressureThresh);
+        checkAbortPressure(downstreamPsi, Config::abortPressureThresh);
     }
 
 }

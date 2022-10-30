@@ -6,6 +6,16 @@
         "unordered_map": "cpp",
         "vector": "cpp",
         "string_view": "cpp",
-        "initializer_list": "cpp"
-    }
+        "initializer_list": "cpp",
+        "cstdlib": "cpp",
+        "exception": "cpp",
+        "ios": "cpp",
+        "optional": "cpp",
+        "stdexcept": "cpp",
+        "typeinfo": "cpp",
+        "variant": "cpp",
+        "functional": "cpp",
+        "memory": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }

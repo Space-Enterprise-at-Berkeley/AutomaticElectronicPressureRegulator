@@ -15,7 +15,7 @@ namespace Automation {
     const float breakWireThreshold = 20;
     const float twoWayCurrentThreshold = 0.2;
 
-    const long burnTime = 5 * 1e6;
+    const long burnTime = 18 * 1e6;
 
     extern bool igniterEnabled;
     extern bool breakwireEnabled;
