@@ -26,10 +26,10 @@ namespace LoadCells {
         loadCell1Value = HAL::lcAmp1.get_units(); // in pounds
         loadCellSum = loadCell0Value + loadCell1Value;
 
-        DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
+        // DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
 
         Comms::Packet tmp = {.id = 120};
-        Comms::packetAddFloat(&tmp, sin(millis()/1000.0));//loadCell0Value);
+        Comms::packetAddFloat(&tmp, loadCell0Value);
         Comms::packetAddFloat(&tmp, loadCell1Value);
         Comms::packetAddFloat(&tmp, loadCell0Value + loadCell1Value);
         Comms::emitPacket(&tmp, LOAD_CELLS_DAQ_TO_DASHBOARD);
