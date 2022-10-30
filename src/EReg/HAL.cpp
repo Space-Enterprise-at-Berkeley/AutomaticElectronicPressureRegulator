@@ -6,6 +6,8 @@ namespace HAL {
     ESP32Encoder encoder;
 
     void init() {
+        // pinMode(19, PULLDOWN);
+
         pinMode(mainValve1, OUTPUT);
         pinMode(mainValve2, OUTPUT);
 

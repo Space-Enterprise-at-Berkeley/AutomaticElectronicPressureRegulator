@@ -21,4 +21,9 @@ struct Task {
     uint32_t (*taskCall)(void);
     uint32_t nexttime;
     bool enabled = true;
+
+    Task(uint32_t (*taskCallin)(void), uint32_t nexttimein, bool enabledin):
+        taskCall(taskCallin), nexttime(nexttimein), enabled(enabledin) {}
 };
+
+

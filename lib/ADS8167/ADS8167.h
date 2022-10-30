@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 #include <SPI.h>
+#define digitalWriteFast digitalWrite
+#define digitalReadFast digitalRead
 
 class ADS8167 {
     public:

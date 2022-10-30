@@ -7,6 +7,7 @@ int MAX31855::init(SPIClass *spi, uint8_t chipSelect)
 
     _spi->begin();
     _spi->beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    _spi->endTransaction();
 
     pinMode(_chipSelect, OUTPUT);
     digitalWriteFast(_chipSelect, HIGH);
