@@ -5,6 +5,7 @@
 
 #include <Arduino.h>
 #include <stdlib.h>
+#include <AC/Comms.h>
 
 namespace Automation {
 
@@ -20,6 +21,8 @@ namespace Automation {
     extern bool igniterEnabled;
     extern bool breakwireEnabled;
     extern bool igniterTriggered;
+
+    Comms::Packet lcAbortPacket = {.id = 100};
 
     extern Task *flowTask; // perform burn
     extern Task *abortFlowTask;

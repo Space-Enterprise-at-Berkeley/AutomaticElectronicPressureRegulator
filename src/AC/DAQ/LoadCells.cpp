@@ -58,4 +58,8 @@ namespace LoadCells {
         Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
+    void toggleLCAbort(Comms::Packet packet, uint8_t ip) {
+        abortLC->enabled = Comms::packetGetUint8(&packet, 0);
+    }
+
 };
