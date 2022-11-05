@@ -1,7 +1,8 @@
 #include "Thermocouples.h"
 
 namespace Thermocouples {
-    uint32_t tcUpdatePeriod = 100 * 1000;
+    const uint32_t tcUpdatePeriod = 100 * 1000;
+    const uint32_t tcAbortRefreshPeriod = 2000UL * 1000UL; // 2s delay between abort sends
     Comms::Packet readingPacket = {.id = 110};
     Comms::Packet tcAbortPacket = {.id = 30};
     float tempBuffer[Config::numberOfTC][Config::tempBufferSize];
@@ -26,9 +27,10 @@ namespace Thermocouples {
 
             if (aboveThresholdCount >= Config::tempNumberThreshold) {
                 // DEBUGF("Temperature abort triggered by TC %d!\n", tcNumber);
-                // Comms::emitPacket(&tcAbortPacket);
+                Comms::emitPacket(&tcAbortPacket);
                 tcAbortPacket.len = 0;
                 sendTCAbortPackets();
+                return tcAbortRefreshPeriod;
             }
         }
         
