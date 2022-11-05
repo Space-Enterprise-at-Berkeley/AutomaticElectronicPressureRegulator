@@ -8,7 +8,7 @@ namespace Comms {
 
     void initComms() {
         Serial.begin(115200);
-        Ethernet.init(25);
+        Ethernet.init(13);
         Ethernet.begin((uint8_t *)mac, ip);
         Udp.begin(port);
         DEBUGLN("Ethernet Initialized");
