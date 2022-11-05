@@ -57,10 +57,10 @@ namespace LoadCells {
 
     void sendLCAbortPackets() {
         Comms::Packet abortMessage = {.id = FLOW_ABORT_ID, .len = 0};
-        Comms::emitDirectedPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
-        Comms::emitDirectedPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
-        Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);
-        Comms::emitDirectedPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
+        // Comms::emitDirectedPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        // Comms::emitDirectedPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        // Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);
+        // Comms::emitDirectedPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
         Comms::emitDirectedPacket(&abortMessage, AC_EREG_ADDR);
     }
 
