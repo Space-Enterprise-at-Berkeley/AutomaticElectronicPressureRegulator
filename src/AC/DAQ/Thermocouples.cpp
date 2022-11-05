@@ -12,22 +12,21 @@ namespace Thermocouples {
     }
 
     uint32_t checkForAbort() {
-        //check thermocouple temperatures to be below a threshold
-        
+        //check thermocouple temperatures to be below a threshold        
         for (int tcNumber = 0; tcNumber < Config::numberOfTC; tcNumber++) {
             int aboveThresholdCount = 0;
 
             for(int i = 0; i < Config::tempBufferSize; i++){
-                DEBUGF("%f ", tempBuffer[tcNumber][i]);
+                // DEBUGF("%f ", tempBuffer[tcNumber][i]);
                 if (tempBuffer[tcNumber][i] >= Config::temperatureThreshold) {
                     aboveThresholdCount++;
                 }
             }
-            DEBUG(" | ");
+            // DEBUG(" | ");
 
             if (aboveThresholdCount >= Config::tempNumberThreshold) {
-                DEBUGF("Temperature abort triggered by TC %d!\n", tcNumber);
-                Comms::emitPacket(&tcAbortPacket, 21);
+                // DEBUGF("Temperature abort triggered by TC %d!\n", tcNumber);
+                // Comms::emitPacket(&tcAbortPacket);
                 tcAbortPacket.len = 0;
                 sendTCAbortPackets();
             }
@@ -39,12 +38,12 @@ namespace Thermocouples {
 
     void sendTCAbortPackets() {
         Comms::Packet abortMessage = {.id = FLOW_ABORT_ID, .len = 0};
-        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, LOX_TANK_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, AC_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
     uint32_t sendTCReadingPacket(){

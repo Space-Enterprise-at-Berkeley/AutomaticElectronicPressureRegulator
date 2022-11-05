@@ -5,6 +5,7 @@
 
 #include <Arduino.h>
 #include <stdlib.h>
+#include <AC/Comms.h>
 
 namespace Automation {
 
@@ -13,13 +14,15 @@ namespace Automation {
 
     const float igniterTriggerThreshold = 0.06;
     const float breakWireThreshold = 20;
-    const float twoWayCurrentThreshold = 0.2;
+    const float twoWayCurrentThreshold = 0.1;
 
     const long burnTime = 18 * 1e6;
 
     extern bool igniterEnabled;
     extern bool breakwireEnabled;
     extern bool igniterTriggered;
+
+    Comms::Packet lcAbortPacket = {.id = 100};
 
     extern Task *flowTask; // perform burn
     extern Task *abortFlowTask;

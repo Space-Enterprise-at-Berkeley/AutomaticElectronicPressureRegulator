@@ -216,6 +216,30 @@ namespace Comms {
         // DEBUGLN('\n');
     }
 
+     void emitDirectedPacket(Packet *packet, uint8_t end) {
+        PacketCounterForDebugging++;
+        // DEBUG(end);
+        // DEBUG('\n');
+        //add timestamp to struct
+        uint32_t timestamp = millis();
+        packet->timestamp[0] = timestamp & 0xFF;
+        packet->timestamp[1] = (timestamp >> 8) & 0xFF;
+        packet->timestamp[2] = (timestamp >> 16) & 0xFF;
+        packet->timestamp[3] = (timestamp >> 24) & 0xFF;
+
+        //calculate and append checksum to struct
+        uint16_t checksum = computePacketChecksum(packet);
+        packet->checksum[0] = checksum & 0xFF;
+        packet->checksum[1] = checksum >> 8;
+        Udp.beginPacket(IPAddress(10, 0, 0, end), port);
+        Udp.write(packet->id);
+        Udp.write(packet->len);
+        Udp.write(packet->timestamp, 4);
+        Udp.write(packet->checksum, 2);
+        Udp.write(packet->data, packet->len);
+        int result = Udp.endPacket();
+    }
+
     void dumpPacket(Packet *packet) {
         DEBUGF("Dumping packet: \nID: 0x%x, length: 0x%x, timestamp: 0x%x%x%x%x, checksum: 0x%x%x\nData: 0x ", 
         packet->id, packet->len, packet->timestamp[0], packet->timestamp[1], packet->timestamp[2], packet->timestamp[3], packet->checksum[0], packet->checksum[1]);

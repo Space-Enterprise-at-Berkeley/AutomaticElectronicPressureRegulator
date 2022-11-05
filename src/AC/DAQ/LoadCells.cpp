@@ -26,21 +26,26 @@ namespace LoadCells {
         loadCell1Value = HAL::lcAmp1.get_units(); // in pounds
         loadCellSum = loadCell0Value + loadCell1Value;
 
-        // DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
+        DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
 
         Comms::Packet tmp = {.id = 120};
         Comms::packetAddFloat(&tmp, loadCell0Value);
         Comms::packetAddFloat(&tmp, loadCell1Value);
         Comms::packetAddFloat(&tmp, loadCell0Value + loadCell1Value);
         Comms::emitPacket(&tmp, LOAD_CELLS_DAQ_TO_DASHBOARD);
+
+        lastLoadCellTime = micros();
+        
         return samplePeriod;
     }
 
     uint32_t checkForLCAbort() {
+        DEBUGF("Checking for LC abort with loadcellsum %f", loadCellSum);
         if (loadCellSum < loadCellThreshold && millis() - lastLoadCellTime < 25) {
             hysteresisValue += 1;
             if (hysteresisValue >= hysteresisThreshold) {
-                Comms::emitPacket(&lcAbortPacket, 21);
+                DEBUGF("LOAD CELL ABORT TRIGGERED \n");
+                // Comms::emitPacket(&lcAbortPacket);
                 sendLCAbortPackets();
             }
         } else {
@@ -51,11 +56,16 @@ namespace LoadCells {
     }
 
     void sendLCAbortPackets() {
-        Comms::Packet abortMessage = {.id = 1, .len = 0};
-        Comms::emitPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, AC_EREG_ADDR);
-        Comms::emitPacket(&abortMessage, DAQ_EREG_ADDR);
+        Comms::Packet abortMessage = {.id = FLOW_ABORT_ID, .len = 0};
+        Comms::emitDirectedPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
+        Comms::emitDirectedPacket(&abortMessage, AC_EREG_ADDR);
+    }
+
+    void toggleLCAbort(Comms::Packet packet, uint8_t ip) {
+        abortLC->enabled = Comms::packetGetUint8(&packet, 0);
     }
 
 };

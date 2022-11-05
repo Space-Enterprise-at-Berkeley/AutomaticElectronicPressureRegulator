@@ -28,4 +28,5 @@ namespace LoadCells {
     uint32_t checkForAbort();
     uint32_t checkForLCAbort();
     void sendLCAbortPackets(); 
+    void toggleLCAbort(Comms::Packet packet, uint8_t ip);
 };

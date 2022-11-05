@@ -86,5 +86,13 @@ namespace Comms {
      */
     void emitPacket(Packet *packet, uint8_t end);
 
+    /**
+     * @brief Sends the packet to arbitrary address
+     * 
+     * @param packet Packet to be sent.
+     * @param custom IP address to send to
+     */
+    void emitDirectedPacket(Packet *packet, uint8_t end);
+
     uint16_t computePacketChecksum(Packet *packet);
 };
