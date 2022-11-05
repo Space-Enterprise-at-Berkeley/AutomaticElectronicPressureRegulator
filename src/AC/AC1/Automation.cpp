@@ -8,7 +8,7 @@ namespace Automation {
     Task *autoventLoxTask = nullptr;
     
     bool tcAbortEnabled = false;
-    bool lcAbortEnabled = false;
+    bool lcAbortEnabled = true;
 
     bool igniterEnabled = false;
     bool breakwireEnabled = false;
@@ -18,6 +18,8 @@ namespace Automation {
 
     bool loxGemValveAbovePressure = false;
     bool fuelGemValveAbovePressure = false;
+
+    Comms::Packet lcAbortPacket = {.id = 100};
 
     void initAutomation(Task *flowTask, Task *abortFlowTask, Task *autoventFuelTask, Task *autoventLoxTask) {
         Automation::flowTask = flowTask;

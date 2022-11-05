@@ -1,6 +1,5 @@
 #include <Common.h>
 #include <AC/Comms.h>
-#include "Actuators.h"
 #include "Thermocouples.h"
 #include "LoadCells.h"
 #include "HAL.h"
@@ -11,29 +10,12 @@
 #include <SPI.h>
 
 Task taskTable[] = {
-    // actuators
-    // {Actuators::act1Sample, 0},
-    // {Actuators::act2Sample, 0},
-    // {Actuators::act3Sample, 0},
-    // {Actuators::act4Sample, 0},
-    // {Actuators::act5Sample, 0},
-    // {Actuators::act6Sample, 0},
-    // {Actuators::act7Sample, 0}, //#6
-
-
     //Thermocouples
-    {&Thermocouples::checkForAbort, (uint32_t) 0, true},
-    {&Thermocouples::sendTCReadingPacket, (uint32_t) 0, true},
+    {Thermocouples::checkForAbort, 0, true},
+    {Thermocouples::sendTCReadingPacket, 0, true},
     //Load Cells
-    {&LoadCells::checkForLCAbort, (uint32_t) 0, true},
-    {&LoadCells::sampleLoadCells, (uint32_t) 0, true},
-    // thermocouples
-    // {Thermocouples::tc0Sample, 0},
-    // {Thermocouples::tc1Sample, 0},
-    // {Thermocouples::tc2Sample, 0},
-    // {Thermocouples::tc3Sample, 0},
-    // {Thermocouples::tc4Sample, 0},
-
+    {LoadCells::checkForLCAbort, 0, true},
+    {LoadCells::sampleLoadCells, 0, true}
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -63,8 +45,6 @@ void setup(){
     DEBUGLN("iniitiated Hal");
     Comms::initComms();
     DEBUGLN("ethernet started fr");
-    Actuators::initActuators(); 
-    DEBUGLN("after init actuators");
     LoadCells::initLoadCells();
     Thermocouples::initThermocouples();
     DEBUGLN("done with initialization");
