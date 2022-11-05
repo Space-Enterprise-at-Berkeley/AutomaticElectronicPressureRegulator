@@ -3,7 +3,7 @@
 #include <Common.h>
 
 #include "HAL.h"
-#include "../Comms.h"
+#include "Comms.h"
 
 #include <Arduino.h>
 

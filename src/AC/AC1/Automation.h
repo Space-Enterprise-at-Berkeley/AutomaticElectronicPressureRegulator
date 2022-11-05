@@ -22,7 +22,7 @@ namespace Automation {
     extern bool breakwireEnabled;
     extern bool igniterTriggered;
 
-    Comms::Packet lcAbortPacket = {.id = 100};
+    extern Comms::Packet lcAbortPacket;
 
     extern Task *flowTask; // perform burn
     extern Task *abortFlowTask;
