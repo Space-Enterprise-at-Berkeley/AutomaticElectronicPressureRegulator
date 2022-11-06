@@ -12,7 +12,7 @@ namespace Config {
     #define OUTER_BUFFER_SIZE 2
 
     // Controller Constants
-    const double p_outer_nominal = 0.5, i_outer_nominal = 0.6e-6, d_outer_nominal = 0.0;
+    const double p_outer_nominal = 0.5, i_outer_nominal = 0.8e-6, d_outer_nominal = 0.0;
     const double p_inner = 6, i_inner = 4.5e-6, d_inner = 0.15;
 
     // Flow Parameters

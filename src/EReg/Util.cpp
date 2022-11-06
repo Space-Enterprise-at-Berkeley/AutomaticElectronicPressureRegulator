@@ -75,7 +75,7 @@ namespace Util {
         const float minFeedforwardAngle = Config::minInjectorFeedforwardAngle;
         const float maxFeedforwardAngle = Config::maxInjectorFeedforwardAngle;
         const double cvGradient = 0.004167;
-        const double cvInterceptX = 250.0;
+        const double cvInterceptX = 220.0;
         double deltaP = tankPressure - pressureSetpoint;
         if (deltaP < 0.01) { // tank pressure is too low, just open valve all the way
             return maxFeedforwardAngle;

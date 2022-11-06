@@ -1,7 +1,7 @@
 #include "Thermocouples.h"
 
 namespace Thermocouples {
-    const uint32_t tcUpdatePeriod = 100 * 1000;
+    uint32_t tcUpdatePeriod = 100 * 1000;
     const uint32_t tcAbortRefreshPeriod = 2000UL * 1000UL; // 2s delay between abort sends
     Comms::Packet readingPacket = {.id = 110};
     Comms::Packet tcAbortPacket = {.id = 30};
@@ -45,7 +45,6 @@ namespace Thermocouples {
         Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);
         Comms::emitDirectedPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
         Comms::emitDirectedPacket(&abortMessage, AC_EREG_ADDR);
-        Comms::emitDirectedPacket(&abortMessage, DAQ_EREG_ADDR);
     }
 
     uint32_t sendTCReadingPacket(){
