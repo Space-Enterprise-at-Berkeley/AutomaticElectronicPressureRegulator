@@ -25,11 +25,11 @@ namespace FlowProfiles {
         const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
-            1500*1000UL,
+            800*1000UL,
             4*1000*1000UL,
-            7*1000*1000UL,
-            11*1000*1000UL,
-            13*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
@@ -53,6 +53,40 @@ namespace FlowProfiles {
     }
     float throttledFlowFuel(unsigned long flowTime) {
         return 0.9034 * throttledFlowLox(flowTime) + 12.32;
+    }
+
+    float throttledFlowRateLox(unsigned long flowTime) {
+        const int numKeypoints = 7;
+        const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
+            0UL,
+            800*1000UL,
+            4*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
+            Config::flowDuration
+        };
+        const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
+            0.0,
+            11.0,
+            11.0,
+            12.0,
+            12.0,
+            10.0,
+            10.0
+        };
+
+        for (int i = 1; i<numKeypoints; i++) {
+            if (flowTime <= keyPointTimes[i]) {
+                float p = float(flowTime - keyPointTimes[i-1])/float(keyPointTimes[i] - keyPointTimes[i-1]);
+                return p * keyPointPressures[i] + (1-p) * keyPointPressures[i-1];
+            }
+        }
+        // flow ended
+        return 0;
+    }
+    float throttledFlowRateFuel(unsigned long flowTime) {
+        return throttledFlowRateLox(flowTime);
     }
 
     /*
@@ -107,11 +141,11 @@ namespace FlowProfiles {
         const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
-            1500*1000UL,
+            800*1000UL,
             4*1000*1000UL,
-            7*1000*1000UL,
-            11*1000*1000UL,
-            13*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
@@ -150,11 +184,11 @@ namespace FlowProfiles {
         const int numKeypoints = 7;
         const unsigned long keyPointTimes[numKeypoints] = { // these should be arranged in ascending order
             0UL,
-            1500*1000UL,
+            800*1000UL,
             4*1000*1000UL,
-            7*1000*1000UL,
-            11*1000*1000UL,
-            13*1000*1000UL,
+            6*1000*1000UL,
+            10*1000*1000UL,
+            12*1000*1000UL,
             Config::flowDuration
         };
         const float keyPointPressures[numKeypoints] = { // these correspond to keypoints
@@ -188,15 +222,15 @@ namespace FlowProfiles {
     float flowPressureProfile(unsigned long flowTime) {
         #if defined(FUEL)
             #if defined(IS_INJECTOR)
-                return meopTestFlowFuel(flowTime);
-                // return throttledFlowFuel(flowTime);
+                // return meopTestFlowFuel(flowTime);
+                return throttledFlowFuel(flowTime);
             #else
                 return linearRampup(flowTime);
             #endif
         #elif defined(LOX)
             #if defined(IS_INJECTOR)
-                return meopTestFlowLox(flowTime);
-                // return throttledFlowLox(flowTime);
+                // return meopTestFlowLox(flowTime);
+                return throttledFlowLox(flowTime);
             #else
                 return linearRampup(flowTime);
             #endif
@@ -206,11 +240,11 @@ namespace FlowProfiles {
     float flowRateProfile(unsigned long flowTime) {
         #if defined(IS_INJECTOR)
             #if defined(FUEL)
-                return nominalTestFlowRateFuel(flowTime);
-                // return throttledFlowRateFuel(flowTime);
+                // return nominalTestFlowRateFuel(flowTime);
+                return throttledFlowRateFuel(flowTime);
             #elif defined(LOX)
-                return nominalTestFlowRateLox(flowTime);
-                // return throttledFlowRateLox(flowTime);
+                // return nominalTestFlowRateLox(flowTime);
+                return throttledFlowRateLox(flowTime);
             #endif
         #endif
         return 0;
