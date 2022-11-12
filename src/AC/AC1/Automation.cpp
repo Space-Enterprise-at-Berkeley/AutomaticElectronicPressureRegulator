@@ -8,7 +8,7 @@ namespace Automation {
     Task *autoventLoxTask = nullptr;
     
     bool tcAbortEnabled = false;
-    bool lcAbortEnabled = true;
+    bool lcAbortEnabled = false;
 
     bool igniterEnabled = false;
     bool breakwireEnabled = false;
@@ -50,6 +50,8 @@ namespace Automation {
 
             autoventFuelTask->enabled = false;
             autoventLoxTask->enabled = false;
+
+            tcAbortEnabled = true;
         }
     }
 
@@ -168,9 +170,7 @@ namespace Automation {
                 Actuators::extendAct6();
                 Actuators::extendAct7();
                 step++;
-                return 100 * 1e3; //TODO - just changed this from 100uS to 100mS - is there anywhere else this needs to be modified? 
-                                            //changed so we have a bigger buffer of the 2way to close mainvalves, and nothing time critical seems
-                                            //to be happening in the next code
+                return 1 * 1e6;
             default: // end
                 Actuators::retractAct4();
                 abortFlowTask->enabled = false;

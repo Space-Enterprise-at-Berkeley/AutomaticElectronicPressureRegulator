@@ -14,7 +14,7 @@ namespace Automation {
 
     const float igniterTriggerThreshold = 0.06;
     const float breakWireThreshold = 20;
-    const float twoWayCurrentThreshold = 0.1;
+    const float twoWayCurrentThreshold = 0.01; //TODO find out why this is not working
 
     const long burnTime = 18 * 1e6;
 
