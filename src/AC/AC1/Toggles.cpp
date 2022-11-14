@@ -43,7 +43,7 @@ namespace Toggles {
     }
 
     uint32_t igniterSample() {
-        sampleToggle(&ctl24vChan1Packet, &HAL::chan4, &igniterVoltage, &igniterCurrent);
+        sampleToggle(&ctl24vChan1Packet, &HAL::chan2, &igniterVoltage, &igniterCurrent);
         return toggleCheckPeriod;
     }
     uint32_t breakWireSample() {
