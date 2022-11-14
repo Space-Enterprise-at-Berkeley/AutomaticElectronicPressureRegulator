@@ -24,11 +24,11 @@ namespace Toggles {
 
     extern float igniterVoltage;
     extern float igniterCurrent;
-    const uint8_t igniterPin = HAL::ctl24vChan2;
+    const uint8_t igniterPin = HAL::ctl24vChan1;
 
     extern float breakWireVoltage;
     extern float breakWireCurrent;
-    const uint8_t breakWirePin = HAL::ctl24vChan1;
+    const uint8_t breakWirePin = HAL::ctl24vChan2;
     
     void initToggles();
 

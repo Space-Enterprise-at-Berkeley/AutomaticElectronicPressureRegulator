@@ -43,11 +43,11 @@ namespace Toggles {
     }
 
     uint32_t igniterSample() {
-        sampleToggle(&ctl24vChan1Packet, &HAL::chan3, &igniterVoltage, &igniterCurrent);
+        sampleToggle(&ctl24vChan1Packet, &HAL::chan4, &igniterVoltage, &igniterCurrent);
         return toggleCheckPeriod;
     }
     uint32_t breakWireSample() {
-        sampleToggle(&ctl24vChan2Packet, &HAL::chan4, &breakWireVoltage, &breakWireCurrent);
+        sampleToggle(&ctl24vChan2Packet, &HAL::chan3, &breakWireVoltage, &breakWireCurrent);
         return toggleCheckPeriod;
     }
 
@@ -60,10 +60,16 @@ namespace Toggles {
     }
 
     void toggleToggle(Comms::Packet packet, uint8_t pin) {
+        DEBUG(pin);
+        DEBUG(" ");
+        DEBUGLN(packet.data[0]);
+        DEBUG_FLUSH();
         digitalWrite(pin, packet.data[0]);
     }
 
     void toggleIgniter(Comms::Packet packet, uint8_t ip) {
+        DEBUGLN("toggling igniter");
+        DEBUG_FLUSH();
         toggleToggle(packet, igniterPin);
     }
 

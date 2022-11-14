@@ -24,9 +24,6 @@ namespace Comms {
     void evokeCallbackFunction(Packet *packet, uint8_t ip) {
         uint16_t checksum = *(uint16_t *)&packet->checksum;
         if (checksum == computePacketChecksum(packet)) {
-            DEBUG("Packet with ID ");
-            DEBUG(packet->id);
-            DEBUG(" has correct checksum!\n");
             //try to access function, checking for out of range exception
             if(callbackMap.count(packet->id)) {
                 callbackMap.at(packet->id)(*packet, ip);
@@ -48,9 +45,6 @@ namespace Comms {
             Udp.read(packetBuffer, sizeof(Packet));
 
             Packet *packet = (Packet *)&packetBuffer;
-            DEBUG("Got unverified packet with ID ");
-            DEBUG(packet->id);
-            DEBUG('\n');
             evokeCallbackFunction(packet, Udp.remoteIP()[3]);
         } else if(Serial.available()) {
             int cnt = 0;
@@ -59,9 +53,6 @@ namespace Comms {
                 cnt++;
             }
             Packet *packet = (Packet *)&packetBuffer;
-            DEBUG("Got unverified packet with ID ");
-            DEBUG(packet->id);
-            DEBUG('\n');
             evokeCallbackFunction(packet, Udp.remoteIP()[3]);
         }
     }

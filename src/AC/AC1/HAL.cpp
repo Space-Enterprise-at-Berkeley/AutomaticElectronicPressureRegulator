@@ -63,9 +63,9 @@ namespace HAL {
         // pinMode(hBrg7Pin2, OUTPUT);
 
         // Heater control
-        // pinMode(ctl12vChan1, OUTPUT);
-        // pinMode(ctl12vChan2, OUTPUT);
-        // pinMode(ctl24vChan1, OUTPUT);
-        // pinMode(ctl24vChan2, OUTPUT);
+        pinMode(ctl12vChan1, OUTPUT);
+        pinMode(ctl12vChan2, OUTPUT);
+        pinMode(ctl24vChan1, OUTPUT);
+        pinMode(ctl24vChan2, OUTPUT);
     }
 };
