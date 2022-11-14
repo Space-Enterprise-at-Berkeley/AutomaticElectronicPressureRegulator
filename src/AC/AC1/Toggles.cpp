@@ -43,11 +43,11 @@ namespace Toggles {
     }
 
     uint32_t igniterSample() {
-        sampleToggle(&ctl24vChan1Packet, &HAL::chan2, &igniterVoltage, &igniterCurrent);
+        sampleToggle(&ctl24vChan1Packet, &HAL::chan3, &igniterVoltage, &igniterCurrent);
         return toggleCheckPeriod;
     }
     uint32_t breakWireSample() {
-        sampleToggle(&ctl24vChan2Packet, &HAL::chan3, &breakWireVoltage, &breakWireCurrent);
+        sampleToggle(&ctl24vChan2Packet, &HAL::chan4, &breakWireVoltage, &breakWireCurrent);
         return toggleCheckPeriod;
     }
 
@@ -72,7 +72,7 @@ namespace Toggles {
     }
 
     void initToggles() {
-        Comms::registerCallback(19, toggleIgniter);
-        Comms::registerCallback(20, toggleBreakWire);
+        Comms::registerCallback(19, toggleBreakWire);
+        Comms::registerCallback(20, toggleIgniter);
     }
 };
