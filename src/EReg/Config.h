@@ -42,13 +42,13 @@ namespace Config {
     const unsigned long flowDuration = 18UL * 1000UL * 1000UL; // time in microseconds TODO change to 5s
     const unsigned long rampDuration = 500UL * 1000UL; // time in microseconds
     const unsigned long rampStart = 400; // psi
+    const unsigned long tankPidStart = 0; // time in microseconds
+    const unsigned long tankPidFull = 3 * 1000UL * 1000UL; // time in microseconds
 
     // Pressurization Parameters
     const unsigned long pressurizationRampDuration = 30 * 1000UL * 1000UL;
     const float pressurizationCutoff = pressureSetpoint * 0.99;
     const float pressurizationStartPressure = 100;
-    const unsigned long tankPidStart = 0; // time in microseconds
-    const unsigned long tankPidFull = 1 * 1000UL * 1000UL; // time in microseconds
 
     // Diagnostic configs
     const float minAngleMovement = 300;

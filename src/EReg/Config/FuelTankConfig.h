@@ -12,7 +12,7 @@ namespace Config {
     #define OUTER_BUFFER_SIZE 3
 
     // Controller Constants
-    const double p_outer_nominal = 1.8, i_outer_nominal = 0.30e-6, d_outer_nominal = 0.24; // nominal is 4000 -> 500 psi flow
+    const double p_outer_nominal = 1.8, i_outer_nominal = 0.45e-6, d_outer_nominal = 0.24; // nominal is 4000 -> 500 psi flow
     const double p_inner = 6, i_inner = 3.5e-6, d_inner = 0.10;
 
     // Flow Parameters

@@ -60,7 +60,7 @@ namespace Util {
      */
     double compute_feedforward(double pressureSetpoint, double hp, unsigned long flowTime) {
         double p = min(1, double(flowTime)/double(Config::rampDuration));
-        return p*(250 + min(1, pressureSetpoint/hp) * 79) + (1-p)*150;
+        return p*(220 + min(1, pressureSetpoint/hp) * 79) + (1-p)*150;
     }
 
     /**
