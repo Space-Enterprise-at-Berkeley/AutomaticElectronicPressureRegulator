@@ -17,7 +17,7 @@ namespace LoadCells {
     extern Task *abortLC;
     extern Task *readLC;
         
-    const float loadCellThreshold = 100.0;
+    const float loadCellThreshold = 40;
 
     const uint8_t hysteresisThreshold = 10;
 
@@ -28,5 +28,4 @@ namespace LoadCells {
     uint32_t checkForAbort();
     uint32_t checkForLCAbort();
     void sendLCAbortPackets(); 
-    void toggleLCAbort(Comms::Packet packet, uint8_t ip);
 };

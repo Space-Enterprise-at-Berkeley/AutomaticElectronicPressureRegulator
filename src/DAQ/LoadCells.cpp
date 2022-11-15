@@ -26,13 +26,13 @@ namespace LoadCells {
         loadCell1Value = HAL::lcAmp1.get_units(); // in pounds
         loadCellSum = loadCell0Value + loadCell1Value;
 
-        DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
+        // DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
 
         Comms::Packet tmp = {.id = 120};
         Comms::packetAddFloat(&tmp, loadCell0Value);
         Comms::packetAddFloat(&tmp, loadCell1Value);
         Comms::packetAddFloat(&tmp, loadCell0Value + loadCell1Value);
-        Comms::emitPacket(&tmp, LOAD_CELLS_DAQ_TO_DASHBOARD);
+        Comms::emitPacket(&tmp);
 
         lastLoadCellTime = micros();
         
@@ -40,7 +40,7 @@ namespace LoadCells {
     }
 
     uint32_t checkForLCAbort() {
-        DEBUGF("Checking for LC abort with loadcellsum %f", loadCellSum);
+        // DEBUGF("Checking for LC abort with loadcellsum %f", loadCellSum);
         if (loadCellSum < loadCellThreshold && millis() - lastLoadCellTime < 25) {
             hysteresisValue += 1;
             if (hysteresisValue >= hysteresisThreshold) {
@@ -62,10 +62,6 @@ namespace LoadCells {
         // Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);
         // Comms::emitDirectedPacket(&abortMessage, LOX_INJECTOR_EREG_ADDR);
         Comms::emitDirectedPacket(&abortMessage, AC_EREG_ADDR);
-    }
-
-    void toggleLCAbort(Comms::Packet packet, uint8_t ip) {
-        abortLC->enabled = Comms::packetGetUint8(&packet, 0);
     }
 
 };

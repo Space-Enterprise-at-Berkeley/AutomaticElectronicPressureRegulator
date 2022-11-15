@@ -10,16 +10,14 @@ namespace Automation {
     bool tcAbortEnabled = false;
     bool lcAbortEnabled = false;
 
-    bool igniterEnabled = true;
-    bool breakwireEnabled = true;
+    bool igniterEnabled = false;
+    bool breakwireEnabled = false;
 
     bool igniterTriggered = false;
     bool breakwireBroken = false;
 
     bool loxGemValveAbovePressure = false;
     bool fuelGemValveAbovePressure = false;
-
-    Comms::Packet lcAbortPacket = {.id = 100};
 
     void initAutomation(Task *flowTask, Task *abortFlowTask, Task *autoventFuelTask, Task *autoventLoxTask) {
         Automation::flowTask = flowTask;
@@ -114,8 +112,6 @@ namespace Automation {
                     return 0;
                 }
             case 4: //enable load cell abort
-                lcAbortPacket.data[0] = 1;
-                Comms::emitPacket(&lcAbortPacket);
                 lcAbortEnabled = true;
                 step++;
                 return (burnTime - 2 * 1e6) + (3 * 1e6);
@@ -148,10 +144,6 @@ namespace Automation {
             abortFlowTask->enabled = true;
             autoventFuelTask->enabled = true;
             autoventLoxTask->enabled = true;
-
-            //disable load cell abort
-            lcAbortPacket.data[0] = 0;
-            Comms::emitPacket(&lcAbortPacket);
 
             tcAbortEnabled = false;
             lcAbortEnabled = false;
