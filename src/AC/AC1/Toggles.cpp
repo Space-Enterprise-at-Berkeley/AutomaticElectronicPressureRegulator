@@ -78,7 +78,7 @@ namespace Toggles {
     }
 
     void initToggles() {
-        Comms::registerCallback(19, toggleBreakWire);
-        Comms::registerCallback(20, toggleIgniter);
+        Comms::registerCallback(19, toggleIgniter);
+        Comms::registerCallback(20, toggleBreakWire);
     }
 };
