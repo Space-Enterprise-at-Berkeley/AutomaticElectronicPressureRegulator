@@ -23,7 +23,7 @@ namespace LoadCells {
 
     uint32_t sampleLoadCells() {
         loadCell0Value = HAL::lcAmp0.get_units(); // in pounds
-        loadCell1Value = HAL::lcAmp1.get_units(); // in pounds
+        loadCell1Value = -1 * HAL::lcAmp1.get_units(); // in pounds
         loadCellSum = loadCell0Value + loadCell1Value;
 
         // DEBUGF("LC0 VALUE: %f \t LC1 VALUE: %f \n", loadCell0Value, loadCell1Value);
@@ -56,7 +56,7 @@ namespace LoadCells {
     }
 
     void sendLCAbortPackets() {
-        Comms::Packet abortMessage = {.id = FLOW_ABORT_ID, .len = 0};
+        Comms::Packet abortMessage = {.id = 31, .len = 0};
         // Comms::emitDirectedPacket(&abortMessage, FUEL_TANK_EREG_ADDR);
         // Comms::emitDirectedPacket(&abortMessage, FUEL_INJECTOR_EREG_ADDR);
         // Comms::emitDirectedPacket(&abortMessage, LOX_TANK_EREG_ADDR);

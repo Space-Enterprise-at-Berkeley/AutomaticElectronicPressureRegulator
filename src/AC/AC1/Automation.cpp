@@ -209,6 +209,7 @@ namespace Automation {
     }
 
     void checkForLCAbort(Comms::Packet packet, uint8_t ip) {
+        DEBUGLN("In LC Abort callback");
         if (lcAbortEnabled) {
             sendFlowStatus(STATE_LC_ABORT);
             beginAbortFlow();

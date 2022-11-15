@@ -11,10 +11,10 @@
 
 Task taskTable[] = {
     //Thermocouples
-    {Thermocouples::checkForAbort, 0, true},
+    {Thermocouples::checkForAbort, 0, false},
     {Thermocouples::sendTCReadingPacket, 0, true},
     //Load Cells
-    {LoadCells::checkForLCAbort, 0, true},
+    {LoadCells::checkForLCAbort, 0, false},
     {LoadCells::sampleLoadCells, 0, true}
 };
 
