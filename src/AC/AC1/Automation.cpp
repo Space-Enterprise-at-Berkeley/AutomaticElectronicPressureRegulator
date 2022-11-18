@@ -10,8 +10,8 @@ namespace Automation {
     bool tcAbortEnabled = false;
     bool lcAbortEnabled = false;
 
-    bool igniterEnabled = true;
-    bool breakwireEnabled = true;
+    bool igniterEnabled = false;
+    bool breakwireEnabled = false;
 
     bool igniterTriggered = false;
     bool breakwireBroken = false;
@@ -49,7 +49,8 @@ namespace Automation {
             autoventFuelTask->enabled = false;
             autoventLoxTask->enabled = false;
 
-            tcAbortEnabled = true;
+            // tcAbortEnabled = true;
+            // lcAbortEnabled = true;
         }
     }
 
@@ -113,9 +114,16 @@ namespace Automation {
                 }
             case 4: //enable load cell abort
                 lcAbortEnabled = true;
+                tcAbortEnabled = true;
                 step++;
-                return (burnTime - 2 * 1e6) + (3 * 1e6);
-            case 5: // end config
+                return (burnTime - 2.5 * 1e6);
+            // TODO: disable loadcell abort 1/2 second before flow ends
+            case 5:
+                lcAbortEnabled = false;
+                tcAbortEnabled = false;
+                step++;
+                return 3.5 * 1e6; // allow main valves to fully close before disarming
+            case 6: // end config
                 Actuators::retractAct4(); //two way
                 sendFlowStatus(STATE_DISABLE_ARMING_VALVE);
                 step++;
@@ -211,15 +219,16 @@ namespace Automation {
     void checkForLCAbort(Comms::Packet packet, uint8_t ip) {
         DEBUGLN("In LC Abort callback");
         if (lcAbortEnabled) {
-            sendFlowStatus(STATE_LC_ABORT);
-            beginAbortFlow();
+            // sendFlowStatus(STATE_LC_ABORT);
+            // beginAbortFlow();
         }
     }
 
     void checkForTCAbort(Comms::Packet packet, uint8_t ip) {
+        DEBUGLN("In TC Abort callback");
         if (tcAbortEnabled) {
-            sendFlowStatus(STATE_TC_ABORT);
-            beginAbortFlow();
+            // sendFlowStatus(STATE_TC_ABORT);
+            // beginAbortFlow();
         }
     }
 

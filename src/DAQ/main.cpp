@@ -3,6 +3,7 @@
 #include "Thermocouples.h"
 #include "LoadCells.h"
 #include "HAL.h"
+#include "Actuators.h"
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -47,6 +48,8 @@ void setup(){
     DEBUGLN("ethernet started fr");
     LoadCells::initLoadCells();
     Thermocouples::initThermocouples();
+    DEBUGLN("initialized TCs and loadcells");
+    Actuators::initActuators();
     DEBUGLN("done with initialization");
 }
 

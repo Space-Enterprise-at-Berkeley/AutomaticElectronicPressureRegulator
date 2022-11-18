@@ -12,7 +12,7 @@
 namespace Config {
     
     // TC Aborts
-    const float temperatureThreshold = 50; // hotfire: 200
+    const float temperatureThreshold = 20; // hotfire: 200
     const int tempBufferSize = 5;
     const unsigned long minTimePerStoredTemp = 100; // time in millis 
     const int tempNumberThreshold = 3; // abort if >= numberThreshold samples are greater than temperatureThreshold

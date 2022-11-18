@@ -42,7 +42,10 @@ namespace HAL {
         pinMode(33, OUTPUT);
         lcAmp0.begin(32, 33);
         lcAmp1.begin(26, 27);
-
         DEBUGLN("lcAmp begin");
+
+        pinMode(hBrg1Pin1, OUTPUT);
+        pinMode(hBrg1Pin2, OUTPUT);
+        DEBUGLN("actuators begin");
     }
 };

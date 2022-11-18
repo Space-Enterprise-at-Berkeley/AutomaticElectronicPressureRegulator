@@ -7,7 +7,7 @@
 #include "Config.h"
 
 namespace LoadCells {
-    const uint32_t samplePeriod = 125 * 1000;
+    const uint32_t samplePeriod = 50 * 1000;
 
     extern float loadCell0Value;
     extern float loadCell1Value;

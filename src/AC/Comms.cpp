@@ -28,9 +28,11 @@ namespace Comms {
             if(callbackMap.count(packet->id)) {
                 callbackMap.at(packet->id)(*packet, ip);
             } else {
-                DEBUG("ID ");
-                DEBUG(packet->id);
-                DEBUG(" does not have a registered callback function.\n");
+                // DEBUG("ID ");
+                // DEBUG(packet->id);
+                // DEBUG(" ");
+                // DEBUG(packet->len);
+                // DEBUG(" does not have a registered callback function.\n");
             }
         } else {
             DEBUG("Packet with ID ");
