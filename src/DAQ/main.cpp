@@ -16,7 +16,8 @@ Task taskTable[] = {
     {Thermocouples::sendTCReadingPacket, 0, true},
     //Load Cells
     {LoadCells::checkForLCAbort, 0, false},
-    {LoadCells::sampleLoadCells, 0, true}
+    {LoadCells::sampleLoadCells, 0, true},
+    {Actuators::stopAct1, 0, false}
 };
 
 #define TASK_COUNT (sizeof(taskTable) / sizeof (struct Task))
@@ -39,6 +40,7 @@ void setup(){
     // Thermocouples::readTC = &taskTable[1];
     LoadCells::abortLC = &taskTable[2];
     LoadCells::readLC = &taskTable[3];
+    Actuators::stop1 = &taskTable[4];
 
     DEBUGLN("hullo from AC2");
 

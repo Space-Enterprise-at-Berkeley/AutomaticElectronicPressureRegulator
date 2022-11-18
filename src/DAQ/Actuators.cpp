@@ -2,9 +2,6 @@
 
 namespace Actuators {
 
-    // TODO: change this to appropriate value
-    uint32_t actuatorCheckPeriod = 50 * 1000;
-
     // TODO: set correct telem packet IDs
     Comms::Packet act1Packet = {.id = 70};
     uint8_t act1State = 0;
@@ -31,8 +28,8 @@ namespace Actuators {
     }
 
     void stopAct(uint8_t pin1, uint8_t pin2, uint8_t *actState, uint8_t actuatorID){ //TODO: make it brake
-        digitalWriteFast(pin1, LOW);
-        digitalWriteFast(pin2, LOW);
+        digitalWriteFast(pin1, HIGH);
+        digitalWriteFast(pin2, HIGH);
         *actState = 0;
     }
 
@@ -49,19 +46,27 @@ namespace Actuators {
     void act1PacketHandler(Comms::Packet tmp, uint8_t ip){ actPacketHandler(tmp, &extendAct1, &retractAct1, stop1); }
 
     void actPacketHandler(Comms::Packet tmp, void (*extend)(), void (*retract)(), Task *stopTask){
-
+        
+        DEBUGF("received %d\n", tmp.data[0]);
         if(tmp.data[0]%2)(*extend)();
         else (*retract)();
 
         if(tmp.data[0]>1){
             uint32_t actuatetime = Comms::packetGetUint32(&tmp, 1);
-            if(stopTask->enabled) stopTask->nexttime += actuatetime * 1000;
-            else stopTask->nexttime = micros() + actuatetime * 1000;
+            DEBUG("received timed actuation for ");
+            DEBUGLN(actuatetime);
+            if(stopTask->enabled) {
+                stopTask->nexttime += actuatetime * 1000;
+            } else {
+                int32_t time = max((int32_t) actuatetime - 100, -1);
+                DEBUGF("%d\n", time);
+                stopTask->nexttime = micros() + (time) * 1000;
+            }
             stopTask->enabled = true;
         }
     }
 
     void initActuators() {
-        Comms::registerCallback(22, act1PacketHandler);
+        Comms::registerCallback(251, act1PacketHandler);
     }
 };

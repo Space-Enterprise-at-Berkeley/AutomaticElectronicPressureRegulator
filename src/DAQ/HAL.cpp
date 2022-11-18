@@ -46,6 +46,8 @@ namespace HAL {
 
         pinMode(hBrg1Pin1, OUTPUT);
         pinMode(hBrg1Pin2, OUTPUT);
+        digitalWrite(hBrg1Pin1, LOW);
+        digitalWrite(hBrg1Pin2, LOW);
         DEBUGLN("actuators begin");
     }
 };

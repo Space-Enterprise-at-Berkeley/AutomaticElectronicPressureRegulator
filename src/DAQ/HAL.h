@@ -31,8 +31,8 @@ namespace HAL {
     const float chanCurrMax = 4.0;
 
 
-    const uint8_t hBrg1Pin1 = 2; // TODO change these
-    const uint8_t hBrg1Pin2 = 3; 
+    const uint8_t hBrg1Pin1 = 14; // TODO change these
+    const uint8_t hBrg1Pin2 = 15; 
 
     const uint8_t ctl12vChan1 = 14;
     const uint8_t ctl12vChan2 = 15;
