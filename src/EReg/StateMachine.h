@@ -3,21 +3,22 @@
 #include <Arduino.h>
 #include <data_buff.h>
 #include <PIDController.h>
-#include <Encoder.h>
 #include "HAL.h"
 #include "Util.h"
 #include "Packets.h"
 #include "Config.h"
+#include "Ducers.h"
 
 #include "States/DiagnosticState.h"
 #include "States/IdleClosedState.h"
 #include "States/FlowState.h"
 #include "States/PartiallyOpenState.h"
 #include "States/PressurizeState.h"
+#include "States/InjectorFlowState.h"
 
 namespace StateMachine {
 
-    enum State { IDLE_CLOSED, PARTIAL_OPEN, PRESSURIZE, FLOW, DIAGNOSTIC }; // TODO implement vent
+    enum State { IDLE_CLOSED, PARTIAL_OPEN, PRESSURIZE, FLOW, DIAGNOSTIC };
     enum ValveAction { MAIN_VALVE_OPEN, MAIN_VALVE_CLOSE };
     
     void enterFlowState();

@@ -29,22 +29,22 @@ namespace StateMachine {
      * Perform single iteration of flow control loop 
      */
     void FlowState::update() {
-        float motorAngle = encoder_->read();
-        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount();
+        float UpstreamPsi = HAL::readUpstreamPT();
+        float DownstreamPsi = HAL::readDownstreamPT();
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
         float speed = 0;
 
         if (flowTime > Config::loxLead) {
-            pressureSetpoint_ = FlowProfiles::linearRampup(flowTime - Config::loxLead);
+            pressureSetpoint_ = FlowProfiles::flowPressureProfile(flowTime - Config::loxLead);
 
             //Use dynamic PID Constants
-            Util::PidConstants dynamicPidConstants = Util::computeDynamicPidConstants(HPpsi, LPpsi);
+            Util::PidConstants dynamicPidConstants = Util::computeTankDynamicPidConstants(UpstreamPsi, DownstreamPsi, flowTime);
             outerController_->updateConstants(dynamicPidConstants.k_p, dynamicPidConstants.k_i, dynamicPidConstants.k_d);
+            double feedforward = Util::compute_feedforward(pressureSetpoint_, UpstreamPsi, flowTime);
 
             //Compute Outer Pressure Control Loop
-            angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, Util::compute_feedforward(pressureSetpoint_, HPpsi));
+            angleSetpoint_ = outerController_->update(DownstreamPsi - pressureSetpoint_, feedforward);
 
             //Compute Inner PID Servo loop
             speed = innerController_->update(motorAngle - angleSetpoint_);
@@ -59,9 +59,8 @@ namespace StateMachine {
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                UpstreamPsi,
+                DownstreamPsi,
                 motorAngle,
                 angleSetpoint_,
                 pressureSetpoint_,
@@ -77,7 +76,7 @@ namespace StateMachine {
             enterIdleClosedState();
         }
 
-        checkAbortPressure(LPpsi, Config::abortPressureThresh);
+        checkAbortPressure(DownstreamPsi, Config::abortPressureThresh);
     }
 
 }

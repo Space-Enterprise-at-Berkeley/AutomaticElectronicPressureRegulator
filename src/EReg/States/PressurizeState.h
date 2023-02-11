@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <PIDController.h>
-#include <Encoder.h>
 #include "EReg/StateMachine.h"
 #include "Ereg/HAL.h"
 #include "Ereg/Util.h"
@@ -13,7 +12,6 @@ namespace StateMachine {
 
     class PressurizeState {
         private:
-        Encoder *encoder_ = Util::getEncoder();
         PIDController *innerController_ = Util::getInnerController(); 
         PIDController *outerController_ = Util::getOuterController(); 
         unsigned long timeStarted_;

@@ -1,8 +1,4 @@
 #include "Util.h"
-#include <Arduino.h>
-#include "HAL.h"
-#include "Config.h"
-#include <Encoder.h>
 
 namespace Util {
 
@@ -21,16 +17,11 @@ namespace Util {
         PIDController::standard, 
         INNER_BUFFER_SIZE);
 
-    Encoder encoder(HAL::enc1, HAL::enc2);
-
     PIDController* getInnerController() {
         return &innerController;
     }
     PIDController* getOuterController() {
         return &outerController;
-    }
-    Encoder* getEncoder() {
-        return &encoder;
     }
 
     /**
@@ -49,7 +40,7 @@ namespace Util {
      * @return PSI pressure 
      */
     double voltageToLowPressure(double voltage) {
-        return max(1, (((voltage/1024.0*5-0.5)*1000/4.0) - Config::LOW_PT_C) / Config::LOW_PT_M);
+        return 222.22 * voltage - 61.1;
     }
 
     /**                                        
@@ -58,7 +49,7 @@ namespace Util {
      * @return PSI pressure 
      */
     double voltageToHighPressure(double voltage) {
-        return max(1, (((((5000.0 * (voltage/1024.0))) * 0.814)+15) - Config::HIGH_PT_C) / Config::HIGH_PT_M); //5V corresponds to 5k psi (after voltage divider)
+        return (1111.1 * voltage) + 65; //5V corresponds to 5k psi (after voltage divider)
     }
 
     /**
@@ -67,20 +58,65 @@ namespace Util {
      * @param hp high pressure reading. this is necessary because it determines flow rate
      * @return feedforward valve angle in encoder ticks 
      */
-    double compute_feedforward(double pressureSetpoint, double hp) {
-        return 250 + min(1, pressureSetpoint/hp) * 79;
+    double compute_feedforward(double pressureSetpoint, double hp, unsigned long flowTime) {
+        double p = min(1, double(flowTime)/double(Config::rampDuration));
+        return p*(220 + min(1, pressureSetpoint/hp) * 79) + (1-p)*150;
     }
 
     /**
-     * Compute dynamic PID constants. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
+     * Computes feedforward value for injector eReg valve angle during regulated flow
+     * Based on characterized Cv data for injector eReg valves
+     * @param pressureSetpoint injector pressure setpoint in psi
+     * @param tankPressure measured pressure in tank in psi
+     * @param flowRate expected flow rate in gallons/min
+     * @return feedforward valve angle in encoder ticks 
+     */
+    double compute_injector_feedforward(double pressureSetpoint, double tankPressure, double flowRate) {
+        const float minFeedforwardAngle = Config::minInjectorFeedforwardAngle;
+        const float maxFeedforwardAngle = Config::maxInjectorFeedforwardAngle;
+        const double cvGradient = 0.004167;
+        const double cvInterceptX = 220.0;
+        double deltaP = tankPressure - pressureSetpoint;
+        if (deltaP < 0.01) { // tank pressure is too low, just open valve all the way
+            return maxFeedforwardAngle;
+        }
+        double feedforwardCv = flowRate * sqrt(PROPELLANT_GRAVITY / abs(deltaP));
+        double feedforwardAngle = (feedforwardCv/cvGradient) + cvInterceptX;
+        return clip(feedforwardAngle, minFeedforwardAngle, maxFeedforwardAngle);
+    }
+
+    /**
+     * Computes feedforward value for injector eReg valve angle during characterization
+     * Steps open and closed
+     * @param flowTime
+     * @return feedforward valve angle in encoder ticks 
+     */
+    double injector_characterization(unsigned long flowTime) {
+        // const float steps[] = {600, 500, 550, 450, 500, 400, 450, 350, 400};
+        const float steps[] = {350, 450, 400, 500, 450, 550, 500, 600, 550, 700};
+        const int numSteps = sizeof(steps)/sizeof(steps[0]);
+        unsigned long stepTime = Config::flowDuration/numSteps;
+        unsigned int index = flowTime/stepTime;
+        index = (index >= numSteps)?(numSteps-1):index;
+        return steps[index];
+    }
+
+    /**
+     * Compute dynamic PID constants for tank eReg. Since upstream and downstream pressures can change the system dynamics substantially, our PID constants must adapt to reflect this.
      * Note that this function takes calibrated values from Config.h
      * @param highPressure Current upstream pressure in PSI
      * @param lowPressure Current downstream pressure in PSI
      * @return Pid constants
      */
-    PidConstants computeDynamicPidConstants(double highPressure, double lowPressure) {
-        double dynamicFactor = 1.0;
+    PidConstants computeTankDynamicPidConstants(double highPressure, double lowPressure, unsigned long flowTime) {
+        // double dynamicFactor = 1.0;
         // double dynamicFactor = clip(((14.7 + lowPressure)/max(1.0, highPressure)), 0, 1) * (7.8); // nominal is 4000 -> 500 psi flow
+        double dynamicFactor = 0;
+        if (flowTime > Config::tankPidStart) {
+            dynamicFactor = min(1, double(flowTime - Config::tankPidStart)/double(Config::tankPidFull - Config::tankPidStart));
+        } else {
+            dynamicFactor = 0;
+        }
         PidConstants dynamicConstants = {
             .k_p = dynamicFactor * Config::p_outer_nominal,
             .k_i = dynamicFactor * Config::i_outer_nominal,
@@ -90,13 +126,46 @@ namespace Util {
     }
 
     /**
+     * Compute dynamic PID constants for injector. Ramps up PID constants over 0.5 seconds
+     * @param flowTime time in microseconds since flow started
+     * @return Pid constants
+     */
+    PidConstants computeInjectorDynamicPidConstants(unsigned long flowTime) {
+        double dynamicFactor = 0;
+        if (flowTime > Config::injectorPidStart) {
+            dynamicFactor = min(1, double(flowTime - Config::injectorPidStart)/double(Config::injectorPidFull - Config::injectorPidStart));
+        } else {
+            dynamicFactor = 0;
+        }
+        PidConstants dynamicConstants = {
+            .k_p = dynamicFactor * Config::p_outer_nominal,
+            .k_i = dynamicFactor * Config::i_outer_nominal,
+            .k_d = dynamicFactor * Config::d_outer_nominal
+            };
+        return dynamicConstants;
+    }
+
+    /**
+     * Sine function for debugging
+     * @param time timestamp in micros
+     */
+    double heartBeat(unsigned long time) {
+        // return (time/1.0e6) - int((time/1.0e6));
+        return sin(1.5*(time/1.0e6));
+    }
+
+    /**
      * Non-blocking function to run motors at specified speed. Note that motors will keep running at specified speed until this function is called again.
      * TODO: Implement better control (see DRV8871 documentation) that uses braking function (instead of coasting motors)
      * @param speed Desired speed
      */
     void runMotors(float speed) {
-        analogWrite(HAL::motor1,-min(0,speed));
-        analogWrite(HAL::motor2,max(0,speed));
+        ledcWrite(HAL::motor1Channel,-min(0,speed));
+        ledcWrite(HAL::motor2Channel,max(0,speed));
+        #if defined(IS_INJECTOR)
+        ledcWrite(HAL::motor3Channel,-min(0,speed));
+        ledcWrite(HAL::motor4Channel,max(0,speed));
+        #endif
     }
 
     /**

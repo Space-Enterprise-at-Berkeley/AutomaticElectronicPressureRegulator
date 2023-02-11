@@ -25,8 +25,8 @@ namespace Automation {
         Automation::autoventFuelTask = autoventFuelTask;
         Automation::autoventLoxTask = autoventLoxTask;
 
-        Comms::registerCallback(2, beginFlow);
-        Comms::registerCallback(3, beginManualAbortFlow);
+        Comms::registerCallback(9, beginFlow);
+        Comms::registerCallback(201, beginManualAbortFlow);
         
         Comms::registerCallback(30, checkForTCAbort);
         Comms::registerCallback(31, checkForLCAbort);
@@ -48,6 +48,9 @@ namespace Automation {
 
             autoventFuelTask->enabled = false;
             autoventLoxTask->enabled = false;
+
+            // tcAbortEnabled = true;
+            // lcAbortEnabled = true;
         }
     }
 
@@ -103,13 +106,24 @@ namespace Automation {
                     sendFlowStatus(STATE_START_FLOW);
                     step++;
                     //TODO get from config packet
-                    return burnTime + (3 * 1e6); //delay over burn time to close main valves
+                    return 2 * 1e6; //delay over burn time to close main valves
                 } else {
                     sendFlowStatus(STATE_ARMING_VALVE_FAIL_CURRENT);
                     beginAbortFlow();
                     return 0;
                 }
-            case 4: // end config
+            case 4: //enable load cell abort
+                lcAbortEnabled = true;
+                tcAbortEnabled = true;
+                step++;
+                return (burnTime - 2.5 * 1e6);
+            // TODO: disable loadcell abort 1/2 second before flow ends
+            case 5:
+                lcAbortEnabled = false;
+                tcAbortEnabled = false;
+                step++;
+                return 3.5 * 1e6; // allow main valves to fully close before disarming
+            case 6: // end config
                 Actuators::retractAct4(); //two way
                 sendFlowStatus(STATE_DISABLE_ARMING_VALVE);
                 step++;
@@ -156,9 +170,7 @@ namespace Automation {
                 Actuators::extendAct6();
                 Actuators::extendAct7();
                 step++;
-                return 100 * 1e3; //TODO - just changed this from 100uS to 100mS - is there anywhere else this needs to be modified? 
-                                            //changed so we have a bigger buffer of the 2way to close mainvalves, and nothing time critical seems
-                                            //to be happening in the next code
+                return 1 * 1e6;
             default: // end
                 Actuators::retractAct4();
                 abortFlowTask->enabled = false;
@@ -205,16 +217,18 @@ namespace Automation {
     }
 
     void checkForLCAbort(Comms::Packet packet, uint8_t ip) {
+        DEBUGLN("In LC Abort callback");
         if (lcAbortEnabled) {
-            sendFlowStatus(STATE_LC_ABORT);
-            beginAbortFlow();
+            // sendFlowStatus(STATE_LC_ABORT);
+            // beginAbortFlow();
         }
     }
 
     void checkForTCAbort(Comms::Packet packet, uint8_t ip) {
+        DEBUGLN("In TC Abort callback");
         if (tcAbortEnabled) {
-            sendFlowStatus(STATE_TC_ABORT);
-            beginAbortFlow();
+            // sendFlowStatus(STATE_TC_ABORT);
+            // beginAbortFlow();
         }
     }
 

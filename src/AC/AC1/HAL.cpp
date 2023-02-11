@@ -47,20 +47,20 @@ namespace HAL {
         initChannel(&chan10, &Wire, 0x4A);
 
         // Actuator control
-        pinMode(hBrg1Pin1, OUTPUT);
-        pinMode(hBrg1Pin2, OUTPUT);
-        pinMode(hBrg2Pin1, OUTPUT);
-        pinMode(hBrg2Pin2, OUTPUT);
-        pinMode(hBrg3Pin1, OUTPUT);
-        pinMode(hBrg3Pin2, OUTPUT);
-        pinMode(hBrg4Pin1, OUTPUT);
-        pinMode(hBrg4Pin2, OUTPUT);
-        pinMode(hBrg5Pin1, OUTPUT);
-        pinMode(hBrg5Pin2, OUTPUT);
-        pinMode(hBrg6Pin1, OUTPUT);
-        pinMode(hBrg6Pin2, OUTPUT);
-        pinMode(hBrg7Pin1, OUTPUT);
-        pinMode(hBrg7Pin2, OUTPUT);
+        // pinMode(hBrg1Pin1, OUTPUT);
+        // pinMode(hBrg1Pin2, OUTPUT);
+        // pinMode(hBrg2Pin1, OUTPUT);
+        // pinMode(hBrg2Pin2, OUTPUT);
+        // pinMode(hBrg3Pin1, OUTPUT);
+        // pinMode(hBrg3Pin2, OUTPUT);
+        // pinMode(hBrg4Pin1, OUTPUT);
+        // pinMode(hBrg4Pin2, OUTPUT);
+        // pinMode(hBrg5Pin1, OUTPUT);
+        // pinMode(hBrg5Pin2, OUTPUT);
+        // pinMode(hBrg6Pin1, OUTPUT);
+        // pinMode(hBrg6Pin2, OUTPUT);
+        // pinMode(hBrg7Pin1, OUTPUT);
+        // pinMode(hBrg7Pin2, OUTPUT);
 
         // Heater control
         pinMode(ctl12vChan1, OUTPUT);

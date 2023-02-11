@@ -2,26 +2,26 @@
 #include <Arduino.h>
 
 Buffer::Buffer(int buf_size){
-    buf = (float *)malloc(sizeof(float) * buf_size);
+    buf = (double *)malloc(sizeof(double) * buf_size);
     t_buf = (double *)malloc(sizeof(double) * buf_size);
     n = buf_size;
     clear();
 }
 
-void Buffer::insert(double t, float y) {
+void Buffer::insert(double t, double y) {
     // inserts new data point at position pointed by index
     // and recalculates slope
 
     // recalculate slope
     t_avg += (t - t_buf[curr_i])/double(n);
-    y_avg += (y - buf[curr_i])/float(n);
-    // t_t += (t*t - t_buf[curr_i]*t_buf[curr_i]);
-    // t_y += (t*y - t_buf[curr_i]*buf[curr_i]);
+    y_avg += (y - buf[curr_i])/double(n);
     
+    // update buffers
+    buf[curr_i] = y;
+    t_buf[curr_i] = t;
 
-    // t_avg = 0; y_avg = 0; t_t = 0; t_y = 0;
-    float num = 0;
-    float denom = 0;
+    double num = 0;
+    double denom = 0;
     for (int i = 0; i<n; i++) {
         num += (t_buf[i]-t_avg) * (buf[i]-y_avg);
         denom += (t_buf[i]-t_avg) * (t_buf[i]-t_avg);
@@ -33,10 +33,6 @@ void Buffer::insert(double t, float y) {
     }
     // slope = (t_y - n*t_avg*y_avg)/(t_t - n*t_avg*t_avg);
     slope = num/denom;
-
-    // update buffers
-    buf[curr_i] = y;
-    t_buf[curr_i] = t;
 
     // increment indices
     curr_i++;
@@ -51,20 +47,20 @@ void Buffer::clear() {
     is_full = false;
     t_avg = 0;
     y_avg = 0;
-    t_t = 0;
-    t_y = 0;
+    // t_t = 0;
+    // t_y = 0;
     for (int i = 0; i<n; i++) {
         buf[i] = 0;
         t_buf[i] = 0;
     }
 }
 
-float Buffer::getSlope() {
+double Buffer::getSlope() {
     // returns 0 if buffer hasn't been filled
     return is_full ? slope : 0;
 }
 
-float Buffer::getAverage() {
+double Buffer::getAverage() {
     if (!is_full && curr_i == 0) { // buffer is completely empty
         return 0;
     }

@@ -22,10 +22,10 @@ namespace StateMachine {
     }
 
     void PressurizeState::update() {
-        float motorAngle = encoder_->read();
-        float HPpsi = Util::voltageToHighPressure(analogRead(HAL::hpPT));
-        float LPpsi = Util::voltageToLowPressure(analogRead(HAL::lpPT));
-        float InjectorPT = Util::voltageToLowPressure(analogRead(HAL::injectorPT));
+        float motorAngle = HAL::encoder.getCount()
+;
+        float upstreamPsi = HAL::readUpstreamPT();
+        float downstreamPsi = HAL::readDownstreamPT();
         unsigned long flowTime = TimeUtil::timeInterval(timeStarted_, micros());
         pressureSetpoint_ = FlowProfiles::pressurizationRamp(flowTime);
 
@@ -35,16 +35,15 @@ namespace StateMachine {
         speed = innerController_->update(motorAngle - angleSetpoint_);
 
         //Compute Outer Pressure Control Loop
-        angleSetpoint_ = outerController_->update(LPpsi - pressureSetpoint_, 150);
+        angleSetpoint_ = outerController_->update(downstreamPsi - pressureSetpoint_, 150);
         
         Util::runMotors(speed);
 
         //send data to AC
         if (TimeUtil::timeInterval(lastPrint_, micros()) > Config::telemetryInterval) {
             Packets::sendTelemetry(
-                HPpsi,
-                LPpsi,
-                InjectorPT,
+                upstreamPsi,
+                downstreamPsi,
                 motorAngle,
                 angleSetpoint_,
                 pressureSetpoint_,
@@ -56,7 +55,7 @@ namespace StateMachine {
             lastPrint_ = micros();
         }
 
-        if (LPpsi > Config::pressurizationCutoff) {
+        if (downstreamPsi > Config::pressurizationCutoff) {
             enterIdleClosedState();
         }
     }

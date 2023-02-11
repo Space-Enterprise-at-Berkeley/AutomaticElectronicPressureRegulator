@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <data_buff.h>
 #include <PIDController.h>
-#include <Encoder.h>
 #include <TimeUtil.h>
 #include "EReg/StateMachine.h"
 #include "Ereg/HAL.h"
@@ -17,7 +16,6 @@ namespace StateMachine {
     
     class FlowState {
         private:
-        Encoder *encoder_ = Util::getEncoder();
         PIDController *innerController_ = Util::getInnerController();
         PIDController *outerController_ = Util::getOuterController();
         unsigned long timeStarted_;

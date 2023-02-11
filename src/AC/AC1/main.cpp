@@ -1,7 +1,7 @@
 #include <Common.h>
 #include "../Comms.h"
 #include "Actuators.h"
-#include "Ereg.h"
+// #include "Ereg.h"
 #include "HAL.h"
 #include "Toggles.h"
 #include "Automation.h"
@@ -35,10 +35,6 @@ Task taskTable[] = {
     {Automation::autoventFuelGemValveTask, 0},
     {Automation::autoventLoxGemValveTask, 0},
     {Automation::checkIgniter, 0},
-
-    // ereg
-    {EReg::sampleFuelEregTelemetry, 0},
-    {EReg::sampleLoxEregTelemetry, 0},
 
     // toggles
     {Toggles::igniterSample, 0},

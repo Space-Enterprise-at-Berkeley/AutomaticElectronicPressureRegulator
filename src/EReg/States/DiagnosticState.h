@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <data_buff.h>
 #include <PIDController.h>
-#include <Encoder.h>
 #include <TimeUtil.h>
 #include "EReg/StateMachine.h"
 #include "EReg/Packets.h"
@@ -15,12 +14,11 @@ namespace StateMachine {
 
     class DiagnosticState {
         private:
-        Encoder *encoder_ = Util::getEncoder();
         PIDController *innerController_ = Util::getInnerController();
         Buffer *highPressureAbortBuffer_;
         Buffer *lowPressureAbortBuffer_;
 
-        const float testSpeed_ = 50;
+        const float testSpeed_ = Config::diagnosticSpeed;
         const unsigned long servoInterval_ = Config::servoSettleTime * 4;
         const unsigned long totalTime_ = (unsigned long)Config::servoTestPoints * servoInterval_;
 

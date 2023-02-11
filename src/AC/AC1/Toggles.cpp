@@ -60,10 +60,16 @@ namespace Toggles {
     }
 
     void toggleToggle(Comms::Packet packet, uint8_t pin) {
+        DEBUG(pin);
+        DEBUG(" ");
+        DEBUGLN(packet.data[0]);
+        DEBUG_FLUSH();
         digitalWrite(pin, packet.data[0]);
     }
 
     void toggleIgniter(Comms::Packet packet, uint8_t ip) {
+        DEBUGLN("toggling igniter");
+        DEBUG_FLUSH();
         toggleToggle(packet, igniterPin);
     }
 
