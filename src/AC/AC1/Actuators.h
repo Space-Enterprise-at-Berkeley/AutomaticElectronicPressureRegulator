@@ -126,4 +126,11 @@ namespace Actuators {
     uint32_t act5Sample();
     uint32_t act6Sample();
     uint32_t act7Sample();
+
+
+    void openValve(uint8_t valvePin);
+    void closeValve(uint8_t pin);
+    void activateIgniter();
+    void deactivateIgniter(uint8_t OCShutoff = 0);
+    void igniterPacketHandler(Comms::Packet tmp, uint8_t ip);
 };

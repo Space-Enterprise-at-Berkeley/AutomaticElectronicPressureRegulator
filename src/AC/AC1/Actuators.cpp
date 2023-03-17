@@ -235,4 +235,38 @@ namespace Actuators {
         Comms::registerCallback(15, act6PacketHandler);
         Comms::registerCallback(16, act7PacketHandler);
     }
+
+
+
+    void openValve(uint8_t valvePin) {
+        digitalWriteFast(valvePin, HIGH); // turn on the physical pin
+        // valveStates |= (0x01 << valve->valveID); // set bit <valveID> to 1
+
+
+        // Comms::Packet tmp = {.id = valve->statePacketID}; // valve packets have an offset of 40 (check the E-1 Design spreadsheet)
+        // Comms::packetAddUint8(&tmp, 1); // a value of 1 indicates the valve was turned on
+        // Comms::emitPacket(&tmp);
+        
+        // sendStatusPacket();
+        DEBUG("Opened valve");
+    }
+
+    // common function for closing a valve
+    void closeValve(uint8_t valvePin) { //optional argument overcurrentShutoff
+        digitalWriteFast(valvePin, LOW); // turn off the physical pin
+        // valveStates &= ~(0x01 << valve->valveID); // set bit <valveID> to 1
+
+        // Comms::Packet tmp = {.id = valve->statePacketID}; // valve packets have an offset of 40 (check the E-1 Design spreadsheet)
+        // Comms::packetAddUint8(&tmp, OCShutoff << 1); // a value of 0 indicates the valve was turned off, 2 indicates overcurrent shutoff
+        // Comms::emitPacket(&tmp);
+        
+        // sendStatusPacket();
+        DEBUG("Closed valve");
+    }
+
+
+    void activateIgniter() { openValve(HAL::ctl12vChan1); }
+    void deactivateIgniter(uint8_t OCShutoff = 0) { closeValve(HAL::ctl12vChan1); }
+    void igniterPacketHandler(Comms::Packet tmp, uint8_t ip) { return tmp.data[0] ? activateIgniter() : deactivateIgniter(); }
+
 };

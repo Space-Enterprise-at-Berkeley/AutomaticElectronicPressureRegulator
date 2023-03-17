@@ -12,6 +12,10 @@
 #include <SPI.h>
 
 Task taskTable[] = {
+
+    // {Actuators::activateIgniter, 0},
+    {Actuators::deactivateIgniter, 0},
+
     // actuators
     {Actuators::act1Sample, 0},
     {Actuators::act2Sample, 0},
